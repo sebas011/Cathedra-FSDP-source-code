@@ -1,0 +1,47 @@
+name: FSDP checks
+on: [push, pull_request]
+jobs:
+  local-release-checks:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14.7'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '26.8.1'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: python -m pip install -r backend/requirements.txt -r desktop/requirements-build.txt -c backend/constraints-win-py314.txt
+      - run: python -m pip install -r tools/requirements-quality.txt
+      - run: python -m coverage run --branch --source=app -m pytest tests -q --basetemp ../.test-tmp
+        working-directory: backend
+        env:
+          CATHEDRA_DATA_DIR: '${{ runner.temp }}/cathedra-fsdp-test-data'
+      - run: python -m coverage report --fail-under=87
+        working-directory: backend
+      - run: python -m ruff check backend/app backend/tests desktop/run_cathedra.py desktop/office_update.py desktop/maintenance_checks.py
+      - run: npm ci
+        working-directory: frontend
+      - name: Check locked frontend advisories
+        run: npm audit --audit-level=moderate
+        working-directory: frontend
+      - name: Check constrained Python advisories
+        run: python tools/audit_python_dependencies.py backend/constraints-win-py314.txt python-advisories.json
+      - run: npm run test:typecheck
+        working-directory: frontend
+      - run: npm test
+        working-directory: frontend
+      - run: npm run build
+        working-directory: frontend
+      - name: Package and verify the Windows application
+        shell: pwsh
+        run: ./desktop/build-split-release.ps1 -Python (Get-Command python).Source -Node (Get-Command node).Source
+      - name: Verify with built-in Windows PowerShell and no developer runtimes on PATH
+        shell: powershell
+        run: ./tools/office-smoke.ps1 -Package './desktop/release/Cathedra FSDP'
+
+      - name: Verify with PowerShell 7 and no developer runtimes on PATH
+        shell: pwsh
+        run: ./tools/office-smoke.ps1 -Package './desktop/release/Cathedra FSDP'

@@ -1,0 +1,17 @@
+[tool.ruff]
+line-length = 100
+target-version = "py314"
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I", "B"]
+
+[tool.ruff.lint.flake8-bugbear]
+extend-immutable-calls = ["fastapi.Depends", "fastapi.Header", "fastapi.Query"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app", "convert_fsdp_database", "create_install_seed"]
+
+[tool.coverage.report]
+fail_under = 87
+show_missing = true
+precision = 2

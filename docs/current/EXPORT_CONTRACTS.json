@@ -1,0 +1,132 @@
+{
+  "directory": {
+    "path": "/api/v1/maintenance/exports/fsdp.csv",
+    "sections": {
+      "records": [
+        "Scholar ID",
+        "Name",
+        "Age",
+        "Education Background",
+        "Missing Requirements",
+        "Department",
+        "Rank / position",
+        "Personnel Type",
+        "Current Scholar Status",
+        "Tenure (years)",
+        "Created At",
+        "Updated At",
+        "Profile Remarks",
+        "Program",
+        "Delivering HEI",
+        "Start Term",
+        "Start Academic Year",
+        "End Term",
+        "End Academic Year",
+        "Contract Completion Date",
+        "Grant Type",
+        "Grant Other",
+        "Recorded Grant Status",
+        "Extension",
+        "Remarks",
+        "Graduation Date",
+        "Case Status"
+      ]
+    }
+  },
+  "education": {
+    "path": "/api/v1/maintenance/exports/education.csv",
+    "sections": {
+      "records": [
+        "Scholar ID",
+        "Name",
+        "Education ID",
+        "Level",
+        "Degree",
+        "Institution",
+        "Graduation Year"
+      ]
+    }
+  },
+  "payback": {
+    "path": "/api/v1/fsdp/payback.csv",
+    "sections": {
+      "records": [
+        "Scholar",
+        "Scholar ID",
+        "Department",
+        "Program",
+        "Grant ID",
+        "Academic year",
+        "Recorded status",
+        "Contract completed",
+        "Grace ends",
+        "Follow-up"
+      ]
+    }
+  },
+  "report": {
+    "path": "/api/v1/fsdp/report.csv",
+    "sections": {
+      "department_totals": [
+        "Department",
+        "Scholars",
+        "On-going",
+        "Completed",
+        "Payback",
+        "Withdrawn",
+        "Did Not Avail",
+        "Transferred",
+        "Payback pending contract",
+        "Requirements follow-up (scholars)"
+      ],
+      "actions": [
+        "Needs action",
+        "Scholar",
+        "Department",
+        "Detail",
+        "Follow-up"
+      ],
+      "records": [
+        "Name",
+        "Rank / position",
+        "Department",
+        "Age",
+        "Tenure (years)",
+        "Education background",
+        "Current scholar status",
+        "Profile Remarks",
+        "Program applied",
+        "Delivering HEI",
+        "Type of grant",
+        "Start Term",
+        "Start Academic Year",
+        "End Term",
+        "End Academic Year",
+        "Contract Completion Date",
+        "Extension",
+        "Remarks",
+        "Recorded grant status",
+        "Graduation Date",
+        "Case Status"
+      ]
+    }
+  },
+  "office_logs": {
+    "path": "/api/v1/office-logs/export.csv",
+    "sections": {
+      "records": [
+        "ID",
+        "Occurred On",
+        "Created At",
+        "Entry Type",
+        "Scholar ID",
+        "Scholar",
+        "Note",
+        "Document",
+        "From Department",
+        "To Department",
+        "Recorded By"
+      ]
+    }
+  }
+}

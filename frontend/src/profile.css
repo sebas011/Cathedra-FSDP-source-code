@@ -1,0 +1,52 @@
+.fsdp-person-profile { gap: 28px; }
+.grant-history-disclosure > summary { display: flex; align-items: center; gap: 16px; min-height: 44px; cursor: pointer; }
+.grant-history-disclosure > summary::before { content: '›'; color: var(--brand); font-size: 24px; }
+.grant-history-disclosure[open] > summary::before { transform: rotate(90deg); }
+.grant-history-disclosure > summary h2 { flex: 1; }
+.grant-history-disclosure > summary:focus-visible { outline: 3px solid var(--brand); outline-offset: 4px; }
+.grant-history-disclosure[open] > .profile-grant-history { margin-top: 24px; }
+.fsdp-person-profile .profile-identity { padding: 32px; border-top: 5px solid var(--brand); background: linear-gradient(120deg,var(--brand-soft),var(--surface) 65%); box-shadow: none; }
+.fsdp-person-profile .profile-avatar { width: 88px; height: 88px; border-radius: 24px; font-size: 28px; border: 1px solid var(--border); }
+.fsdp-person-profile .profile-identity h1 { margin: 10px 0; }
+.fsdp-person-profile .profile-tags { gap: 8px; flex-wrap: wrap; }
+.profile-current-status { font-weight: 650; color: var(--brand); }
+.program-history { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); overflow: hidden; }
+.program-history > summary, .annual-grant > summary { cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 20px; list-style: none; }
+.program-history > summary::before, .annual-grant > summary::before { content: '›'; color: var(--brand); font-size: 24px; }
+.program-history[open] > summary::before, .annual-grant[open] > summary::before { transform: rotate(90deg); }
+.program-history summary > span:first-of-type { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.program-history summary:focus-visible { outline: 3px solid var(--brand); outline-offset: -3px; }
+.program-history-meta { display: block; color: var(--muted); margin-top: 6px; font-size: 13px; }
+.program-history-records { display: grid; gap: 16px; padding: 0 20px 20px; }
+.annual-grant > summary { padding: 0; }
+.fsdp-person-profile .profile-notes-panel { grid-column: 1 / -1; }
+@media(max-width:640px) { .program-history > summary { padding: 16px; flex-wrap: wrap; } .program-history-records { padding: 0 12px 12px; } }
+.fsdp-person-profile .profile-section-nav { border-bottom: 1px solid var(--border); padding-bottom: 14px; gap: 10px; flex-wrap: wrap; }
+.fsdp-person-profile .profile-section-nav a { border-radius: 8px; padding: 10px 14px; background: var(--surface); }
+.fsdp-person-profile .profile-layout { grid-template-columns: minmax(240px,300px) minmax(0,1fr); gap: 28px; }
+.fsdp-person-profile .profile-sidebar, .fsdp-person-profile .profile-main { gap: 28px; }
+.fsdp-person-profile .profile-panel { padding: 28px; box-shadow: none; border-radius: 14px; }
+.fsdp-person-profile .profile-panel h2 { font-size: 18px; }
+.fsdp-person-profile .profile-section-title { align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 22px; }
+.fsdp-person-profile .profile-notes-panel { border-top: 3px solid var(--brand); }
+.profile-note-text, .fsdp-person-profile .profile-remarks p { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.8; margin: 0; }
+.fsdp-person-profile .profile-grant-history { gap: 20px; }
+.fsdp-person-profile .profile-grant { padding: 24px; border-left-width: 4px; background: var(--canvas); border-radius: 12px; }
+.fsdp-person-profile .profile-grant-facts { gap: 22px 32px; padding-top: 20px; border-top: 1px solid var(--border); }
+.fsdp-person-profile .profile-remarks { padding: 16px 18px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-top: 24px; }
+.fsdp-person-profile .profile-remarks strong { display: block; font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+@media(max-width:1000px) {
+  .fsdp-person-profile .profile-layout { grid-template-columns: minmax(0,1fr); }
+  .fsdp-person-profile .profile-sidebar { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+@media(max-width:640px) {
+  .fsdp-person-profile .profile-identity, .fsdp-person-profile .profile-panel { padding: 20px; }
+  .fsdp-person-profile .profile-avatar { width: 64px; height: 64px; border-radius: 18px; font-size: 22px; }
+  .fsdp-person-profile .profile-sidebar { grid-template-columns: minmax(0,1fr); }
+  .fsdp-person-profile .profile-grant { padding: 18px; }
+}
+@media print {
+  .fsdp-person-profile .profile-layout { display: block; }
+  .fsdp-person-profile .profile-panel { margin-bottom: 20px; }
+  .profile-note-text { break-inside: auto; }
+}

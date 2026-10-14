@@ -1,0 +1,9 @@
+# Profile and dashboard update — 0.5.6
+
+Audit before edits: Scholar has one previous_degree string and a text tenure field; grants share a unique named Program catalog, grant dates are optional, and reports/verification/legacy grant review are separate routes. No AGENTS.md was found. Applied senior-architect and senior-backend skills.
+
+Implement education child records with ownership-safe replacement and history; tenure_years numeric with conservative old-text parsing and unparseable notes. Keep old degree/tenure fields only as backward-compatible inputs; modern UI/export use education and years. Provide administrator program catalog duplication and grant duplication with independent grant IDs. Canonical terms are 1st/2nd/3rd; migration maps known terms and retains unclear period text in grant remarks without guessing. Hide grant date inputs while preserving optional stored dates.
+
+Remove frontend GrantReviewPage and VerificationPage/CSS, backend grant_review/verification handlers and grant_review_schemas, the old database converter and exclusively legacy review tests. Drop obsolete legacy grant columns and fsdp_records/fsdp_legacy_fields in migration 6. Historical migration references and protected rollback backups remain. Move report content into a DashboardReports component; remove standalone report routes/menu and embed on dashboard. Add latest-ten scholars ordered by created_at descending, id descending, respecting analytics scope.
+
+Candidate shared edits: models/schemas/migrations/main/product/reporting/activity/API/export; App, shell, section tabs/context, guide, forms/profiles/grant entry/types/API/dashboard and affected tests. Validate migration on a private clone, preserve original live bytes until guarded installation, run regression/static/type/build/package tests. No calendar changes or Office distribution updates.
