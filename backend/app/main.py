@@ -17,9 +17,10 @@ from app.api.fsdp import router as fsdp_router
 from app.api.maintenance import router as maintenance_router
 from app.api.office_logs import router as office_logs_router
 from app.auth import require_signed_in
+from app.backups import daily_backup
 from app.db import DB_PATH, engine
 from app.db import SessionLocal as SessionLocal
-from app.diagnostics import configure_diagnostics
+from app.diagnostics import PrivateErrorMiddleware, configure_diagnostics, unexpected_error_response
 from app.login_limits import LoginLimiter
 from app.models import LocalUser
 from app.product import PRODUCT, PRODUCT_NAME
@@ -36,6 +37,12 @@ def initialize_database() -> None:
     configure_diagnostics(DB_PATH.parent)
     recover_interrupted_restore(DB_PATH, DB_PATH.parent / "backups")
     upgrade_database(engine, DB_PATH)
+    try:
+        daily_backup(DB_PATH)
+    except Exception as caught:
+        from app.diagnostics import log_private_exception
+
+        log_private_exception(caught)
 
 
 @asynccontextmanager
@@ -49,7 +56,10 @@ async def lifespan(application: FastAPI):
     try:
         initialize_database()
         with SessionLocal() as database:
-            if not database.scalar(select(func.count()).select_from(LocalUser)):
+            application.state.setup_required = not database.scalar(
+                select(func.count()).select_from(LocalUser)
+            )
+            if application.state.setup_required:
                 print(
                     f"Cathedra first-time setup code: {application.state.bootstrap_token}",
                     flush=True,
@@ -60,6 +70,7 @@ async def lifespan(application: FastAPI):
 
 
 app = FastAPI(title=f"{PRODUCT_NAME} API", version=release_version(), lifespan=lifespan)
+app.add_exception_handler(Exception, unexpected_error_response)
 
 app.add_middleware(
     CORSMiddleware,
@@ -74,6 +85,7 @@ app.add_middleware(RestoreGateMiddleware)
 app.add_middleware(SlowRequestMiddleware)
 app.add_middleware(SecurityHeadersMiddleware)
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=["127.0.0.1", "localhost", "testserver"])
+app.add_middleware(PrivateErrorMiddleware)
 
 
 @app.get("/api/v1/health")

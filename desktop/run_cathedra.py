@@ -45,7 +45,9 @@ def prepare_data_directory(data_directory: Path) -> None:
     if active_database.exists():
         return
     if any(item.name != ".cathedra.lock" for item in data_directory.iterdir()):
-        raise RuntimeError("The existing data folder has no active database. Restore its database before opening Cathedra; a new seed will not replace missing Office data.")
+        raise RuntimeError(
+            "The existing data folder has no active database. Restore its database before opening Cathedra; a new seed will not replace missing Office data."
+        )
     bundled_database = resource_path("backend", "cathedra-seed.db")
     if not bundled_database.exists():
         raise RuntimeError("The bundled Cathedra database could not be found.")
@@ -129,6 +131,20 @@ def show_error(message: str) -> None:
         print(message, file=sys.stderr)
 
 
+def show_setup_code(code: str) -> None:
+    message = (
+        "First-time Cathedra setup\n\n"
+        f"Private setup code:\n{code}\n\n"
+        "Press Ctrl+C to copy this dialog, or write down the code. "
+        "Close this dialog and enter the code on the setup page. "
+        "If you lose it before setup, close and reopen Cathedra for a new code."
+    )
+    if os.name == "nt":
+        ctypes.windll.user32.MessageBoxW(None, message, APP_NAME, 0x40)
+    else:
+        print(message)
+
+
 def write_startup_error(message: str) -> None:
     data_directory = Path(os.environ.get("CATHEDRA_DATA_DIR", writable_data_directory(None)))
     try:
@@ -174,11 +190,16 @@ def windows_browser_state(known_pids: set[int]) -> tuple[set[int], bool]:
 
     class ProcessEntry(ctypes.Structure):
         _fields_ = [
-            ("dwSize", wintypes.DWORD), ("cntUsage", wintypes.DWORD),
-            ("th32ProcessID", wintypes.DWORD), ("th32DefaultHeapID", ctypes.c_size_t),
-            ("th32ModuleID", wintypes.DWORD), ("cntThreads", wintypes.DWORD),
-            ("th32ParentProcessID", wintypes.DWORD), ("pcPriClassBase", wintypes.LONG),
-            ("dwFlags", wintypes.DWORD), ("szExeFile", wintypes.WCHAR * 260),
+            ("dwSize", wintypes.DWORD),
+            ("cntUsage", wintypes.DWORD),
+            ("th32ProcessID", wintypes.DWORD),
+            ("th32DefaultHeapID", ctypes.c_size_t),
+            ("th32ModuleID", wintypes.DWORD),
+            ("cntThreads", wintypes.DWORD),
+            ("th32ParentProcessID", wintypes.DWORD),
+            ("pcPriClassBase", wintypes.LONG),
+            ("dwFlags", wintypes.DWORD),
+            ("szExeFile", wintypes.WCHAR * 260),
         ]
 
     kernel = ctypes.WinDLL("kernel32", use_last_error=True)
@@ -281,8 +302,12 @@ def parse_arguments() -> argparse.Namespace:
         help="Start the local service without opening a window.",
     )
     parser.add_argument("--benchmark", help="New synthetic benchmark output directory.")
-    parser.add_argument("--update-target", help="Closed Office installation to update using this package.")
-    parser.add_argument("--verify-package", help="Verify a runtime package without opening any database.")
+    parser.add_argument(
+        "--update-target", help="Closed Office installation to update using this package."
+    )
+    parser.add_argument(
+        "--verify-package", help="Verify a runtime package without opening any database."
+    )
     parser.add_argument("--rollback-update", action="store_true")
     parser.add_argument("--maintenance-result", help="Private update result file.")
     return parser.parse_args()
@@ -295,19 +320,30 @@ def main() -> None:
 
         try:
             manifest, _ = checked_package(Path(arguments.verify_package), "Selected package")
-            result = {"verified": True, "version": manifest["version"],
-                      "runtime_files": len(manifest["runtime_files"]),
-                      "database_accessed": False}
+            result = {
+                "verified": True,
+                "version": manifest["version"],
+                "runtime_files": len(manifest["runtime_files"]),
+                "database_accessed": False,
+            }
         except Exception as caught:
-            result = {"status": "failed", "error_type": type(caught).__name__,
-                      "detail": str(caught), "phase": getattr(caught, "phase", "Package verification"),
-                      "package_root": getattr(caught, "package_root", arguments.verify_package),
-                      "database_accessed": False}
+            result = {
+                "status": "failed",
+                "error_type": type(caught).__name__,
+                "detail": str(caught),
+                "phase": getattr(caught, "phase", "Package verification"),
+                "package_root": getattr(caught, "package_root", arguments.verify_package),
+                "database_accessed": False,
+            }
             if arguments.maintenance_result:
-                Path(arguments.maintenance_result).write_text(json.dumps(result, indent=2), encoding="utf-8")
+                Path(arguments.maintenance_result).write_text(
+                    json.dumps(result, indent=2), encoding="utf-8"
+                )
             raise SystemExit(1) from None
         if arguments.maintenance_result:
-            Path(arguments.maintenance_result).write_text(json.dumps(result, indent=2), encoding="utf-8")
+            Path(arguments.maintenance_result).write_text(
+                json.dumps(result, indent=2), encoding="utf-8"
+            )
         return
     data_directory = writable_data_directory(arguments.data_dir)
     version = bundled_release_version()
@@ -319,31 +355,52 @@ def main() -> None:
     if str(backend_root) not in sys.path:
         sys.path.insert(0, str(backend_root))
 
-    if getattr(arguments,"benchmark",None):
+    if getattr(arguments, "benchmark", None):
         from maintenance_checks import benchmark
-        result=benchmark(Path(arguments.benchmark).resolve())
-        Path(arguments.maintenance_result).write_text(json.dumps(result,indent=2),encoding="utf-8")
+
+        result = benchmark(Path(arguments.benchmark).resolve())
+        Path(arguments.maintenance_result).write_text(
+            json.dumps(result, indent=2), encoding="utf-8"
+        )
         return
     if arguments.update_target:
         from office_update import update_office
-        result_path = Path(arguments.maintenance_result).resolve() if arguments.maintenance_result else None
-        package_root = Path(sys.executable).parent if getattr(sys, "frozen", False) else Path(__file__).resolve().parents[1]
+
+        result_path = (
+            Path(arguments.maintenance_result).resolve() if arguments.maintenance_result else None
+        )
+        package_root = (
+            Path(sys.executable).parent
+            if getattr(sys, "frozen", False)
+            else Path(__file__).resolve().parents[1]
+        )
         try:
-            result = update_office(package_root, Path(arguments.update_target), lock_data_directory, rollback=arguments.rollback_update)
+            result = update_office(
+                package_root,
+                Path(arguments.update_target),
+                lock_data_directory,
+                rollback=arguments.rollback_update,
+            )
             if result_path:
                 result_path.write_text(json.dumps(result, indent=2), encoding="utf-8")
         except Exception as caught:
             if result_path:
-                result_path.write_text(json.dumps({
-                    "status": "failed",
-                    "message": "The update stopped. Keep the existing database and recovery files; review the detail below.",
-                    "error_type": type(caught).__name__,
-                    "detail": str(caught),
-                    "phase": getattr(caught, "phase", "Update operation"),
-                    "package_root": getattr(caught, "package_root", str(package_root)),
-                    "installation": str(Path(arguments.update_target)),
-                    "database_replaced": False,
-                }, indent=2), encoding="utf-8")
+                result_path.write_text(
+                    json.dumps(
+                        {
+                            "status": "failed",
+                            "message": "The update stopped. Keep the existing database and recovery files; review the detail below.",
+                            "error_type": type(caught).__name__,
+                            "detail": str(caught),
+                            "phase": getattr(caught, "phase", "Update operation"),
+                            "package_root": getattr(caught, "package_root", str(package_root)),
+                            "installation": str(Path(arguments.update_target)),
+                            "database_replaced": False,
+                        },
+                        indent=2,
+                    ),
+                    encoding="utf-8",
+                )
             raise SystemExit(1) from None
         return
 
@@ -371,7 +428,7 @@ def main() -> None:
     shutdown_signal = threading.Event()
     app.state.shutdown_signal = shutdown_signal
     app.state.bootstrap_token = os.environ.get("CATHEDRA_SETUP_TOKEN") or secrets.token_urlsafe(32)
-    url += f"/login#setup={app.state.bootstrap_token}"
+    url += "/login"
     configuration = uvicorn.Config(
         app,
         host="127.0.0.1",
@@ -388,6 +445,8 @@ def main() -> None:
         if not wait_for_service(arguments.port, version, data_directory) or not server.started:
             raise RuntimeError("Cathedra could not start its local service.")
         if not arguments.no_browser:
+            if getattr(app.state, "setup_required", False):
+                show_setup_code(app.state.bootstrap_token)
             browser_profile = tempfile.TemporaryDirectory(
                 prefix="browser-", dir=data_directory, ignore_cleanup_errors=True
             )

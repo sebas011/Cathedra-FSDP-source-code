@@ -25,12 +25,30 @@ def current_status(scholar):
 
 def current_status_expression():
     grant = aliased(FsdpParticipation)
-    status = case((func.lower(func.trim(grant.status)).in_(["graduated", "completed"]), "Completed"), else_=func.trim(grant.status))
-    return (select(status)
-            .where(grant.scholar_id == Scholar.id)
-            .order_by(case((func.substr(func.trim(grant.start_academic_year), 1, 4).op("GLOB")("[0-9][0-9][0-9][0-9]"), cast(func.substr(func.trim(grant.start_academic_year), 1, 4), Integer)), else_=0).desc(),
-                      case(TERM_POSITION, value=grant.start_term, else_=-1).desc(), grant.id.desc())
-            .limit(1).correlate(Scholar).scalar_subquery())
+    status = case(
+        (func.lower(func.trim(grant.status)).in_(["graduated", "completed"]), "Completed"),
+        else_=func.trim(grant.status),
+    )
+    return (
+        select(status)
+        .where(grant.scholar_id == Scholar.id)
+        .order_by(
+            case(
+                (
+                    func.substr(func.trim(grant.start_academic_year), 1, 4).op("GLOB")(
+                        "[0-9][0-9][0-9][0-9]"
+                    ),
+                    cast(func.substr(func.trim(grant.start_academic_year), 1, 4), Integer),
+                ),
+                else_=0,
+            ).desc(),
+            case(TERM_POSITION, value=grant.start_term, else_=-1).desc(),
+            grant.id.desc(),
+        )
+        .limit(1)
+        .correlate(Scholar)
+        .scalar_subquery()
+    )
 
 
 def name_prefix_matches(name, search):

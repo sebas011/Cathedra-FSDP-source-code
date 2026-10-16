@@ -1,5 +1,4 @@
 import hashlib
-import os
 import shutil
 import sqlite3
 from contextlib import closing
@@ -7,7 +6,6 @@ from datetime import datetime
 from io import StringIO
 from pathlib import Path
 from typing import Literal
-from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
 from fastapi.responses import FileResponse
@@ -16,8 +14,9 @@ from sqlalchemy import create_engine, func, select, text
 from sqlalchemy.orm import Session, selectinload
 
 from app.auth import require_admin, require_signed_in
+from app.backups import backup_operations_lock, make_backup, verify_backup_file
 from app.college_classification import affiliation, personnel_type
-from app.csv_export import SafeCsvWriter
+from app.csv_export import SafeCsvWriter, csv_response
 from app.current_grant import current_status, grant_order
 from app.db import DB_PATH, get_db
 from app.diagnostics import maintenance_history, record_maintenance
@@ -84,56 +83,12 @@ def selected_backup_file(filename: str) -> Path:
     return selected
 
 
-def make_backup(source: sqlite3.Connection, destination: Path) -> None:
-    temporary = destination.with_name(f".{destination.stem}-{uuid4().hex}.tmp")
-    try:
-        with closing(sqlite3.connect(temporary)) as target:
-            source.backup(target)
-        verify_backup_file(temporary)
-        os.replace(temporary, destination)
-    finally:
-        temporary.unlink(missing_ok=True)
-
-
-def verify_backup_file(path: Path) -> None:
-    with closing(sqlite3.connect(f"{path.as_uri()}?mode=ro", uri=True)) as database:
-        verify_product(database)
-        if database.execute("PRAGMA integrity_check").fetchone()[0] != "ok":
-            raise ValueError("The backup failed its integrity check.")
-        if database.execute("PRAGMA foreign_key_check").fetchone() is not None:
-            raise ValueError("The backup has broken record links.")
-        tables = {
-            row[0]
-            for row in database.execute("SELECT name FROM sqlite_master WHERE type = 'table'")
-        }
-        if (
-            not {
-                "schema_migrations",
-                "scholars",
-                "fsdp_participations",
-                "programs",
-                "scholar_requirements",
-                "local_users",
-                "local_sessions",
-            }
-            <= tables
-        ):
-            raise ValueError("This is not a Cathedra database backup.")
-        version = database.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0]
-        if version is None or version > MIGRATIONS[-1][0]:
-            raise ValueError("The backup schema version is not supported.")
-
-
 def csv_download(filename: str, headings: list[str], rows: list[list[object | None]]) -> Response:
     output = StringIO(newline="")
     writer = SafeCsvWriter(output)
     writer.writerow(headings)
     writer.writerows(rows)
-    return Response(
-        content=output.getvalue(),
-        media_type="text/csv; charset=utf-8",
-        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
-    )
+    return csv_response(output, filename)
 
 
 @router.get("/status")
@@ -162,15 +117,18 @@ def maintenance_status(
         "latest_backup_at": datetime.fromtimestamp(latest.stat().st_mtime).astimezone().isoformat()
         if latest
         else None,
-        "backup_retention": None,
-        "backup_due": latest is None or datetime.now().timestamp() - latest.stat().st_mtime > 7 * 86400,
+        "backup_retention": 14,
+        "backup_due": latest is None
+        or datetime.now().timestamp() - latest.stat().st_mtime > 7 * 86400,
         "recovery_review": {
             "filename": review.filename,
             "reviewed_at": review.reviewed_at.isoformat(),
             "username": review.username,
             "restore_tested": review.restore_tested,
             "administrator_reported": True,
-        } if review is not None and user.role == "admin" else None,
+        }
+        if review is not None and user.role == "admin"
+        else None,
         "backup_storage_bytes": backup_storage_bytes,
         "free_storage_bytes": free_bytes,
         "storage_warning": free_bytes < max(1024**3, DB_PATH.stat().st_size * 3)
@@ -207,10 +165,15 @@ def record_backup_review(
         with selected.open("rb") as source:
             digest = hashlib.file_digest(source, "sha256").hexdigest()
     except (sqlite3.DatabaseError, OSError, ValueError) as caught:
-        raise HTTPException(status_code=422, detail="Verify this backup before recording a recovery review.") from caught
+        raise HTTPException(
+            status_code=422, detail="Verify this backup before recording a recovery review."
+        ) from caught
     review = BackupReview(
-        filename=filename, backup_sha256=digest, username=user.username,
-        copied_off_device=True, restore_tested=payload.restore_tested,
+        filename=filename,
+        backup_sha256=digest,
+        username=user.username,
+        copied_off_device=True,
+        restore_tested=payload.restore_tested,
     )
     db.add(review)
     db.commit()
@@ -259,33 +222,38 @@ def download_database_backup(filename: str, _: LocalUser = Depends(require_admin
 
 @router.delete("/backups/{filename}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_database_backup(filename: str, user: LocalUser = Depends(require_admin)) -> Response:
-    selected = selected_backup_file(filename)
-    if filename in protected_backup_names(backup_files()):
-        raise HTTPException(
-            status_code=409,
-            detail="This backup is protected. The newest regular backup and restore safety copies cannot be deleted here.",
-        )
-    selected.unlink()
-    record_maintenance(DB_PATH.parent, "Backup deleted", user.username, selected.name)
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
+    with backup_operations_lock:
+        selected = selected_backup_file(filename)
+        if filename in protected_backup_names(backup_files()):
+            raise HTTPException(
+                status_code=409,
+                detail="This backup is protected. The newest regular backup and restore safety copies cannot be deleted here.",
+            )
+        selected.unlink()
+        record_maintenance(DB_PATH.parent, "Backup deleted", user.username, selected.name)
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.post("/backups/{filename}/protection", status_code=status.HTTP_204_NO_CONTENT)
 def protect_database_backup(filename: str, user: LocalUser = Depends(require_admin)) -> Response:
-    selected = selected_backup_file(filename)
-    backup_pin_path(selected).touch(exist_ok=True)
-    record_maintenance(DB_PATH.parent, "Backup protected", user.username, selected.name)
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
+    with backup_operations_lock:
+        selected = selected_backup_file(filename)
+        backup_pin_path(selected).touch(exist_ok=True)
+        record_maintenance(DB_PATH.parent, "Backup protected", user.username, selected.name)
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.delete("/backups/{filename}/protection", status_code=status.HTTP_204_NO_CONTENT)
 def unprotect_database_backup(filename: str, user: LocalUser = Depends(require_admin)) -> Response:
-    selected = selected_backup_file(filename)
-    if selected.name.startswith("cathedra-backup-before-restore-"):
-        raise HTTPException(status_code=409, detail="Restore safety backups are always protected.")
-    backup_pin_path(selected).unlink(missing_ok=True)
-    record_maintenance(DB_PATH.parent, "Backup unprotected", user.username, selected.name)
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
+    with backup_operations_lock:
+        selected = selected_backup_file(filename)
+        if selected.name.startswith("cathedra-backup-before-restore-"):
+            raise HTTPException(
+                status_code=409, detail="Restore safety backups are always protected."
+            )
+        backup_pin_path(selected).unlink(missing_ok=True)
+        record_maintenance(DB_PATH.parent, "Backup unprotected", user.username, selected.name)
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 class RestoreRequest(BaseModel):
@@ -300,13 +268,7 @@ def restore_database(
     user: LocalUser = Depends(require_admin),
 ) -> dict[str, object]:
     actor_name = user.username
-    selected = (BACKUP_DIR / Path(payload.filename).name).resolve()
-    if (
-        selected.parent != BACKUP_DIR.resolve()
-        or not selected.is_file()
-        or selected.suffix != ".db"
-    ):
-        raise HTTPException(status_code=404, detail="The selected backup is not available.")
+    selected = selected_backup_file(payload.filename)
     staged = BACKUP_DIR / f".restore-stage-{datetime.now():%Y%m%d-%H%M%S-%f}.db"
     # Older snapshots must not make IDs retired since that snapshot reusable.
     identity_floor = db.execute(
@@ -417,7 +379,7 @@ def export_fsdp(db: Session = Depends(get_db)) -> Response:
                 selectinload(Scholar.requirements),
                 selectinload(Scholar.education),
             )
-            .order_by(Scholar.name, Scholar.id)
+            .order_by(func.name_sort_key(Scholar.name), Scholar.id)
         )
         .unique()
         .all()
@@ -499,10 +461,32 @@ def export_fsdp(db: Session = Depends(get_db)) -> Response:
 
 @router.get("/exports/education.csv")
 def export_education(db: Session = Depends(get_db)) -> Response:
-    scholars = db.scalars(select(Scholar).options(selectinload(Scholar.education)).order_by(Scholar.id)).all()
-    return csv_download("cathedra-education.csv", ["Scholar ID", "Name", "Education ID", "Level", "Degree", "Institution", "Graduation Year"], [[scholar.id, scholar.name, item.id, item.level, item.degree, item.institution, item.graduation_year] for scholar in scholars for item in scholar.education])
+    scholars = db.scalars(
+        select(Scholar).options(selectinload(Scholar.education)).order_by(Scholar.id)
+    ).all()
+    return csv_download(
+        "cathedra-education.csv",
+        ["Scholar ID", "Name", "Education ID", "Level", "Degree", "Institution", "Graduation Year"],
+        [
+            [
+                scholar.id,
+                scholar.name,
+                item.id,
+                item.level,
+                item.degree,
+                item.institution,
+                item.graduation_year,
+            ]
+            for scholar in scholars
+            for item in scholar.education
+        ],
+    )
 
 
 @router.get("/history")
-def read_maintenance_history(page: int = Query(default=1, ge=1), page_size: int = Query(default=20, ge=1, le=100), _: LocalUser = Depends(require_admin)) -> dict:
+def read_maintenance_history(
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=20, ge=1, le=100),
+    _: LocalUser = Depends(require_admin),
+) -> dict:
     return maintenance_history(DB_PATH.parent, page, page_size)

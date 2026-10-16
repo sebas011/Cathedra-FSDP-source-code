@@ -7,8 +7,121 @@ import threading
 from datetime import UTC, datetime
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
+from uuid import uuid4
+
+from fastapi import Request
+from fastapi.responses import JSONResponse
+from starlette.types import ASGIApp, Receive, Scope, Send
+
+from app.security_headers import SECURITY_HEADERS
 
 _journal_lock = threading.Lock()
+
+
+def log_private_exception(
+    exception: Exception, *, method: str = "", route_template: str = "<internal>"
+) -> str:
+    """Log code locations only; exception text and request data can contain records."""
+    reference = uuid4().hex
+    frames = []
+    traceback = exception.__traceback__
+    while traceback is not None:
+        code = traceback.tb_frame.f_code
+        frames.append(
+            {
+                "filename": Path(code.co_filename).name,
+                "function": code.co_name,
+                "line": traceback.tb_lineno,
+            }
+        )
+        traceback = traceback.tb_next
+    logging.getLogger("cathedra.errors").error(
+        "private_error %s",
+        json.dumps(
+            {
+                "reference": reference,
+                "exception_class": type(exception).__name__,
+                "method": method,
+                "route_template": route_template,
+                "frames": frames,
+            }
+        ),
+    )
+    return reference
+
+
+async def unexpected_error_response(request: Request, exception: Exception) -> JSONResponse:
+    route = request.scope.get("route")
+    reference = log_private_exception(
+        exception,
+        method=request.method,
+        route_template=getattr(route, "path", "<unmatched>"),
+    )
+    # Starlette's server-error handler runs outside user middleware.
+    return JSONResponse(
+        {
+            "detail": f"An unexpected error occurred. Retry the operation. If it continues, contact support. Reference: {reference}",
+            "reference": reference,
+        },
+        status_code=500,
+        headers={
+            **SECURITY_HEADERS,
+            "Cache-Control": "no-store",
+        },
+    )
+
+
+class PrivateErrorMiddleware:
+    """Finish failed HTTP requests without propagating private tracebacks to the server."""
+
+    def __init__(self, app: ASGIApp) -> None:
+        self.app = app
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+        response_started = False
+        response_complete = False
+
+        async def track_response(message):
+            nonlocal response_started, response_complete
+            if message["type"] == "http.response.start":
+                response_started = True
+            await send(message)
+            if message["type"] == "http.response.body" and not message.get("more_body", False):
+                response_complete = True
+
+        try:
+            await self.app(scope, receive, track_response)
+        except Exception as caught:
+            if not response_started:
+                response = await unexpected_error_response(Request(scope), caught)
+                try:
+                    await response(scope, receive, send)
+                except Exception as transport_error:
+                    log_private_exception(
+                        transport_error,
+                        method=scope["method"],
+                        route_template=getattr(scope.get("route"), "path", "<unmatched>"),
+                    )
+                return
+            log_private_exception(
+                caught,
+                method=scope["method"],
+                route_template=getattr(scope.get("route"), "path", "<unmatched>"),
+            )
+            if not response_complete:
+                # Already-sent status and chunks cannot be replaced. End the partial
+                # response; a disconnected or length-limited transport can also fail.
+                try:
+                    await send({"type": "http.response.body", "body": b"", "more_body": False})
+                except Exception as transport_error:
+                    log_private_exception(
+                        transport_error,
+                        method=scope["method"],
+                        route_template=getattr(scope.get("route"), "path", "<unmatched>"),
+                    )
 
 
 def configure_diagnostics(data: Path) -> None:

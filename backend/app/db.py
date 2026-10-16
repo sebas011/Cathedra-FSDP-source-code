@@ -24,6 +24,7 @@ engine = create_engine(
     DATABASE_URL,
     connect_args={"check_same_thread": False},
     pool_pre_ping=True,
+    hide_parameters=True,
 )
 
 
@@ -31,8 +32,12 @@ engine = create_engine(
 def enforce_foreign_keys(connection, _) -> None:
     from app.current_grant import name_prefix_matches
     from app.record_text import unicode_contains
+
     connection.create_function("name_prefix_matches", 2, name_prefix_matches, deterministic=True)
     connection.create_function("unicode_contains", 2, unicode_contains, deterministic=True)
+    connection.create_function(
+        "name_sort_key", 1, lambda value: (value or "").strip().casefold(), deterministic=True
+    )
     cursor = connection.cursor()
     try:
         cursor.execute("PRAGMA foreign_keys=ON")

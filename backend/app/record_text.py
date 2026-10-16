@@ -10,7 +10,9 @@ def uppercase_text(value: str | None) -> str | None:
 def edited_text(value: str | None, previous: str | None, *, new: bool = False) -> str | None:
     # Old full forms resend values. Do not rewrite preserved historical notes or
     # program identities merely because an unrelated field was saved.
-    unchanged = value == previous or (isinstance(value, str) and isinstance(previous, str) and value.strip() == previous.strip())
+    unchanged = value == previous or (
+        isinstance(value, str) and isinstance(previous, str) and value.strip() == previous.strip()
+    )
     return previous if not new and unchanged else uppercase_text(value)
 
 

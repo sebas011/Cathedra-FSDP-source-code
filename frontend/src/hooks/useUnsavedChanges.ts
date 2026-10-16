@@ -14,20 +14,35 @@ export function useUnsavedChanges(value: unknown, pending = false) {
       event.preventDefault();
       event.returnValue = "";
     };
-    const checkLeave = (event: Event) => { if (dirty && !bypass.current) event.preventDefault(); };
-    const checkPending = (event: Event) => { if (pending) event.preventDefault(); };
-    const discard = () => { bypass.current = true; };
+    const checkLeave = (event: Event) => {
+      if (dirty && !bypass.current) event.preventDefault();
+    };
+    const checkPending = (event: Event) => {
+      if (pending) event.preventDefault();
+    };
+    const discard = () => {
+      bypass.current = true;
+    };
     window.addEventListener("cathedra-discard-before-leave", discard);
     window.addEventListener("cathedra-can-leave", checkPending);
     window.addEventListener("cathedra-before-leave", checkLeave);
     window.addEventListener("beforeunload", warn);
-    return () => { window.removeEventListener("cathedra-discard-before-leave", discard); window.removeEventListener("cathedra-can-leave", checkPending); window.removeEventListener("beforeunload", warn); window.removeEventListener("cathedra-before-leave", checkLeave); };
+    return () => {
+      window.removeEventListener("cathedra-discard-before-leave", discard);
+      window.removeEventListener("cathedra-can-leave", checkPending);
+      window.removeEventListener("beforeunload", warn);
+      window.removeEventListener("cathedra-before-leave", checkLeave);
+    };
   }, [dirty, pending]);
 
   return {
     blocker,
     dirty,
-    resetBaseline: (next: unknown) => { baseline.current = JSON.stringify(next); },
-    allowLeave: () => { bypass.current = true; },
+    resetBaseline: (next: unknown) => {
+      baseline.current = JSON.stringify(next);
+    },
+    allowLeave: () => {
+      bypass.current = true;
+    },
   };
 }

@@ -1,6 +1,7 @@
 import hashlib
 import importlib.util
 import json
+import os
 import threading
 from pathlib import Path
 
@@ -91,25 +92,35 @@ class BrowserSignal:
         return self.closed
 
 
+@pytest.mark.skipif(os.name != "nt", reason="Windows Edge window ownership")
 def test_edge_relaunch_keeps_service_until_actual_window_closes(monkeypatch):
     from types import SimpleNamespace
 
     launcher = launcher_module()
     signal = BrowserSignal()
-    observations = iter(((set([10, 11]), False), (set([10, 11]), True),
-                         (set([10, 11]), True), (set([10, 11]), False),
-                         (set([10, 11]), False)))
+    observations = iter(
+        (
+            (set([10, 11]), False),
+            (set([10, 11]), True),
+            (set([10, 11]), True),
+            (set([10, 11]), False),
+            (set([10, 11]), False),
+        )
+    )
     times = iter((0, 0.5, 1, 3, 4, 6))
     monkeypatch.setattr(launcher.time, "monotonic", lambda: next(times))
+
     def state(known):
         assert 10 in known
         assert not signal.closed
         return next(observations)
+
     monkeypatch.setattr(launcher, "windows_browser_state", state)
     launcher.watch_app_window(SimpleNamespace(pid=10), signal)
     assert signal.closed
 
 
+@pytest.mark.skipif(os.name != "nt", reason="Windows Edge window ownership")
 def test_transient_window_relaunch_does_not_stop_service(monkeypatch):
     from types import SimpleNamespace
 
@@ -118,26 +129,31 @@ def test_transient_window_relaunch_does_not_stop_service(monkeypatch):
     observations = iter((True, False, True, False, False))
     times = iter((0, 1, 2, 3, 4, 6))
     monkeypatch.setattr(launcher.time, "monotonic", lambda: next(times))
+
     def state(known):
         assert not signal.closed
         return known, next(observations)
+
     monkeypatch.setattr(launcher, "windows_browser_state", state)
     launcher.watch_app_window(SimpleNamespace(pid=10), signal)
     assert signal.closed
 
 
+@pytest.mark.skipif(os.name != "nt", reason="Windows Edge window ownership")
 def test_failed_window_inspection_keeps_service_alive(monkeypatch):
     from types import SimpleNamespace
 
     launcher = launcher_module()
     signal = BrowserSignal()
     calls = []
+
     def state(known):
         calls.append(1)
         if len(calls) == 1:
             raise OSError("inspection unavailable")
         signal.set()  # explicit application exit remains authoritative
         return known, True
+
     monkeypatch.setattr(launcher, "windows_browser_state", state)
     launcher.watch_app_window(SimpleNamespace(pid=10), signal)
     assert len(calls) == 2

@@ -1,8 +1,8 @@
 # Technical requirements
 
 **Product:** Cathedra FSDP  
-**Documented:** 14 October 2026, Asia/Manila<br>
-**Baseline:** release 0.5.19; database schema 13<br>
+**Documented:** 16 October 2026, Asia/Manila<br>
+**Baseline:** release 0.5.21; database schema 15<br>
 **Status:** implementation-derived documentation; see [baseline and evidence](README.md).
 
 ## Architecture and deployment
@@ -65,7 +65,7 @@ New editable business text passes a shared uppercase normalizer before persisten
 
 ## Authentication and access
 
-Passwords use PBKDF2-HMAC-SHA256 with random salt and a current 600,000-iteration cost. Successful login can upgrade an older supported hash cost. Stored passwords are hashes; session tokens are random and only their SHA-256 digests are stored server-side. Sessions expire after 12 hours, and active-account/temporary-password checks occur per protected request.
+Passwords use PBKDF2-HMAC-SHA256 with random salt and a current 600,000-iteration cost. Successful login can upgrade an older supported hash cost. Stored passwords are hashes; session tokens are random and only their SHA-256 digests are stored server-side. Sessions expire after 12 hours or 30 minutes without user activity. Protected reads do not renew inactivity; a separate activity endpoint renews an unexpired session following user input. Unfinished forms remain available after same-account reauthentication. Active-account/temporary-password checks occur per protected request.
 
 Frontend session data is held in `sessionStorage`; the obsolete same-named `localStorage` entry is removed. Expired-user/draft recovery is in memory and requires same-account reauthentication. Disabling/resetting accounts and revoking sessions are administrator operations. Password creation/change uses a minimum ten-character constraint.
 
@@ -178,7 +178,7 @@ The launcher binds loopback. Trusted hosts are localhost/127.0.0.1 plus the test
 
 Use existing installation-access tooling and protect private snapshots/journals. Database-file permissions and device encryption are separate protections. No claim of built-in SQLite encryption, hosted HTTPS, cloud IAM, MFA or network-safe deployment is made. Keep live data, password hashes, tokens, backups and personnel exports out of repositories/public release assets.
 
-Restore only compatible FSDP snapshots. Automatic migration runs through version 13 with a protected snapshot on older existing databases. A runtime update does not itself substitute the tested copy for the actual Office database; startup performs needed migration on the retained database. Backup deletion is explicit and protection-aware, not automatic retention pruning. Office Log storage is part of the compatible backup/table allowlist.
+Restore only compatible FSDP snapshots. Automatic migration runs through version 15 with a protected snapshot on older existing databases. A runtime update does not itself substitute the tested copy for the actual Office database; startup performs needed migration on the retained database. Manual backup deletion is explicit and protection-aware. Startup creates one verified daily copy; the newest 14 unpinned automatic daily copies and 30 unpinned pre-delete copies are retained. Manual and pinned copies are excluded from automatic pruning. Scholar deletion is blocked if its immediate recovery copy fails. Office Log storage is part of the compatible backup/table allowlist.
 
 ## Build, quality and release requirements
 
@@ -201,6 +201,10 @@ Remark-derived graduation inference requires direct current-program evidence. Ex
 Summary and department JSON retain the legacy `graduated` aggregate beside an equal `completed` value for existing consumers. Canonical status-count maps and current CSV totals use Completed only, avoiding duplicate chart categories. Directory and report-detail CSV put profile fields before annual grant fields. Profile fields are populated on each scholar's first row and blank on continuation rows; each grant keeps its own dates, status and case. Payback uses the same grouping for scholar identity cells. Directory and education exports omit source/provenance metadata. No database columns or relationships are removed. External consumers must use the current ordered [export contracts](EXPORT_CONTRACTS.json), retain group order and carry forward scholar identity when reading continuation rows.
 
 Office Log list queries accept `scholar_id`, `search`, `entry_type`, `page` and bounded `page_size`; ordering is occurred date descending then ID descending. CSV applies the same filters without page truncation. POST can use an optional UUID `Idempotency-Key`; replay by the same author and identical normalized payload returns the original entry, changed content returns 409. A blank optional event date defaults at creation time and is included in the immutable persisted response. Request metadata is not exposed by the public read schema.
+
+Schema 14 adds nullable scholar `has_hard_copy`/`has_soft_copy` and participation `program_category`/`application_key`, retaining all 15 existing tables and raising the model column count to 116. Copy availability uses true/false/null independently; it does not infer requirement completion. Program category is separate from funding type. Application identity is scoped to scholar and program; matching completion in a different explicit application cannot clear calculated follow-up. NULL-key history retains the original same-program scope until explicitly assigned. Older clients omitting the new optional fields preserve stored values. CSV column contracts are unchanged in 0.5.21.
+
+Directory ordering applies Unicode casefolding and surrounding-space trimming to the complete stored name, then ID, before pagination; names are not parsed into guessed surname components. Office Log uses native disclosure rows, preserves frozen uncertain-save payloads and closes only on confirmed save. Its print handler expands/restores the loaded rows without claiming a complete multi-page register.
 
 Payback attention filters apply to paged JSON, unpaged JSON and CSV. `total` counts selected assessment rows; `scholar_counts`/`grant_counts` remain department/year-wide category summaries. Empty attention selects all rows. Pagination bounds displayed items, not export scope.
 

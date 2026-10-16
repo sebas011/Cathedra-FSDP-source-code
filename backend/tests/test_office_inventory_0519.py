@@ -92,9 +92,7 @@ def test_uppercase_physical_internal_tree_matches_powershell(tmp_path):
     manifest = complete_package(package)
     runtime = package / "_internal/runtime.dll"
     runtime.rename(runtime.with_name("case-rename-runtime.dll"))
-    (package / "_internal/case-rename-runtime.dll").rename(
-        package / "_internal/RUNTIME.DLL"
-    )
+    (package / "_internal/case-rename-runtime.dll").rename(package / "_internal/RUNTIME.DLL")
     (package / "_internal").rename(package / "case-rename-internal")
     (package / "case-rename-internal").rename(package / "_INTERNAL")
     assert powershell_verifies(package)["runtime_files"] == len(manifest["runtime_files"])
@@ -265,9 +263,7 @@ def test_invalid_inventory_preflight_preserves_office_data(installation, locatio
     before_database = database.read_bytes()
     before_data = data_inventory(target / "data")
     with pytest.raises(ValueError):
-        module().update_office(
-            incoming, target, lambda _: Lock(), workflow_check=lambda _: None
-        )
+        module().update_office(incoming, target, lambda _: Lock(), workflow_check=lambda _: None)
     assert database.read_bytes() == before_database
     assert data_inventory(target / "data") == before_data
     assert not (target / "data/update-state.json").exists()
@@ -328,9 +324,7 @@ def test_unlisted_link_preflight_preserves_office_data(installation, location, t
     before_database = database.read_bytes()
     before_data = data_inventory(target / "data")
     with pytest.raises(ValueError, match="[Ll]inked"):
-        module().update_office(
-            incoming, target, lambda _: Lock(), workflow_check=lambda _: None
-        )
+        module().update_office(incoming, target, lambda _: Lock(), workflow_check=lambda _: None)
     assert database.read_bytes() == before_database
     assert data_inventory(target / "data") == before_data
     assert not (target / "data/update-state.json").exists()
@@ -346,9 +340,7 @@ def test_enumeration_preflight_preserves_office_data(installation, location, mon
     before_data = data_inventory(target / "data")
     deny_internal_enumeration(monkeypatch, updater, selected)
     with pytest.raises((OSError, ValueError), match="[Aa]ccess denied"):
-        updater.update_office(
-            incoming, target, lambda _: Lock(), workflow_check=lambda _: None
-        )
+        updater.update_office(incoming, target, lambda _: Lock(), workflow_check=lambda _: None)
     assert database.read_bytes() == before_database
     assert data_inventory(target / "data") == before_data
     assert not (target / "data/update-state.json").exists()

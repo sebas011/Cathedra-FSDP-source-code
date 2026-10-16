@@ -4,17 +4,28 @@ import { expect, it } from "vitest";
 import WorkspaceSection from "../src/components/WorkspaceSection";
 
 function openWorkspace(path: string, section: "fsdp" | "settings" = "fsdp") {
-  render(<MemoryRouter initialEntries={[path]}><Routes><Route element={<WorkspaceSection section={section} />}><Route path="*" element={<h1>Workspace content</h1>} /></Route></Routes></MemoryRouter>);
+  render(
+    <MemoryRouter initialEntries={[path]}>
+      <Routes>
+        <Route element={<WorkspaceSection section={section} />}>
+          <Route path="*" element={<h1>Workspace content</h1>} />
+        </Route>
+      </Routes>
+    </MemoryRouter>,
+  );
 }
 
-it.each(["/fsdp/new", "/fsdp/new/", "/fsdp/12/edit", "/fsdp/12/edit/?from=directory"])("hides FSDP tabs on %s without hiding entry content", path => {
-  openWorkspace(path);
-  expect(screen.queryByRole("navigation", { name: "fsdp pages" })).toBeNull();
-  expect(screen.queryByRole("link", { name: "Scholars" })).toBeNull();
-  expect(screen.getByRole("heading", { name: "Workspace content" })).toBeTruthy();
-});
+it.each(["/fsdp/new", "/fsdp/new/", "/fsdp/12/edit", "/fsdp/12/edit/?from=directory"])(
+  "hides FSDP tabs on %s without hiding entry content",
+  (path) => {
+    openWorkspace(path);
+    expect(screen.queryByRole("navigation", { name: "fsdp pages" })).toBeNull();
+    expect(screen.queryByRole("link", { name: "Scholars" })).toBeNull();
+    expect(screen.getByRole("heading", { name: "Workspace content" })).toBeTruthy();
+  },
+);
 
-it.each(["/fsdp", "/fsdp/12"])("removes redundant FSDP tabs on %s", path => {
+it.each(["/fsdp", "/fsdp/12"])("removes redundant FSDP tabs on %s", (path) => {
   openWorkspace(path);
   expect(screen.queryByRole("navigation", { name: "fsdp pages" })).toBeNull();
   expect(screen.queryByRole("link", { name: "Scholars" })).toBeNull();
@@ -28,6 +39,10 @@ it("preserves account-settings navigation", () => {
 });
 
 it("does not restore redundant single-tab report navigation", () => {
-  render(<MemoryRouter><h1>Dashboard</h1></MemoryRouter>);
+  render(
+    <MemoryRouter>
+      <h1>Dashboard</h1>
+    </MemoryRouter>,
+  );
   expect(screen.queryByRole("navigation")).toBeNull();
 });

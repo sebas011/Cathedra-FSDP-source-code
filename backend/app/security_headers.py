@@ -1,5 +1,11 @@
 from starlette.types import ASGIApp, Receive, Scope, Send
 
+SECURITY_HEADERS = {
+    "X-Content-Type-Options": "nosniff",
+    "Referrer-Policy": "no-referrer",
+    "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'",
+}
+
 
 class SecurityHeadersMiddleware:
     def __init__(self, app: ASGIApp):
@@ -13,14 +19,8 @@ class SecurityHeadersMiddleware:
             if message["type"] == "http.response.start":
                 headers = list(message.get("headers", []))
                 headers.extend(
-                    [
-                        (b"x-content-type-options", b"nosniff"),
-                        (b"referrer-policy", b"no-referrer"),
-                        (
-                            b"content-security-policy",
-                            b"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'",
-                        ),
-                    ]
+                    (key.lower().encode("ascii"), value.encode("ascii"))
+                    for key, value in SECURITY_HEADERS.items()
                 )
                 if scope["path"].startswith("/api/"):
                     headers.append((b"cache-control", b"no-store"))

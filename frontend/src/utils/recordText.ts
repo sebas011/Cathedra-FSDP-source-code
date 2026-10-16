@@ -8,14 +8,32 @@ export function uppercaseEducation(entry: EducationInput): EducationInput {
 }
 
 export function uppercaseGrant(grant: ParticipationInput): ParticipationInput {
-  return { ...grant, program_name: recordText(grant.program_name), delivering_hei: recordText(grant.delivering_hei),
-    grant_other: recordText(grant.grant_other), extension: recordText(grant.extension), remarks: recordText(grant.remarks) };
+  return {
+    ...grant,
+    program_name: recordText(grant.program_name),
+    delivering_hei: recordText(grant.delivering_hei),
+    grant_other: recordText(grant.grant_other),
+    extension: recordText(grant.extension),
+    remarks: recordText(grant.remarks),
+  };
 }
 
 export function uppercaseScholar(form: ScholarPayload): ScholarPayload {
-  return { ...form, name: recordText(form.name), previous_degree: recordText(form.previous_degree),
-    rank: recordText(form.rank), tenure: recordText(form.tenure), tenure_note: form.tenure_note == null ? form.tenure_note : recordText(form.tenure_note),
-    profile_remarks: form.profile_remarks == null ? form.profile_remarks : recordText(form.profile_remarks),
-    education: form.education?.map(uppercaseEducation), participations: form.participations.map(uppercaseGrant),
-    requirements: form.requirements.map(entry => ({ ...entry, requirement_name: recordText(entry.requirement_name), remarks: recordText(entry.remarks) })) };
+  return {
+    ...form,
+    name: recordText(form.name),
+    previous_degree: recordText(form.previous_degree),
+    rank: recordText(form.rank),
+    tenure: recordText(form.tenure),
+    tenure_note: form.tenure_note == null ? form.tenure_note : recordText(form.tenure_note),
+    profile_remarks:
+      form.profile_remarks == null ? form.profile_remarks : recordText(form.profile_remarks),
+    education: form.education?.map(uppercaseEducation),
+    participations: form.participations.map(uppercaseGrant),
+    requirements: form.requirements.map((entry) => ({
+      ...entry,
+      requirement_name: recordText(entry.requirement_name),
+      remarks: recordText(entry.remarks),
+    })),
+  };
 }

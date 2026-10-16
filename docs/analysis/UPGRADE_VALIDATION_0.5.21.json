@@ -1,0 +1,21 @@
+{
+  "passed": true,
+  "version": "0.5.21",
+  "from_version": "0.5.20",
+  "synthetic_only": true,
+  "prior_schema": 14,
+  "installed_schema": 15,
+  "database_replaced": false,
+  "database_hash_unchanged_during_runtime_replacement": true,
+  "protected_snapshot_and_private_rehearsal_verified": true,
+  "historical_rows_ids_credentials_and_summer_retained": true,
+  "prior_scholars": 4,
+  "prior_grants": 7,
+  "prior_accounts": 2,
+  "native_powershell51_update_passed": true,
+  "bundled_verifier_no_database_access": true,
+  "daily_backup_predelete_recovery_activity_and_csv_verified_in_frozen_runtime": true,
+  "normal_startup_shutdown_passed": true,
+  "runtime_files": 148,
+  "actual_office_pc_tested": false
+}

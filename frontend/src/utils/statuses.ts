@@ -1,3 +1,13 @@
-export const grantStatuses = ["On Going", "Completed", "Payback", "Payback pending contract", "Transferred", "Withdrawn", "Did Not Avail"];
-export const displayGrantStatus = (status: string | null | undefined) => status === "Graduated" ? "Completed" : status || "No grant record";
-export const completedCount = (counts: Record<string, number>) => counts.Completed ?? counts.Graduated ?? 0;
+export const grantStatuses = [
+  "On Going",
+  "Completed",
+  "Payback",
+  "Payback pending contract",
+  "Transferred",
+  "Withdrawn",
+  "Did Not Avail",
+];
+export const displayGrantStatus = (status: string | null | undefined) =>
+  status === "Graduated" ? "Completed" : status || "No grant record";
+export const completedCount = (counts: Record<string, number>) =>
+  counts.Completed ?? counts.Graduated ?? 0;

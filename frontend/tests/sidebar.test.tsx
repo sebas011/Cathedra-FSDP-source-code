@@ -6,17 +6,30 @@ import AppShell from "../src/components/AppShell";
 import { administrator } from "./fixtures";
 
 const api = vi.hoisted(() => ({
-  getCurrentUser: vi.fn(), getServiceHealth: vi.fn(), clearSession: vi.fn(), signOut: vi.fn(), exitDesktop: vi.fn(), releaseVersion: "test",
+  getCurrentUser: vi.fn(),
+  getServiceHealth: vi.fn(),
+  clearSession: vi.fn(),
+  signOut: vi.fn(),
+  exitDesktop: vi.fn(),
+  releaseVersion: "test",
 }));
 vi.mock("../src/api", () => api);
 let mobile = false;
 let changeListeners: Array<() => void> = [];
 
 function openShell() {
-  const router = createMemoryRouter([{
-    element: <AppShell />,
-    children: [{ path: "/", element: <h1>Dashboard test</h1> }, { path: "/fsdp", element: <h1>Scholars test</h1> }],
-  }], { initialEntries: ["/"] });
+  const router = createMemoryRouter(
+    [
+      {
+        element: <AppShell />,
+        children: [
+          { path: "/", element: <h1>Dashboard test</h1> },
+          { path: "/fsdp", element: <h1>Scholars test</h1> },
+        ],
+      },
+    ],
+    { initialEntries: ["/"] },
+  );
   return render(<RouterProvider router={router} />);
 }
 
@@ -24,13 +37,27 @@ beforeEach(() => {
   mobile = false;
   changeListeners = [];
   api.getCurrentUser.mockReturnValue(administrator);
-  api.getServiceHealth.mockResolvedValue({ status: "ok", product: "fsdp", release_version: "test", desktop_mode: false });
-  vi.stubGlobal("matchMedia", vi.fn(() => ({
-    get matches() { return mobile; },
-    addEventListener: (_event: string, listener: () => void) => changeListeners.push(listener),
-    removeEventListener: (_event: string, listener: () => void) => { changeListeners = changeListeners.filter(item => item !== listener); },
-  })));
-  vi.spyOn(HTMLElement.prototype, "getClientRects").mockReturnValue([{ width: 44, height: 44 }] as unknown as DOMRectList);
+  api.getServiceHealth.mockResolvedValue({
+    status: "ok",
+    product: "fsdp",
+    release_version: "test",
+    desktop_mode: false,
+  });
+  vi.stubGlobal(
+    "matchMedia",
+    vi.fn(() => ({
+      get matches() {
+        return mobile;
+      },
+      addEventListener: (_event: string, listener: () => void) => changeListeners.push(listener),
+      removeEventListener: (_event: string, listener: () => void) => {
+        changeListeners = changeListeners.filter((item) => item !== listener);
+      },
+    })),
+  );
+  vi.spyOn(HTMLElement.prototype, "getClientRects").mockReturnValue([
+    { width: 44, height: 44 },
+  ] as unknown as DOMRectList);
 });
 
 test("desktop has one sidebar toggle and no calendar destination", async () => {
@@ -39,7 +66,9 @@ test("desktop has one sidebar toggle and no calendar destination", async () => {
   expect(screen.queryByRole("button", { name: "Open menu" })).toBeNull();
   expect(screen.queryByRole("link", { name: "Academic Calendar" })).toBeNull();
   fireEvent.click(screen.getByRole("button", { name: "Collapse sidebar" }));
-  expect(screen.getByRole("button", { name: "Expand sidebar" }).getAttribute("aria-expanded")).toBe("false");
+  expect(screen.getByRole("button", { name: "Expand sidebar" }).getAttribute("aria-expanded")).toBe(
+    "false",
+  );
   expect(document.querySelector(".app-layout")?.classList.contains("sidebar-collapsed")).toBe(true);
   expect(screen.queryByText("Cathedra FSDP")).toBeNull();
   expect(localStorage.getItem("cathedra-fsdp-sidebar-collapsed")).toBe("true");
@@ -70,10 +99,14 @@ test("mobile drawer opens with labels and closes with Escape and restored focus"
   fireEvent.click(opener);
   const closer = screen.getByRole("button", { name: "Close menu" });
   expect(document.activeElement).toBe(closer);
-  expect(screen.getByRole("dialog", { name: "Navigation menu" }).getAttribute("aria-modal")).toBe("true");
+  expect(screen.getByRole("dialog", { name: "Navigation menu" }).getAttribute("aria-modal")).toBe(
+    "true",
+  );
   expect(document.querySelector(".workspace")?.hasAttribute("inert")).toBe(true);
   expect(document.body.style.overflow).toBe("hidden");
-  expect(document.querySelector(".app-layout")?.classList.contains("sidebar-collapsed")).toBe(false);
+  expect(document.querySelector(".app-layout")?.classList.contains("sidebar-collapsed")).toBe(
+    false,
+  );
   expect(screen.getByText("Cathedra FSDP")).toBeTruthy();
   fireEvent.keyDown(document, { key: "Escape" });
   await waitFor(() => expect(document.activeElement).toBe(opener));
@@ -112,9 +145,15 @@ test("backdrop closes the drawer and navigation opens the selected page", async 
 test("resizing closes the drawer without losing the desktop preference", () => {
   localStorage.setItem("cathedra-fsdp-sidebar-collapsed", "true");
   openShell();
-  act(() => { mobile = true; changeListeners.forEach(listener => listener()); });
+  act(() => {
+    mobile = true;
+    changeListeners.forEach((listener) => listener());
+  });
   fireEvent.click(screen.getByRole("button", { name: "Open menu" }));
-  act(() => { mobile = false; changeListeners.forEach(listener => listener()); });
+  act(() => {
+    mobile = false;
+    changeListeners.forEach((listener) => listener());
+  });
   expect(screen.queryByRole("dialog")).toBeNull();
   expect(screen.getByRole("button", { name: "Expand sidebar" })).toBeTruthy();
   expect(document.body.style.overflow).not.toBe("hidden");
@@ -124,6 +163,19 @@ test("drawer controls have valid accessible names and modal structure", async ()
   mobile = true;
   openShell();
   fireEvent.click(screen.getByRole("button", { name: "Open menu" }));
-  const result = await axe.run(document.body, { runOnly: { type: "rule", values: ["button-name", "link-name", "aria-valid-attr", "aria-valid-attr-value", "aria-required-attr", "aria-roles", "aria-dialog-name"] } });
-  expect(result.violations.map(item => item.id)).toEqual([]);
+  const result = await axe.run(document.body, {
+    runOnly: {
+      type: "rule",
+      values: [
+        "button-name",
+        "link-name",
+        "aria-valid-attr",
+        "aria-valid-attr-value",
+        "aria-required-attr",
+        "aria-roles",
+        "aria-dialog-name",
+      ],
+    },
+  });
+  expect(result.violations.map((item) => item.id)).toEqual([]);
 });

@@ -27,6 +27,8 @@ class Scholar(Base):
     age: Mapped[int | None] = mapped_column(Integer)
     previous_degree: Mapped[str | None] = mapped_column(String(300))
     missing_requirements: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    has_hard_copy: Mapped[bool | None] = mapped_column(Boolean)
+    has_soft_copy: Mapped[bool | None] = mapped_column(Boolean)
     department: Mapped[str | None] = mapped_column(String(120), index=True)
     personnel_type: Mapped[str | None] = mapped_column(String(20))
     rank: Mapped[str | None] = mapped_column(String(120))
@@ -47,7 +49,9 @@ class Scholar(Base):
         back_populates="scholar", cascade="all, delete-orphan"
     )
 
-    education_suppressions: Mapped[list["EducationSuppression"]] = relationship(cascade="all, delete-orphan")
+    education_suppressions: Mapped[list["EducationSuppression"]] = relationship(
+        cascade="all, delete-orphan"
+    )
 
     education: Mapped[list["ScholarEducation"]] = relationship(
         back_populates="scholar", cascade="all, delete-orphan", order_by="ScholarEducation.id"
@@ -59,7 +63,9 @@ class ScholarEducation(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     scholar_id: Mapped[int] = mapped_column(ForeignKey("scholars.id"), nullable=False, index=True)
-    source_program_id: Mapped[int | None] = mapped_column(ForeignKey("programs.id", ondelete="SET NULL"))
+    source_program_id: Mapped[int | None] = mapped_column(
+        ForeignKey("programs.id", ondelete="SET NULL")
+    )
     level: Mapped[str] = mapped_column(Text, default="", nullable=False)
     degree: Mapped[str] = mapped_column(Text, default="", nullable=False)
     institution: Mapped[str] = mapped_column(Text, default="", nullable=False)
@@ -72,13 +78,19 @@ class ScholarEducation(Base):
 
 class EducationSuppression(Base):
     __tablename__ = "education_suppressions"
-    scholar_id: Mapped[int] = mapped_column(ForeignKey("scholars.id", ondelete="CASCADE"), primary_key=True)
-    program_id: Mapped[int] = mapped_column(ForeignKey("programs.id", ondelete="CASCADE"), primary_key=True)
+    scholar_id: Mapped[int] = mapped_column(
+        ForeignKey("scholars.id", ondelete="CASCADE"), primary_key=True
+    )
+    program_id: Mapped[int] = mapped_column(
+        ForeignKey("programs.id", ondelete="CASCADE"), primary_key=True
+    )
 
 
 class CreationRequest(Base):
     __tablename__ = "creation_requests"
-    user_id: Mapped[int] = mapped_column(ForeignKey("local_users.id", ondelete="CASCADE"), primary_key=True)
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("local_users.id", ondelete="CASCADE"), primary_key=True
+    )
     request_key: Mapped[str] = mapped_column(String(64), primary_key=True)
     payload_digest: Mapped[str] = mapped_column(String(64), nullable=False)
     # Keep the non-reusable identity even when the original scholar is deleted.
@@ -131,13 +143,17 @@ class FsdpParticipation(Base):
     end_date: Mapped[date | None] = mapped_column(Date)
     contract_completed_on: Mapped[date | None] = mapped_column(Date)
     graduation_date: Mapped[date | None] = mapped_column(Date)
-    case_status: Mapped[str] = mapped_column(String(20), default="Open", server_default="Open", nullable=False)
+    case_status: Mapped[str] = mapped_column(
+        String(20), default="Open", server_default="Open", nullable=False
+    )
     start_term: Mapped[str | None] = mapped_column(String(50))
     start_academic_year: Mapped[str | None] = mapped_column(String(20))
     end_term: Mapped[str | None] = mapped_column(String(50))
     end_academic_year: Mapped[str | None] = mapped_column(String(20))
     status: Mapped[str] = mapped_column(String(50), default="On Going", nullable=False, index=True)
     grant_type: Mapped[str | None] = mapped_column(String(100))
+    program_category: Mapped[str | None] = mapped_column(String(100))
+    application_key: Mapped[str | None] = mapped_column(String(64))
     grant_other: Mapped[str | None] = mapped_column(String(200))
     extension: Mapped[str | None] = mapped_column(String(200))
     remarks: Mapped[str | None] = mapped_column(Text)
@@ -151,9 +167,7 @@ class LocalUser(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     username: Mapped[str] = mapped_column(String(80), nullable=False, unique=True, index=True)
-    __table_args__ = (
-        Index("uq_local_users_username_lower", func.lower(username), unique=True),
-    )
+    __table_args__ = (Index("uq_local_users_username_lower", func.lower(username), unique=True),)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     role: Mapped[str] = mapped_column(String(20), nullable=False, default="staff")
     is_active: Mapped[bool] = mapped_column(
@@ -175,7 +189,9 @@ class OfficeLog(Base):
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    scholar_id: Mapped[int | None] = mapped_column(ForeignKey("scholars.id", ondelete="SET NULL"), index=True)
+    scholar_id: Mapped[int | None] = mapped_column(
+        ForeignKey("scholars.id", ondelete="SET NULL"), index=True
+    )
     scholar_name: Mapped[str | None] = mapped_column(Text)
     user_id: Mapped[int] = mapped_column(Integer, nullable=False)
     username: Mapped[str] = mapped_column(String(80), nullable=False)
@@ -197,6 +213,7 @@ class LocalSession(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("local_users.id"), nullable=False, index=True)
     token_hash: Mapped[str] = mapped_column(String(128), nullable=False, unique=True, index=True)
     expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, index=True)
+    last_activity_at: Mapped[datetime | None] = mapped_column(DateTime)
 
 
 class ActivityEvent(Base):

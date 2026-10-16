@@ -1,4 +1,6 @@
-# Current export schemas — 0.5.18
+# Current export schemas — 0.5.21
+
+All five CSV downloads include a UTF-8 signature so Excel can recognize accented names. Headers, grouped scholar/grant rows and spreadsheet formula protection remain unchanged by this encoding update.
 
 Current rules take precedence over the historical notes retained below. [Machine-readable header contracts](current/EXPORT_CONTRACTS.json) are checked against actual API output in the regression suite. CSV access requires sign-in; staff and admin can export. Backups remain privileged.
 

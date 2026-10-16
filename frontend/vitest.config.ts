@@ -9,5 +9,12 @@ export default defineConfig({
     setupFiles: ["./tests/setup.ts"],
     restoreMocks: true,
     maxWorkers: 2,
+    coverage: {
+      provider: "v8",
+      include: ["src/**/*.{ts,tsx}"],
+      exclude: ["src/main.tsx", "src/vite-env.d.ts"],
+      reporter: ["text", "json-summary"],
+      thresholds: { statements: 80, branches: 70, functions: 70, lines: 80 },
+    },
   },
 });

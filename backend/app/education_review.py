@@ -13,7 +13,9 @@ def review_education(snapshot: Path, *, today: date | None = None) -> dict:
     snapshot = snapshot.resolve(strict=True)
     with closing(sqlite3.connect(snapshot.as_uri() + "?mode=ro", uri=True)) as connection:
         connection.execute("PRAGMA query_only=ON")
-        if connection.execute("SELECT product FROM cathedra_product WHERE id=1").fetchone() != ("fsdp",):
+        if connection.execute("SELECT product FROM cathedra_product WHERE id=1").fetchone() != (
+            "fsdp",
+        ):
             raise ValueError("Choose a compatible FSDP snapshot.")
         grants = defaultdict(list)
         for scholar, program, name, status, remarks in connection.execute(
@@ -32,10 +34,17 @@ def review_education(snapshot: Path, *, today: date | None = None) -> dict:
         ):
             checked += 1
             if not any(grants[scholar, program]):
-                candidates.append({
-                    "education_id": identity, "scholar_id": scholar, "program_id": program,
-                    "reason": "No current recorded graduation or accepted program-specific remark evidence",
-                })
-    return {"linked_entries_checked": checked, "review_candidates": len(candidates),
-            "candidates": candidates,
-            "notice": "Review only. Historical achievements and manual corrections may be valid. Nothing was changed."}
+                candidates.append(
+                    {
+                        "education_id": identity,
+                        "scholar_id": scholar,
+                        "program_id": program,
+                        "reason": "No current recorded graduation or accepted program-specific remark evidence",
+                    }
+                )
+    return {
+        "linked_entries_checked": checked,
+        "review_candidates": len(candidates),
+        "candidates": candidates,
+        "notice": "Review only. Historical achievements and manual corrections may be valid. Nothing was changed.",
+    }

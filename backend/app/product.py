@@ -2,12 +2,26 @@ import os
 
 PRODUCT = "fsdp"
 PRODUCT_NAME = "Cathedra FSDP"
-FSDP_TABLES = frozenset({
-    "scholars", "scholar_education", "scholar_requirements", "programs", "fsdp_participations",
-    "local_users", "local_sessions", "activity_events", "backup_reviews",
-    "cathedra_product", "schema_migrations", "scholar_id_counter",
-    "sqlite_sequence", "creation_requests", "education_suppressions", "office_logs",
-})
+FSDP_TABLES = frozenset(
+    {
+        "scholars",
+        "scholar_education",
+        "scholar_requirements",
+        "programs",
+        "fsdp_participations",
+        "local_users",
+        "local_sessions",
+        "activity_events",
+        "backup_reviews",
+        "cathedra_product",
+        "schema_migrations",
+        "scholar_id_counter",
+        "sqlite_sequence",
+        "creation_requests",
+        "education_suppressions",
+        "office_logs",
+    }
+)
 if os.environ.get("CATHEDRA_PRODUCT", PRODUCT) != PRODUCT:
     raise RuntimeError("This codebase supports Cathedra FSDP only.")
 
@@ -36,7 +50,11 @@ def verify_product(database, allow_legacy: bool = False) -> None:
         expected = [(version, name) for version, name, _ in MIGRATIONS]
         if not history or history != expected[: len(history)]:
             raise ValueError("This backup needs offline FSDP conversion before restore.")
-        allowed = FSDP_TABLES if history[-1][0] >= 6 else FSDP_TABLES | {"fsdp_records", "fsdp_legacy_fields"}
+        allowed = (
+            FSDP_TABLES
+            if history[-1][0] >= 6
+            else FSDP_TABLES | {"fsdp_records", "fsdp_legacy_fields"}
+        )
         if tables - allowed:
             raise ValueError(
                 "This backup still contains other-app tables. Convert it before restore."

@@ -29,6 +29,11 @@ RUNTIME_NAMES = (
 )
 
 
+def file_sha256(path: Path) -> str:
+    with path.open("rb") as source:
+        return hashlib.file_digest(source, "sha256").hexdigest()
+
+
 def safe_directory(path: Path) -> Path:
     absolute = Path(os.path.abspath(path))
     for item in (absolute, *absolute.parents):
@@ -64,9 +69,7 @@ def runtime_paths(root: Path) -> dict[str, Path]:
         base = root / folder
         if base.is_symlink() or base.is_junction():
             raise ValueError(f"Linked runtime files are not supported: {base}")
-        for directory, children, files in os.walk(
-            base, onerror=scan_error, followlinks=False
-        ):
+        for directory, children, files in os.walk(base, onerror=scan_error, followlinks=False):
             directory = Path(directory)
             for name in (*children, *files):
                 path = directory / name
@@ -90,9 +93,7 @@ def inspect_package(
         raise ValueError("Select a Cathedra FSDP package.")
     if manifest["version"] != (root / "VERSION").read_text().strip():
         raise ValueError("Package version identity differs.")
-    required = {name.casefold() for name in ROOT_FILES} | {
-        f"tools/{name}" for name in TOOL_FILES
-    }
+    required = {name.casefold() for name in ROOT_FILES} | {f"tools/{name}" for name in TOOL_FILES}
     seen = set()
     missing_files = set()
     for entry in manifest["runtime_files"]:
@@ -109,17 +110,11 @@ def inspect_package(
             raise ValueError("Unsafe or duplicate release path.")
         seen.add(relative.as_posix().casefold())
         key = relative.as_posix().casefold()
-        allowed = (
-            key in required
-            or (
-                len(relative.parts) > 1
-                and relative.parts[0].casefold() == "_internal"
-            )
+        allowed = key in required or (
+            len(relative.parts) > 1 and relative.parts[0].casefold() == "_internal"
         )
         if not allowed:
-            raise ValueError(
-                f"Unexpected or missing runtime file in {root}: {relative.as_posix()}"
-            )
+            raise ValueError(f"Unexpected or missing runtime file in {root}: {relative.as_posix()}")
         if not path.is_file():
             missing_files.add(key)
             continue
@@ -128,10 +123,7 @@ def inspect_package(
                 break
             if ancestor.is_symlink() or ancestor.is_junction():
                 raise ValueError("Linked runtime files are not supported.")
-        if (
-            path.stat().st_size != entry["size"]
-            or hashlib.sha256(path.read_bytes()).hexdigest() != entry["sha256"].lower()
-        ):
+        if path.stat().st_size != entry["size"] or file_sha256(path) != entry["sha256"].lower():
             raise ValueError(
                 f"Package integrity verification failed in {root}: {relative.as_posix()}"
             )
@@ -288,10 +280,7 @@ def update_office(
                 old = safe_directory(Path(prior["old_runtime"]))
                 if old.parent != data / "updates":
                     raise RuntimeError("Invalid runtime recovery location.")
-                if (
-                    hashlib.sha256(database_path.read_bytes()).hexdigest()
-                    != prior["database_sha256"]
-                ):
+                if file_sha256(database_path) != prior["database_sha256"]:
                     raise RuntimeError(
                         "Office data changed after the update. Use forward repair; do not restore an old runtime automatically."
                     )
@@ -318,8 +307,11 @@ def update_office(
         residue_bytes = sum(path.stat().st_size for path in residue)
         if (
             shutil.disk_usage(data).free
-            < total_bytes * 2 + installed_bytes + residue_bytes
-            + database_path.stat().st_size * 4 + 10_485_760
+            < total_bytes * 2
+            + installed_bytes
+            + residue_bytes
+            + database_path.stat().st_size * 4
+            + 10_485_760
         ):
             raise RuntimeError("Free disk space is insufficient for staging and recovery.")
         token = datetime.now().strftime("%Y%m%d-%H%M%S") + "-" + uuid4().hex
@@ -349,9 +341,7 @@ def update_office(
                 copied = residue_archive / original.relative_to(target)
                 copied.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(original, copied)
-                if hashlib.sha256(copied.read_bytes()).digest() != hashlib.sha256(
-                    original.read_bytes()
-                ).digest():
+                if file_sha256(copied) != file_sha256(original):
                     raise RuntimeError("Runtime residue recovery copy differs; update stopped.")
         staged = work / ("staged-" + token)
         copy_runtime(package, staged, incoming)
@@ -362,7 +352,7 @@ def update_office(
             "version": incoming["version"],
             "snapshot": str(snapshot),
             "old_runtime": str(old),
-            "database_sha256": hashlib.sha256(database_path.read_bytes()).hexdigest(),
+            "database_sha256": file_sha256(database_path),
             "database_replaced": False,
             "runtime_residue_archive": str(residue_archive) if residue_archive else None,
             "runtime_residue_files": len(residue),
@@ -375,7 +365,7 @@ def update_office(
             restore_runtime(target, staged)
             checked_package(target, "Installed replacement runtime")
             workflow_check(target)
-            if hashlib.sha256(database_path.read_bytes()).hexdigest() != state["database_sha256"]:
+            if file_sha256(database_path) != state["database_sha256"]:
                 raise RuntimeError("Office database changed during file replacement.")
             state["status"] = "verified"
             write_journal(journal, state)

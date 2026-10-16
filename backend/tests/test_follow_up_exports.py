@@ -5,7 +5,13 @@ from io import StringIO
 def test_report_filter_options_on_empty_database(client):
     response = client.get("/api/v1/fsdp/report-options")
     assert response.status_code == 200
-    assert response.json() == {"departments": [], "ranks": [], "delivering_heis": [], "statuses": [], "grant_types": []}
+    assert response.json() == {
+        "departments": [],
+        "ranks": [],
+        "delivering_heis": [],
+        "statuses": [],
+        "grant_types": [],
+    }
 
 
 def test_report_filter_options_deduplicate_sort_and_use_legacy_hei(client):
@@ -50,7 +56,8 @@ def test_report_filter_options_deduplicate_sort_and_use_legacy_hei(client):
         "departments": ["CAS", "CCS"],
         "ranks": ["ASSISTANT PROFESSOR", "INSTRUCTOR"],
         "delivering_heis": ["EXAMPLE UNIVERSITY", "Legacy University"],
-        "statuses": ["On Going"], "grant_types": [],
+        "statuses": ["On Going"],
+        "grant_types": [],
     }
 
 
@@ -67,7 +74,7 @@ def test_csv_matches_computed_requirement_follow_up(client):
     assert created.status_code == 201
     assert created.json()["missing_requirements"] is True
     response = client.get("/api/v1/maintenance/exports/fsdp.csv")
-    row = next(csv.DictReader(StringIO(response.text)))
+    row = next(csv.DictReader(StringIO(response.text.lstrip("\ufeff"))))
     assert row["Missing Requirements"] == "True"
 
 

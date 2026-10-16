@@ -1,6 +1,6 @@
-# Cathedra FSDP 0.5.19
+# Cathedra FSDP 0.5.21
 
-Source code for the local Windows FSDP scholar administration application. Database schema: 13.
+Source code for the local Windows FSDP scholar administration application. Database schema: 15.
 
 This repository includes the backend, frontend, desktop launcher/updater, automated tests, build tools and current technical documentation. It excludes Office databases, accounts, backups, logs, packaged executables and private installation history.
 
@@ -30,4 +30,4 @@ Ready-to-use updates are published separately under [Cathedra FSDP Releases](htt
 
 ## Validation
 
-The 0.5.19 local build passed 420 backend and 185 frontend tests, static/type checks, packaging verification and synthetic upgrade/rollback checks. GitHub Actions is included; remote results must be checked separately. Actual Office-PC acceptance remains a separate step.
+The 0.5.21 local build passed 494 unique backend cases across complete/focused runs and 220 frontend tests, static/format/type checks, packaged workflow and synthetic upgrade/recovery checks. See docs/VALIDATION_0.5.21.md for execution details. GitHub Actions is included; remote results must be checked separately. Actual Office-PC acceptance remains a separate step.

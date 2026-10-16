@@ -1,25 +1,104 @@
-#prepared-print-document, .native-print-scope { display: none; }
+#prepared-print-document,
+.native-print-scope {
+  display: none;
+}
 @media print {
-  body.prepared-print .app-layout { display: none !important; }
-  body.prepared-print #prepared-print-document { display: block; }
-  .native-print-scope { display: block; margin-bottom: 12px; font-size: 9pt; }
-  .dashboard-scope, .dashboard-heading .action-group { display: none !important; }
-  table, .scholar-table { min-width: 0 !important; width: 100%; font-size: 9pt; }
-  @page { margin: 14mm; }
-  body { background: #fff; color: #000; }
-  .sidebar, .topbar, .no-print, .sidebar-scrim, .action-group, .btn, .toolbar { display: none !important; }
-  .workspace, .sidebar-collapsed .workspace { margin-left: 0; }
-  .page { padding: 0; max-width: none; }
-  .workspace-tabs, .section-nav, .scholar-entry-index, .scholar-save-bar { display: none !important; }
-  [hidden] { display: none !important; }
-  .hero-card, .data-card, .maintenance-card, .maintenance-status-card, .metric-card { box-shadow: none; border-color: #b8b8b8; }
-  .hero-card { min-height: auto; }
-  .table-scroll, .table-region { overflow: visible; }
-  thead { display: table-header-group; }
-  tr, .analytics-card, .profile-hero { break-inside: avoid; }
-  .dashboard-heading, .profile-hero { background: #fff; color: #000; }
-  .dashboard-heading :is(h1, p, .eyebrow) { color: #000; }
-  .outcome-ring, .outcome-legend i, .bar-track span { print-color-adjust: exact; }
-  th, td { padding: 6px; }
-  a { color: #000; text-decoration: none; }
+  body.prepared-print .app-layout {
+    display: none !important;
+  }
+  body.prepared-print #prepared-print-document {
+    display: block;
+  }
+  .native-print-scope {
+    display: block;
+    margin-bottom: 12px;
+    font-size: 9pt;
+  }
+  .dashboard-scope,
+  .dashboard-heading .action-group {
+    display: none !important;
+  }
+  table,
+  .scholar-table {
+    min-width: 0 !important;
+    width: 100%;
+    font-size: 9pt;
+  }
+  @page {
+    margin: 14mm;
+  }
+  body {
+    background: #fff;
+    color: #000;
+  }
+  .sidebar,
+  .topbar,
+  .no-print,
+  .sidebar-scrim,
+  .action-group,
+  .btn,
+  .toolbar {
+    display: none !important;
+  }
+  .workspace,
+  .sidebar-collapsed .workspace {
+    margin-left: 0;
+  }
+  .page {
+    padding: 0;
+    max-width: none;
+  }
+  .workspace-tabs,
+  .section-nav,
+  .scholar-entry-index,
+  .scholar-save-bar {
+    display: none !important;
+  }
+  [hidden] {
+    display: none !important;
+  }
+  .hero-card,
+  .data-card,
+  .maintenance-card,
+  .maintenance-status-card,
+  .metric-card {
+    box-shadow: none;
+    border-color: #b8b8b8;
+  }
+  .hero-card {
+    min-height: auto;
+  }
+  .table-scroll,
+  .table-region {
+    overflow: visible;
+  }
+  thead {
+    display: table-header-group;
+  }
+  tr,
+  .analytics-card,
+  .profile-hero {
+    break-inside: avoid;
+  }
+  .dashboard-heading,
+  .profile-hero {
+    background: #fff;
+    color: #000;
+  }
+  .dashboard-heading :is(h1, p, .eyebrow) {
+    color: #000;
+  }
+  .outcome-ring,
+  .outcome-legend i,
+  .bar-track span {
+    print-color-adjust: exact;
+  }
+  th,
+  td {
+    padding: 6px;
+  }
+  a {
+    color: #000;
+    text-decoration: none;
+  }
 }

@@ -1,0 +1,95 @@
+.office-log-list {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.office-log-entry {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  overflow: hidden;
+}
+.office-log-entry > summary {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 64px;
+  padding: 16px 20px;
+  cursor: pointer;
+  list-style: none;
+}
+.office-log-entry > summary::-webkit-details-marker {
+  display: none;
+}
+.office-log-entry > summary::before {
+  content: "›";
+  color: var(--brand);
+  font-size: 24px;
+}
+.office-log-entry[open] > summary::before {
+  transform: rotate(90deg);
+}
+.office-log-entry > summary:focus-visible {
+  outline: 3px solid var(--brand);
+  outline-offset: -3px;
+}
+.office-log-summary {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.office-log-summary-context {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+.office-log-entry > summary > time {
+  color: var(--muted);
+  font-size: var(--text-sm);
+  white-space: nowrap;
+}
+.office-log-details {
+  display: grid;
+  gap: 12px;
+  border-top: 1px solid var(--border);
+  padding: 16px 20px;
+  overflow-wrap: anywhere;
+}
+.office-log-details p {
+  margin: 0;
+}
+.office-log-note {
+  white-space: pre-wrap;
+}
+@media (max-width: 640px) {
+  .office-log-entry > summary {
+    gap: 12px;
+    padding: 14px 16px;
+    flex-wrap: wrap;
+  }
+  .office-log-entry > summary > time {
+    padding-left: 25px;
+    width: 100%;
+  }
+  .office-log-details {
+    padding: 16px;
+  }
+}
+@media print {
+  .office-log-entry {
+    overflow: visible;
+    border-color: #777;
+  }
+  .office-log-entry > summary::before {
+    display: none;
+  }
+  .office-log-details {
+    display: block;
+  }
+  .office-log-details p {
+    margin: 0 0 8px;
+  }
+}

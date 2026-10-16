@@ -2,12 +2,13 @@
 
 from datetime import date
 
-from sqlalchemy import and_, func, select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.college_classification import affiliation, affiliation_expression
 from app.contract_rules import GROUPS, classify_contract
 from app.contract_rules import grace_end as grace_end
+from app.grant_applications import has_completed_application_expression
 from app.models import FsdpParticipation, Program, Scholar
 from app.record_text import outcome
 
@@ -21,13 +22,7 @@ def payback_data(
     include_items: bool = True,
 ) -> dict:
     today = today or date.today()
-    graduated_programs = (
-        select(FsdpParticipation.scholar_id, FsdpParticipation.program_id)
-        .where(func.lower(func.trim(FsdpParticipation.status)).in_(["graduated", "completed"]))
-        .distinct()
-        .subquery()
-    )
-    has_graduated = graduated_programs.c.scholar_id.is_not(None)
+    has_graduated = has_completed_application_expression()
     statement = (
         select(
             Scholar.id,
@@ -35,6 +30,7 @@ def payback_data(
             affiliation_expression(Scholar.department),
             FsdpParticipation.id,
             FsdpParticipation.program_id,
+            FsdpParticipation.application_key,
             Program.name,
             FsdpParticipation.start_academic_year,
             FsdpParticipation.status,
@@ -43,13 +39,6 @@ def payback_data(
         )
         .join(FsdpParticipation, FsdpParticipation.scholar_id == Scholar.id)
         .join(Program, Program.id == FsdpParticipation.program_id)
-        .outerjoin(
-            graduated_programs,
-            and_(
-                graduated_programs.c.scholar_id == Scholar.id,
-                graduated_programs.c.program_id == FsdpParticipation.program_id,
-            ),
-        )
     )
     if department.strip():
         statement = statement.where(
@@ -68,6 +57,7 @@ def payback_data(
         department_name,
         grant_id,
         program_id,
+        application_key,
         program_name,
         year,
         status,
@@ -86,6 +76,7 @@ def payback_data(
                 "department": department_name,
                 "participation_id": grant_id,
                 "program_id": program_id,
+                "application_key": application_key,
                 "program_name": program_name,
                 "academic_year": year,
                 "recorded_status": outcome(status),

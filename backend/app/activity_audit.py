@@ -120,8 +120,10 @@ def write_activity(db: Session, _) -> None:
             operation=operation,
             changed_fields=fields,
             subject_scholar_id=(
-                record_id if isinstance(record, Scholar)
-                else record.scholar_id if isinstance(record, (FsdpParticipation, ScholarRequirement, ScholarEducation))
+                record_id
+                if isinstance(record, Scholar)
+                else record.scholar_id
+                if isinstance(record, (FsdpParticipation, ScholarRequirement, ScholarEducation))
                 else None
             ),
         )

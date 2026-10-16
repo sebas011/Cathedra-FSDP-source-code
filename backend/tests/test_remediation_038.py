@@ -185,7 +185,3 @@ def test_restore_cleanup_failure_requires_restart_before_any_write(client, tmp_p
     assert restore_marker_path(maintenance.DB_PATH).exists()
     assert client.post("/api/v1/fsdp", json={"name": "Must not be saved"}).status_code == 503
     assert client.get("/api/v1/fsdp/payback").status_code == 503
-
-
-
-

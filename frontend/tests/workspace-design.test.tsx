@@ -2,10 +2,15 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import PageHeading from "../src/components/PageHeading";
 
-
 describe("shared page heading", () => {
   it("exposes one page title and preserves its action", () => {
-    render(<PageHeading title="Scholars" eyebrow="FSDP" actions={<button type="button">Add scholar</button>} />);
+    render(
+      <PageHeading
+        title="Scholars"
+        eyebrow="FSDP"
+        actions={<button type="button">Add scholar</button>}
+      />,
+    );
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
     expect(screen.getByRole("heading", { name: "Scholars" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Add scholar" })).toBeTruthy();

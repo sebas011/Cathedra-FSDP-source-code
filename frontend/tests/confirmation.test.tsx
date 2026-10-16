@@ -5,7 +5,17 @@ import { useDiscardConfirmation } from "../src/hooks/useDiscardConfirmation";
 
 function Example({ completed }: { completed: (confirmed: boolean) => void }) {
   const { confirmDiscard, discardDialog } = useDiscardConfirmation();
-  return <main><h1>Edit demonstration record</h1><button onClick={() => void confirmDiscard("Only unsaved edits will be removed.").then(completed)}>Cancel editor</button>{discardDialog}</main>;
+  return (
+    <main>
+      <h1>Edit demonstration record</h1>
+      <button
+        onClick={() => void confirmDiscard("Only unsaved edits will be removed.").then(completed)}
+      >
+        Cancel editor
+      </button>
+      {discardDialog}
+    </main>
+  );
 }
 
 test("discard dialog defaults to keeping edits and restores trigger focus", async () => {
@@ -53,6 +63,11 @@ test("discard dialog has valid labelled modal structure", async () => {
   fireEvent.click(screen.getByRole("button", { name: "Cancel editor" }));
   const dialog = await screen.findByRole("dialog", { name: "Discard your changes?" });
   expect(dialog.getAttribute("aria-describedby")).toBeTruthy();
-  const result = await axe.run(dialog, { runOnly: { type: "rule", values: ["aria-dialog-name", "button-name", "aria-valid-attr-value", "aria-roles"] } });
-  expect(result.violations.map(item => item.id)).toEqual([]);
+  const result = await axe.run(dialog, {
+    runOnly: {
+      type: "rule",
+      values: ["aria-dialog-name", "button-name", "aria-valid-attr-value", "aria-roles"],
+    },
+  });
+  expect(result.violations.map((item) => item.id)).toEqual([]);
 });

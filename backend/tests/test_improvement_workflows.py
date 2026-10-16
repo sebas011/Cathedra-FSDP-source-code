@@ -29,12 +29,16 @@ def test_exports_have_current_fields_and_one_education_row(client):
         },
     )
     general = list(
-        csv.DictReader(StringIO(client.get("/api/v1/maintenance/exports/fsdp.csv").text))
+        csv.DictReader(
+            StringIO(client.get("/api/v1/maintenance/exports/fsdp.csv").text.lstrip("\ufeff"))
+        )
     )
     assert general[0]["Personnel Type"] == "Staff"
     assert general[0]["Current Scholar Status"] == "Completed"
     education = list(
-        csv.DictReader(StringIO(client.get("/api/v1/maintenance/exports/education.csv").text))
+        csv.DictReader(
+            StringIO(client.get("/api/v1/maintenance/exports/education.csv").text.lstrip("\ufeff"))
+        )
     )
     assert len(education) == 2
     assert len({item["Education ID"] for item in education}) == 2

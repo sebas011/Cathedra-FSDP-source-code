@@ -5,7 +5,9 @@ export default function NumberInput(props: Omit<InputHTMLAttributes<HTMLInputEle
   const input = useRef<HTMLInputElement>(null);
   useEffect(() => {
     const element = input.current;
-    const preventChange = (event: WheelEvent) => { if (document.activeElement === element) event.preventDefault(); };
+    const preventChange = (event: WheelEvent) => {
+      if (document.activeElement === element) event.preventDefault();
+    };
     element?.addEventListener("wheel", preventChange, { passive: false });
     return () => element?.removeEventListener("wheel", preventChange);
   }, []);

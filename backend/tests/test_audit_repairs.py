@@ -162,8 +162,6 @@ def test_blank_hei_does_not_inherit_another_scholars_institution(client):
     assert saved["participations"][0]["delivering_hei"] is None
 
 
-
-
 def test_staff_cannot_create_full_backup(client):
     created = client.post(
         "/api/v1/auth/users",

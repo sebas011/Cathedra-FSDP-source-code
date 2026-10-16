@@ -16,7 +16,18 @@ def normalize_term(value: str | None) -> str | None:
     if not value or not value.strip():
         return None
     key = value.strip().lower().split()[0]
-    aliases = {"1st": "1st", "first": "1st", "1": "1st", "2nd": "2nd", "second": "2nd", "2": "2nd", "3rd": "3rd", "third": "3rd", "summer": "Summer", "3": "3rd"}
+    aliases = {
+        "1st": "1st",
+        "first": "1st",
+        "1": "1st",
+        "2nd": "2nd",
+        "second": "2nd",
+        "2": "2nd",
+        "3rd": "3rd",
+        "third": "3rd",
+        "summer": "Summer",
+        "3": "3rd",
+    }
     return aliases.get(key)
 
 
@@ -63,6 +74,8 @@ class ParticipationInput(TextModel):
     end_term: Literal["1st", "2nd", "3rd", "Summer"] | None = None
     end_academic_year: str | None = None
     grant_type: GrantType | None = None
+    program_category: str | None = None
+    application_key: str | None = None
     grant_other: str | None = None
     status: FsdpStatus = "On Going"
     extension: str | None = None
@@ -87,7 +100,6 @@ class ParticipationInput(TextModel):
         return outcome(value)
 
 
-
 class EducationInput(TextModel):
     id: int | None = None
     level: str = ""
@@ -106,6 +118,8 @@ class ScholarBase(TextModel):
     age: int | None = None
     previous_degree: str | None = None
     missing_requirements: bool = False
+    has_hard_copy: bool | None = None
+    has_soft_copy: bool | None = None
     department: str | None = None
     personnel_type: Literal["Faculty", "Staff", "Unknown"] | None = None
     rank: str | None = None
@@ -163,6 +177,8 @@ class ParticipationRead(BaseModel):
     end_term: str | None
     end_academic_year: str | None
     grant_type: GrantType | None
+    program_category: str | None = None
+    application_key: str | None = None
     grant_other: str | None
     status: FsdpStatus
     extension: str | None
@@ -177,6 +193,8 @@ class ScholarRead(BaseModel):
     previous_degree: str | None
     missing_requirements: bool
     manual_requirements_follow_up: bool
+    has_hard_copy: bool | None = None
+    has_soft_copy: bool | None = None
     department: str | None
     rank: str | None
     personnel_type: Literal["Faculty", "Staff", "Unknown"]

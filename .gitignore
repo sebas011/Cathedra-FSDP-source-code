@@ -27,6 +27,9 @@ desktop/*.log
 .pytest-temp-*/
 frontend/tsconfig.tsbuildinfo
 frontend/.vitest/
+.coverage
+coverage/
+.test-*/
 
 # Local office records and generated analysis are not source code.
 backups/

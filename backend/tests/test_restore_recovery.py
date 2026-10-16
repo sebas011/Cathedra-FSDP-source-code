@@ -87,7 +87,9 @@ def test_crashed_process_recovers_before_application_startup(tmp_path: Path) -> 
         bind_empty_database(connection)
     engine.dispose()
     with closing(sqlite3.connect(database_path)) as database:
-        database.execute("INSERT INTO scholars (id, name, revision, missing_requirements, data_source, created_at, updated_at) VALUES (1, 'before restore', 0, 0, 'Cathedra', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")
+        database.execute(
+            "INSERT INTO scholars (id, name, revision, missing_requirements, data_source, created_at, updated_at) VALUES (1, 'before restore', 0, 0, 'Cathedra', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"
+        )
         database.commit()
         safety_backup = backup_directory / "cathedra-backup-before-restore-process.db"
         with closing(sqlite3.connect(safety_backup)) as backup:

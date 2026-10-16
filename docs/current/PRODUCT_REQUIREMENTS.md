@@ -1,8 +1,8 @@
 # Product requirements
 
 **Product:** Cathedra FSDP  
-**Documented:** 14 October 2026, Asia/Manila<br>
-**Baseline:** release 0.5.19; database schema 13<br>
+**Documented:** 16 October 2026, Asia/Manila<br>
+**Baseline:** release 0.5.21; database schema 15<br>
 **Status:** implementation-derived documentation; see [baseline and evidence](README.md).
 
 ## Purpose and users
@@ -45,6 +45,10 @@ The application is designed for a local service and local database. Network shar
 | PRD-20 | Separate outcome and case state | Completed replaces Graduated as the canonical grant outcome. Each grant also has an independent Open/Closed case state; closing a case does not imply completion or repayment. |
 | PRD-21 | Record graduation facts optionally | Each grant can have an optional graduation date. A Completed program can create linked education without a date or recognizable remark; dates and manual education intent remain separate. |
 | PRD-22 | Record office document work | Staff/admin can append document-receipt or transfer entries with optional scholar linkage, date, document description, departments and notes. The Office Log is distinct from administrator change history and does not store uploaded documents. |
+| PRD-23 | Track physical and electronic copies separately | Hard copy and soft copy are independent optional Available/Not available/Not recorded profile facts shown in the directory/profile. Neither implies complete requirements or a stored attachment. |
+| PRD-24 | Separate repeated applications within one program | Annual records can share one application; a later enrollment receives a distinct application identity and overall period. Completion does not clear another application's calculated follow-up. Historical unassigned records are preserved until explicitly assigned. |
+| PRD-25 | Support certification and enhancement programs | Optional program category distinguishes Degree, Certification and Enhancement independently of grant funding type. Name and Program Applied remain the essential identifiers. |
+| PRD-26 | Present a predictable directory and compact log | Directory pages are ordered by case-insensitive trimmed full name then ID. Confirmed log saves close the editor; compact saved rows expand their full details. Uncertain drafts stay open. |
 
 ## Business rules
 
@@ -67,7 +71,7 @@ Classification order is important:
 1. Recorded Payback remains Recorded Payback, even if another grant for that program is Completed.
 2. Recorded Payback pending contract remains pending even if another grant for that program is Completed.
 3. Did Not Avail remains outside unfinished-program follow-up.
-4. Any recorded Completed grant for the same scholar and **same program ID** clears calculated follow-up for that program’s other annual grants, subject to the recorded repayment categories above. Education inferred from remarks alone does not clear assessment. Open/Closed case state does not override these recorded outcome rules.
+4. Any recorded Completed grant for the same scholar, **same program ID and same application identity** clears calculated follow-up for that application's other annual grants, subject to the recorded repayment categories above. Separate applications to the same program remain independent. Existing unassigned grants retain the previous same-program rule among those unassigned records until staff explicitly assign them. Education inferred from remarks alone does not clear assessment. Open/Closed case state does not override these recorded outcome rules.
 5. Missing completion date produces Completion date missing, not a guessed deadline.
 6. A future completion date produces Contract not completed.
 7. Through the third anniversary, including that final day, the grant is In grace period. The next day starts Payback review.
@@ -75,6 +79,10 @@ Classification order is important:
 For a 29 February completion, the three-year anniversary uses 28 February in the target year. Example: completion on 9 October 2023 stays in grace through 9 October 2026; review begins 10 October 2026. A duplicated program has a new ID; same-program graduation clearing does not automatically extend to that new program.
 
 Recorded outcome changes remain office decisions. Calculated review does not establish a repayment amount, issue a demand, or change a grant to Payback. An administrator/staff member reviews the evidence and records the appropriate outcome.
+
+### Application history and copies
+
+Copy for next year retains the same application; New application creates a distinct enrollment group under the same program and clears prior remarks and completion facts. A suggested period must be reviewed before saving. Existing historical records are never automatically split by year gaps, repeated names or contract dates. Program category is separate from funding type, so a Certification or Enhancement program can still have any applicable grant funding type. New category, copy flags and dates remain optional. Document-copy availability is a profile fact; it does not certify requirements or create an attachment.
 
 ### Counts and filters
 

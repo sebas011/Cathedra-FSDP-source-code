@@ -30,5 +30,6 @@ def matching_programs(db: Session, name: str) -> list:
     # Inspect catalog names in Python because SQLite upper()/lower() do not
     # implement this Unicode policy. Return every identity so callers reject
     # ambiguous aliases instead of silently merging distinct historical rows.
-    return [item for item in db.scalars(select(Program)).all()
-            if program_entry_keys(item.name) & keys]
+    return [
+        item for item in db.scalars(select(Program)).all() if program_entry_keys(item.name) & keys
+    ]

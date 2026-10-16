@@ -1,22 +1,241 @@
-export interface EducationInput { id?:number; client_key?:string; source_program_id?:number|null; level:string; degree:string; institution:string; graduation_year:string|null; }
+export interface EducationInput {
+  id?: number;
+  client_key?: string;
+  source_program_id?: number | null;
+  level: string;
+  degree: string;
+  institution: string;
+  graduation_year: string | null;
+}
 export type FsdpStatus = string;
 export type GrantType = string;
-export interface ParticipationInput { id?:number; client_key?:string; source_program_id?:number; program_name:string; delivering_hei:string; start_date:string|null; end_date:string|null; contract_completed_on?:string|null; graduation_date?:string|null; case_status?:"Open"|"Closed"; start_term:string; start_academic_year:string; end_term:string; end_academic_year:string; grant_type:GrantType|null; grant_other:string; status:FsdpStatus; extension:string; remarks:string; }
-export interface ParticipationRead extends Omit<ParticipationInput, "program_name"|"client_key"|"delivering_hei"|"start_term"|"start_academic_year"|"end_term"|"end_academic_year"|"grant_other"|"extension"|"remarks"> { id:number; program_id:number; name:string; payback_attention?:string|null; grace_ends_on?:string|null; delivering_hei:string|null; start_term:string|null; start_academic_year:string|null; end_term:string|null; end_academic_year:string|null; grant_other:string|null; extension:string|null; remarks:string|null; }
-export interface RequirementInput { id?:number; client_key?:string; requirement_name:string; due_date:string|null; is_complete:boolean; remarks:string; }
-export interface Scholar { id:number; revision:number; name:string; age:number|null; previous_degree:string|null; missing_requirements:boolean; manual_requirements_follow_up?:boolean; department:string|null; rank:string|null; personnel_type:"Faculty"|"Staff"|"Unknown"; current_status?:string|null; tenure:string|null; tenure_years?:number|null; tenure_note?:string|null; profile_remarks?:string|null; education?:EducationInput[]; suppressed_education_program_ids?:number[]; data_source:string; participations:ParticipationRead[]; requirements?: (RequirementInput & {id:number;completed_at:string|null})[]; created_at:string; updated_at:string; }
-export interface ScholarPayload { personnel_type?:"Faculty"|"Staff"|"Unknown"|null; name:string; age:number|null; previous_degree:string; missing_requirements:boolean; department:string; rank:string; tenure:string; tenure_years?:number|null; tenure_note?:string|null; profile_remarks?:string|null; education?:EducationInput[]; restore_education_program_ids?:number[]; participations:ParticipationInput[]; requirements:RequirementInput[]; }
-export interface FsdpSummary { total:number; ongoing:number; graduated:number; payback:number; withdrawn:number; did_not_avail?:number; missing_requirements:number; }
-export interface AnalyticsRow { label:string; count:number; }
-export interface FsdpAnalytics { payback_summary?:Record<string,number>; recent_scholars?:Scholar[]; scholars:number; grants:number; ongoing_scholars:number; requirements_follow_up:number; statuses:AnalyticsRow[]; grant_types:AnalyticsRow[]; departments:AnalyticsRow[]; options:{departments:string[];start_academic_years:string[]}; }
-export interface FsdpDepartmentTotal { department:string; scholars:number; ongoing:number; graduated:number; payback:number; withdrawn:number; did_not_avail?:number; transferred?:number; payback_pending_contract?:number; requirements_follow_up:number; }
-export interface FsdpActionItem { scholar_id:number; scholar_name:string; department:string|null; kind:string; detail:string; attention:string; priority:number; }
-export interface FsdpReport { page?:number|null; page_size?:number; action_total?:number; items:Scholar[]; total:number; missing_requirements:number; status_counts:Record<FsdpStatus,number>; grant_type_counts:Record<GrantType,number>; department_totals?:FsdpDepartmentTotal[]; action_items?:FsdpActionItem[]; }
-export interface BackupFile { filename:string; created_at:string; size_bytes:number; protected?:boolean; pinned?:boolean; }
-export interface MaintenanceStatus { database_status:"healthy"; database_file:string; database_size_bytes:number; fsdp_records:number; backup_count:number; latest_backup_at:string|null; backup_retention:number|null; backup_storage_bytes?:number; free_storage_bytes?:number; storage_warning?:boolean; backups:BackupFile[]; backup_due?:boolean; recovery_review?:{filename:string; reviewed_at:string; username:string; restore_tested:boolean; administrator_reported:true}|null; }
-export interface ServiceHealth { status:"ok"; release_version?:string; desktop_mode?:boolean; recovery_required?:boolean; }
-export interface BackupResult { filename:string; created_at:string; size_bytes:number; }
-export interface LocalUser { id:number; username:string; role:"admin"|"staff"; is_active:boolean; must_change_password:boolean; created_at?:string; }
-export interface SessionResult { token:string; user:LocalUser; }
-export interface ActivityEvent { id:number; username:string|null; action:string; area:string; created_at:string; record_type:string|null; record_id:number|null; operation:string|null; changed_fields:string[]; }
-export interface PagedResult<T> { items:T[]; total:number; page:number; page_size:number; summary?:Record<string, number>; }
+export interface ParticipationInput {
+  id?: number;
+  client_key?: string;
+  source_program_id?: number;
+  application_key?: string | null;
+  program_category?: string | null;
+  program_name: string;
+  delivering_hei: string;
+  start_date: string | null;
+  end_date: string | null;
+  contract_completed_on?: string | null;
+  graduation_date?: string | null;
+  case_status?: "Open" | "Closed";
+  start_term: string;
+  start_academic_year: string;
+  end_term: string;
+  end_academic_year: string;
+  grant_type: GrantType | null;
+  grant_other: string;
+  status: FsdpStatus;
+  extension: string;
+  remarks: string;
+}
+export interface ParticipationRead extends Omit<
+  ParticipationInput,
+  | "program_name"
+  | "client_key"
+  | "delivering_hei"
+  | "start_term"
+  | "start_academic_year"
+  | "end_term"
+  | "end_academic_year"
+  | "grant_other"
+  | "extension"
+  | "remarks"
+> {
+  id: number;
+  program_id: number;
+  name: string;
+  payback_attention?: string | null;
+  grace_ends_on?: string | null;
+  delivering_hei: string | null;
+  start_term: string | null;
+  start_academic_year: string | null;
+  end_term: string | null;
+  end_academic_year: string | null;
+  grant_other: string | null;
+  extension: string | null;
+  remarks: string | null;
+}
+export interface RequirementInput {
+  id?: number;
+  client_key?: string;
+  requirement_name: string;
+  due_date: string | null;
+  is_complete: boolean;
+  remarks: string;
+}
+export interface Scholar {
+  id: number;
+  revision: number;
+  name: string;
+  age: number | null;
+  previous_degree: string | null;
+  missing_requirements: boolean;
+  manual_requirements_follow_up?: boolean;
+  department: string | null;
+  rank: string | null;
+  personnel_type: "Faculty" | "Staff" | "Unknown";
+  current_status?: string | null;
+  tenure: string | null;
+  tenure_years?: number | null;
+  tenure_note?: string | null;
+  profile_remarks?: string | null;
+  has_hard_copy?: boolean | null;
+  has_soft_copy?: boolean | null;
+  education?: EducationInput[];
+  suppressed_education_program_ids?: number[];
+  data_source: string;
+  participations: ParticipationRead[];
+  requirements?: (RequirementInput & { id: number; completed_at: string | null })[];
+  created_at: string;
+  updated_at: string;
+}
+export interface ScholarPayload {
+  personnel_type?: "Faculty" | "Staff" | "Unknown" | null;
+  name: string;
+  age: number | null;
+  previous_degree: string;
+  missing_requirements: boolean;
+  department: string;
+  rank: string;
+  tenure: string;
+  tenure_years?: number | null;
+  tenure_note?: string | null;
+  profile_remarks?: string | null;
+  has_hard_copy?: boolean | null;
+  has_soft_copy?: boolean | null;
+  education?: EducationInput[];
+  restore_education_program_ids?: number[];
+  participations: ParticipationInput[];
+  requirements: RequirementInput[];
+}
+export interface FsdpSummary {
+  total: number;
+  ongoing: number;
+  graduated: number;
+  payback: number;
+  withdrawn: number;
+  did_not_avail?: number;
+  missing_requirements: number;
+}
+export interface AnalyticsRow {
+  label: string;
+  count: number;
+}
+export interface FsdpAnalytics {
+  payback_summary?: Record<string, number>;
+  recent_scholars?: Scholar[];
+  scholars: number;
+  grants: number;
+  ongoing_scholars: number;
+  requirements_follow_up: number;
+  statuses: AnalyticsRow[];
+  grant_types: AnalyticsRow[];
+  departments: AnalyticsRow[];
+  options: { departments: string[]; start_academic_years: string[] };
+}
+export interface FsdpDepartmentTotal {
+  department: string;
+  scholars: number;
+  ongoing: number;
+  graduated: number;
+  payback: number;
+  withdrawn: number;
+  did_not_avail?: number;
+  transferred?: number;
+  payback_pending_contract?: number;
+  requirements_follow_up: number;
+}
+export interface FsdpActionItem {
+  scholar_id: number;
+  scholar_name: string;
+  department: string | null;
+  kind: string;
+  detail: string;
+  attention: string;
+  priority: number;
+}
+export interface FsdpReport {
+  page?: number | null;
+  page_size?: number;
+  action_total?: number;
+  items: Scholar[];
+  total: number;
+  missing_requirements: number;
+  status_counts: Record<FsdpStatus, number>;
+  grant_type_counts: Record<GrantType, number>;
+  department_totals?: FsdpDepartmentTotal[];
+  action_items?: FsdpActionItem[];
+}
+export interface BackupFile {
+  filename: string;
+  created_at: string;
+  size_bytes: number;
+  protected?: boolean;
+  pinned?: boolean;
+}
+export interface MaintenanceStatus {
+  database_status: "healthy";
+  database_file: string;
+  database_size_bytes: number;
+  fsdp_records: number;
+  backup_count: number;
+  latest_backup_at: string | null;
+  backup_retention: number | null;
+  backup_storage_bytes?: number;
+  free_storage_bytes?: number;
+  storage_warning?: boolean;
+  backups: BackupFile[];
+  backup_due?: boolean;
+  recovery_review?: {
+    filename: string;
+    reviewed_at: string;
+    username: string;
+    restore_tested: boolean;
+    administrator_reported: true;
+  } | null;
+}
+export interface ServiceHealth {
+  status: "ok";
+  release_version?: string;
+  desktop_mode?: boolean;
+  recovery_required?: boolean;
+}
+export interface BackupResult {
+  filename: string;
+  created_at: string;
+  size_bytes: number;
+}
+export interface LocalUser {
+  id: number;
+  username: string;
+  role: "admin" | "staff";
+  is_active: boolean;
+  must_change_password: boolean;
+  created_at?: string;
+}
+export interface SessionResult {
+  token: string;
+  user: LocalUser;
+}
+export interface ActivityEvent {
+  id: number;
+  username: string | null;
+  action: string;
+  area: string;
+  created_at: string;
+  record_type: string | null;
+  record_id: number | null;
+  operation: string | null;
+  changed_fields: string[];
+}
+export interface PagedResult<T> {
+  items: T[];
+  total: number;
+  page: number;
+  page_size: number;
+  summary?: Record<string, number>;
+}

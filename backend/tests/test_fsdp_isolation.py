@@ -1,4 +1,3 @@
-
 import pytest
 
 from app.api import maintenance
@@ -38,14 +37,6 @@ def test_other_app_routes_are_absent(client, endpoint):
     assert client.get("/api/v1" + endpoint).status_code == 404
     assert client.post("/api/v1" + endpoint, json={}).status_code in (404, 405)
     assert "/api/v1" + endpoint not in client.get("/openapi.json").json()["paths"]
-
-
-
-
-
-
-
-
 
 
 def test_backup_creation_and_fsdp_csv(client, tmp_path, monkeypatch):

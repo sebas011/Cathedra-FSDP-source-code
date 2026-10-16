@@ -6,8 +6,9 @@ from sqlalchemy.orm import Session, selectinload
 from app.college_classification import affiliation, affiliation_expression, personnel_type
 from app.current_grant import current_status, current_status_expression
 from app.fsdp_values import effective_hei, has_missing_requirements
+from app.grant_applications import application_group_key, completed_application_keys
 from app.models import FsdpParticipation, Scholar, ScholarRequirement
-from app.record_text import is_completed, outcome
+from app.record_text import outcome
 from app.schemas import EducationRead, ParticipationRead, RequirementRead, ScholarRead
 
 
@@ -24,16 +25,27 @@ def matching_participations(scholar: Scholar, filters: dict) -> list[FsdpPartici
     return [
         item
         for item in scholar.participations
-        if (not filters.get("status_filter") or current_status(scholar) == outcome(filters["status_filter"]))
-        and (not filters.get("start_academic_year") or (item.start_academic_year or "").strip() == filters["start_academic_year"])
-        and (not filters.get("grant_type") or (item.grant_type or "").strip() == filters["grant_type"])
+        if (
+            not filters.get("status_filter")
+            or current_status(scholar) == outcome(filters["status_filter"])
+        )
+        and (
+            not filters.get("start_academic_year")
+            or (item.start_academic_year or "").strip() == filters["start_academic_year"]
+        )
+        and (
+            not filters.get("grant_type")
+            or (item.grant_type or "").strip() == filters["grant_type"]
+        )
         and (not filters.get("delivering_hei") or effective_hei(item) == filters["delivering_hei"])
     ]
 
 
 def read_scholar(scholar: Scholar) -> ScholarRead:
     from app.contract_rules import classify_contract
-    graduated_programs = {p.program_id for p in scholar.participations if is_completed(p.status)}
+
+    completed_applications = completed_application_keys(scholar.participations)
+    today = date.today()
     return ScholarRead(
         id=scholar.id,
         revision=scholar.revision,
@@ -42,6 +54,8 @@ def read_scholar(scholar: Scholar) -> ScholarRead:
         previous_degree=scholar.previous_degree,
         missing_requirements=has_missing_requirements(scholar),
         manual_requirements_follow_up=scholar.missing_requirements,
+        has_hard_copy=scholar.has_hard_copy,
+        has_soft_copy=scholar.has_soft_copy,
         department=affiliation(scholar.department),
         rank=scholar.rank,
         personnel_type=personnel_type(scholar.department),
@@ -50,8 +64,20 @@ def read_scholar(scholar: Scholar) -> ScholarRead:
         tenure_years=scholar.tenure_years,
         tenure_note=scholar.tenure_note,
         profile_remarks=scholar.profile_remarks,
-        education=[EducationRead(source_program_id=item.source_program_id, id=item.id, level=item.level, degree=item.degree, institution=item.institution, graduation_year=item.graduation_year) for item in scholar.education],
-        suppressed_education_program_ids=[item.program_id for item in scholar.education_suppressions],
+        education=[
+            EducationRead(
+                source_program_id=item.source_program_id,
+                id=item.id,
+                level=item.level,
+                degree=item.degree,
+                institution=item.institution,
+                graduation_year=item.graduation_year,
+            )
+            for item in scholar.education
+        ],
+        suppressed_education_program_ids=[
+            item.program_id for item in scholar.education_suppressions
+        ],
         data_source=scholar.data_source,
         created_at=scholar.created_at,
         updated_at=scholar.updated_at,
@@ -67,19 +93,29 @@ def read_scholar(scholar: Scholar) -> ScholarRead:
                 contract_completed_on=item.contract_completed_on,
                 graduation_date=item.graduation_date,
                 case_status=item.case_status,
-                payback_attention=classify_contract(item.status, item.contract_completed_on, item.program_id in graduated_programs, date.today())[0],
-                grace_ends_on=classify_contract(item.status, item.contract_completed_on, item.program_id in graduated_programs, date.today())[1],
+                payback_attention=attention,
+                grace_ends_on=deadline,
                 start_term=item.start_term,
                 start_academic_year=item.start_academic_year,
                 end_term=item.end_term,
                 end_academic_year=item.end_academic_year,
                 grant_type=item.grant_type,
+                program_category=item.program_category,
+                application_key=item.application_key,
                 grant_other=item.grant_other,
                 status=outcome(item.status),
                 extension=item.extension,
                 remarks=item.remarks,
             )
             for item in scholar.participations
+            for attention, deadline in [
+                classify_contract(
+                    item.status,
+                    item.contract_completed_on,
+                    application_group_key(item) in completed_applications,
+                    today,
+                )
+            ]
         ],
         requirements=[
             RequirementRead(
@@ -107,10 +143,20 @@ def report_scholars(
     summary_only: bool = False,
 ) -> list[Scholar]:
     from sqlalchemy.orm import selectinload
-    load_options = [selectinload(Scholar.participations).selectinload(FsdpParticipation.program), selectinload(Scholar.requirements)] if summary_only else options()
+
+    load_options = (
+        [
+            selectinload(Scholar.participations).selectinload(FsdpParticipation.program),
+            selectinload(Scholar.requirements),
+        ]
+        if summary_only
+        else options()
+    )
     statement = select(Scholar).options(*load_options).distinct()
     if department.strip():
-        statement = statement.where(affiliation_expression(Scholar.department) == affiliation(department))
+        statement = statement.where(
+            affiliation_expression(Scholar.department) == affiliation(department)
+        )
     if rank.strip():
         statement = statement.where(func.trim(Scholar.rank) == rank.strip())
     if missing_requirements:
@@ -120,17 +166,30 @@ def report_scholars(
                 Scholar.requirements.any(ScholarRequirement.is_complete.is_(False)),
             )
         )
-    if status_filter.strip() or grant_type.strip() or delivering_hei.strip() or start_academic_year.strip():
+    if (
+        status_filter.strip()
+        or grant_type.strip()
+        or delivering_hei.strip()
+        or start_academic_year.strip()
+    ):
         statement = statement.join(Scholar.participations).join(FsdpParticipation.program)
         if start_academic_year.strip():
-            statement = statement.where(func.trim(FsdpParticipation.start_academic_year) == start_academic_year.strip())
+            statement = statement.where(
+                func.trim(FsdpParticipation.start_academic_year) == start_academic_year.strip()
+            )
         if status_filter.strip():
             statement = statement.where(current_status_expression() == outcome(status_filter))
         if grant_type.strip():
-            statement = statement.where(func.trim(FsdpParticipation.grant_type) == grant_type.strip())
+            statement = statement.where(
+                func.trim(FsdpParticipation.grant_type) == grant_type.strip()
+            )
         if delivering_hei.strip():
-            statement = statement.where(func.trim(FsdpParticipation.delivering_hei) == delivering_hei.strip())
-    return list(db.scalars(statement.order_by(Scholar.name, Scholar.id)).unique().all())
+            statement = statement.where(
+                func.trim(FsdpParticipation.delivering_hei) == delivering_hei.strip()
+            )
+    return list(
+        db.scalars(statement.order_by(func.name_sort_key(Scholar.name), Scholar.id)).unique().all()
+    )
 
 
 def fsdp_report_data(db: Session, **filters: object) -> dict[str, object]:
@@ -141,12 +200,52 @@ def fsdp_report_data(db: Session, **filters: object) -> dict[str, object]:
         key: value.strip() if isinstance(value, str) else value for key, value in filters.items()
     }
     scholars = report_scholars(db, summary_only=page is not None, **filters)
-    visible_ids = {item.id for item in scholars[(int(page)-1)*page_size:int(page)*page_size]} if page is not None else {item.id for item in scholars}
+    visible_ids = (
+        {item.id for item in scholars[(int(page) - 1) * page_size : int(page) * page_size]}
+        if page is not None
+        else {item.id for item in scholars}
+    )
     if page is not None and visible_ids:
         db.scalars(select(Scholar).where(Scholar.id.in_(visible_ids)).options(*options())).all()
     report_items = []
-    statuses = tuple(dict.fromkeys(["On Going", "Completed", "Payback", "Payback pending contract", "Transferred", "Withdrawn", "Did Not Avail", *[outcome(value) for value in db.scalars(select(FsdpParticipation.status).distinct()) if value.strip()]]))
-    grant_types = tuple(dict.fromkeys(["Full Scholarship", "Partial Scholarship", "Dissertation Aid", "Thesis Aid", "Others", *[value.strip() for value in db.scalars(select(FsdpParticipation.grant_type).where(FsdpParticipation.grant_type.is_not(None)).distinct()) if value.strip()]]))
+    statuses = tuple(
+        dict.fromkeys(
+            [
+                "On Going",
+                "Completed",
+                "Payback",
+                "Payback pending contract",
+                "Transferred",
+                "Withdrawn",
+                "Did Not Avail",
+                *[
+                    outcome(value)
+                    for value in db.scalars(select(FsdpParticipation.status).distinct())
+                    if value.strip()
+                ],
+            ]
+        )
+    )
+    grant_types = tuple(
+        dict.fromkeys(
+            [
+                "Full Scholarship",
+                "Partial Scholarship",
+                "Dissertation Aid",
+                "Thesis Aid",
+                "Others",
+                *[
+                    value.strip()
+                    for value in db.scalars(
+                        select(FsdpParticipation.grant_type)
+                        .where(FsdpParticipation.grant_type.is_not(None))
+                        .distinct()
+                    )
+                    if value.strip()
+                ],
+            ]
+        )
+    )
     today = date.today()
     upcoming_date = today + timedelta(days=90)
     department_totals: dict[str, dict[str, int | str]] = {}
@@ -173,28 +272,63 @@ def fsdp_report_data(db: Session, **filters: object) -> dict[str, object]:
         if has_missing_requirements(scholar):
             subtotal["requirements_follow_up"] = int(subtotal["requirements_follow_up"]) + 1
         if scholar.missing_requirements:
-            action_items.append({
-                "scholar_id": scholar.id,
-                "scholar_name": scholar.name,
-                "department": affiliation(scholar.department),
-                "kind": "Requirement follow-up",
-                "detail": "Additional requirement follow-up flagged in the scholar record",
-                "attention": "Manual follow-up",
-                "priority": 2,
-            })
+            action_items.append(
+                {
+                    "scholar_id": scholar.id,
+                    "scholar_name": scholar.name,
+                    "department": affiliation(scholar.department),
+                    "kind": "Requirement follow-up",
+                    "detail": "Additional requirement follow-up flagged in the scholar record",
+                    "attention": "Manual follow-up",
+                    "priority": 2,
+                }
+            )
         selected = matching_participations(scholar, filters)
         if scholar.id in visible_ids:
             rendered = read_scholar(scholar)
             selected_ids = {item.id for item in selected}
-            rendered.participations = [item for item in rendered.participations if item.id in selected_ids]
+            rendered.participations = [
+                item for item in rendered.participations if item.id in selected_ids
+            ]
             report_items.append(rendered)
         from app.contract_rules import classify_contract
-        graduated_programs = {p.program_id for p in scholar.participations if is_completed(p.status)}
+
+        completed_applications = completed_application_keys(scholar.participations)
         for participation in selected:
-            attention, deadline = classify_contract(participation.status, participation.contract_completed_on, participation.program_id in graduated_programs, today)
+            attention, deadline = classify_contract(
+                participation.status,
+                participation.contract_completed_on,
+                application_group_key(participation) in completed_applications,
+                today,
+            )
             if attention in {"Recorded Payback", "Payback review", "Payback pending contract"}:
-                action_items.append({"scholar_id": scholar.id, "scholar_name": scholar.name, "department": affiliation(scholar.department), "kind": "Contract payback", "detail": f"{participation.program.name}: " + ("Repayment contract pending" if attention == "Payback pending contract" else "Payback recorded by the office" if attention == "Recorded Payback" else f"grace period ended {deadline.isoformat()}"), "attention": attention, "priority": 0})
-        status_key = {"On Going":"ongoing", "Completed":"completed", "Payback":"payback", "Withdrawn":"withdrawn", "Did Not Avail":"did_not_avail", "Transferred":"transferred", "Payback pending contract":"payback_pending_contract"}.get(current_status(scholar))
+                action_items.append(
+                    {
+                        "scholar_id": scholar.id,
+                        "scholar_name": scholar.name,
+                        "department": affiliation(scholar.department),
+                        "kind": "Contract payback",
+                        "detail": f"{participation.program.name}: "
+                        + (
+                            "Repayment contract pending"
+                            if attention == "Payback pending contract"
+                            else "Payback recorded by the office"
+                            if attention == "Recorded Payback"
+                            else f"grace period ended {deadline.isoformat()}"
+                        ),
+                        "attention": attention,
+                        "priority": 0,
+                    }
+                )
+        status_key = {
+            "On Going": "ongoing",
+            "Completed": "completed",
+            "Payback": "payback",
+            "Withdrawn": "withdrawn",
+            "Did Not Avail": "did_not_avail",
+            "Transferred": "transferred",
+            "Payback pending contract": "payback_pending_contract",
+        }.get(current_status(scholar))
         if status_key:
             subtotal[status_key] = int(subtotal[status_key]) + 1
             if status_key == "completed":
@@ -260,8 +394,9 @@ def fsdp_report_data(db: Session, **filters: object) -> dict[str, object]:
         },
         "department_totals": list(department_totals.values()),
         "action_total": len(action_items),
-        "action_items": action_items[(action_page-1)*page_size:action_page*page_size] if page is not None else action_items,
+        "action_items": action_items[(action_page - 1) * page_size : action_page * page_size]
+        if page is not None
+        else action_items,
         "page": page,
         "page_size": page_size,
     }
-

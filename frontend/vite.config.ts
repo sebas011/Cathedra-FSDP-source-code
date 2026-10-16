@@ -7,12 +7,15 @@ const product = readFileSync(new URL("../APP_PRODUCT", import.meta.url), "utf-8"
 if (product !== "fsdp") throw new Error("Invalid Cathedra product");
 
 export default defineConfig({
-  plugins: [react(), {
-    name: "cathedra-release-version",
-    generateBundle() {
-      this.emitFile({ type: "asset", fileName: "release-version.txt", source: releaseVersion });
+  plugins: [
+    react(),
+    {
+      name: "cathedra-release-version",
+      generateBundle() {
+        this.emitFile({ type: "asset", fileName: "release-version.txt", source: releaseVersion });
+      },
     },
-  }],
+  ],
   define: {
     "import.meta.env.VITE_CATHEDRA_VERSION": JSON.stringify(releaseVersion),
     "import.meta.env.VITE_CATHEDRA_PRODUCT": JSON.stringify(product),

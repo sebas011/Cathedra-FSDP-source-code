@@ -4,10 +4,11 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Request, status
 from pydantic import BaseModel, Field, StringConstraints
-from sqlalchemy import func, select
+from sqlalchemy import func, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from app import auth as authentication
 from app.activity_audit import add_activity
 from app.auth import (
     PASSWORD_ITERATIONS,
@@ -174,6 +175,39 @@ def logout(
 @router.get("/me")
 def current_user(user: LocalUser = Depends(require_signed_in)) -> dict[str, object]:
     return user_data(user)
+
+
+@router.post("/activity", status_code=status.HTTP_204_NO_CONTENT)
+def record_session_activity(
+    request: Request,
+    db: Session = Depends(get_db),
+    user: LocalUser = Depends(require_signed_in),
+) -> None:
+    # This endpoint owns only its session transaction. Authentication on ordinary
+    # requests stays read-only and never extends an unattended session.
+    session_id, user_id = request.state.local_session_id, user.id
+    session_token_hash = request.state.local_session_token_hash
+    begin_account_write(db)
+    now = authentication.utc_now()
+    result = db.execute(
+        update(LocalSession)
+        .where(
+            LocalSession.id == session_id,
+            LocalSession.token_hash == session_token_hash,
+            *authentication.active_session_conditions(now),
+            LocalSession.user_id.in_(
+                select(LocalUser.id).where(LocalUser.id == user_id, LocalUser.is_active.is_(True))
+            ),
+        )
+        .values(last_activity_at=now)
+        .execution_options(synchronize_session=False)
+    )
+    if result.rowcount != 1:
+        db.rollback()
+        raise HTTPException(
+            status_code=401, detail="Your sign-in has expired. Please sign in again."
+        )
+    db.commit()
 
 
 @router.get("/users")

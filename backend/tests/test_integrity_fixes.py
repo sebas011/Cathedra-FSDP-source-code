@@ -58,10 +58,14 @@ def test_failed_scholar_creation_rolls_back_counter_and_rows(client):
         "/api/v1/fsdp",
         json={
             "name": "Rejected",
-            "participations": [{
-                "id": 999, "program_name": "Rejected program", "start_term": "1st",
-                "start_academic_year": "2026-2027",
-            }],
+            "participations": [
+                {
+                    "id": 999,
+                    "program_name": "Rejected program",
+                    "start_term": "1st",
+                    "start_academic_year": "2026-2027",
+                }
+            ],
         },
     )
     assert response.status_code == 409
@@ -75,14 +79,29 @@ def test_migration_seeds_historical_ids_and_preserves_records(tmp_path):
     try:
         with engine.begin() as connection:
             downgrade_to_schema_three(connection)
-            connection.execute(Scholar.__table__.insert().values(id=7, name="Existing", department="CAS", revision=3))
-            connection.execute(ActivityEvent.__table__.insert().values(
-                action="Deleted FSDP #50", area="FSDP", record_type="scholars",
-                record_id=50, subject_scholar_id=None, operation="Deleted",
-            ))
-            connection.execute(LocalUser.__table__.insert().values(
-                id=4, username="Owner", password_hash="preserved-hash", role="admin",
-            ))
+            connection.execute(
+                Scholar.__table__.insert().values(
+                    id=7, name="Existing", department="CAS", revision=3
+                )
+            )
+            connection.execute(
+                ActivityEvent.__table__.insert().values(
+                    action="Deleted FSDP #50",
+                    area="FSDP",
+                    record_type="scholars",
+                    record_id=50,
+                    subject_scholar_id=None,
+                    operation="Deleted",
+                )
+            )
+            connection.execute(
+                LocalUser.__table__.insert().values(
+                    id=4,
+                    username="Owner",
+                    password_hash="preserved-hash",
+                    role="admin",
+                )
+            )
             before = {
                 table: connection.exec_driver_sql(f"SELECT * FROM {table}").fetchall()
                 for table in ("scholars", "activity_events", "local_users")
@@ -92,15 +111,24 @@ def test_migration_seeds_historical_ids_and_preserves_records(tmp_path):
             for table, records in before.items():
                 after = connection.exec_driver_sql(f"SELECT * FROM {table}").fetchall()
                 if table == "scholars":
-                    columns = [row[1] for row in connection.exec_driver_sql("PRAGMA table_info(scholars)")]
+                    columns = [
+                        row[1] for row in connection.exec_driver_sql("PRAGMA table_info(scholars)")
+                    ]
                     for old, new in zip(records, after, strict=True):
                         for field, old_value, new_value in zip(columns, old, new, strict=True):
-                            assert new_value == ("Faculty" if field == "personnel_type" else old_value + 1 if field == "revision" else old_value)
+                            assert new_value == (
+                                "Faculty"
+                                if field == "personnel_type"
+                                else old_value + 1
+                                if field == "revision"
+                                else old_value
+                            )
                 else:
                     assert records == after
-            assert connection.exec_driver_sql(
-                "SELECT high_water FROM scholar_id_counter"
-            ).scalar_one() == 50
+            assert (
+                connection.exec_driver_sql("SELECT high_water FROM scholar_id_counter").scalar_one()
+                == 50
+            )
             assert connection.exec_driver_sql("PRAGMA foreign_key_check").fetchall() == []
         with Session(engine) as db:
             assert next_scholar_id(db) == 51
@@ -114,19 +142,32 @@ def test_existing_username_collisions_stop_migration_without_changing_accounts(t
         with engine.begin() as connection:
             downgrade_to_schema_three(connection)
             for username in ("Owner", "owner"):
-                connection.execute(LocalUser.__table__.insert().values(
-                    username=username, password_hash="preserved", role="admin",
-                ))
-        with pytest.raises(RuntimeError, match="offline administrator review"), engine.begin() as conn:
+                connection.execute(
+                    LocalUser.__table__.insert().values(
+                        username=username,
+                        password_hash="preserved",
+                        role="admin",
+                    )
+                )
+        with (
+            pytest.raises(RuntimeError, match="offline administrator review"),
+            engine.begin() as conn,
+        ):
             run_migrations(conn)
         with engine.connect() as connection:
-            assert list(connection.exec_driver_sql(
-                "SELECT username FROM local_users ORDER BY id"
-            ).scalars()) == ["Owner", "owner"]
-            assert connection.exec_driver_sql("SELECT MAX(version) FROM schema_migrations").scalar() == 3
-            assert connection.exec_driver_sql(
-                "SELECT name FROM sqlite_master WHERE name = 'scholar_id_counter'"
-            ).first() is None
+            assert list(
+                connection.exec_driver_sql("SELECT username FROM local_users ORDER BY id").scalars()
+            ) == ["Owner", "owner"]
+            assert (
+                connection.exec_driver_sql("SELECT MAX(version) FROM schema_migrations").scalar()
+                == 3
+            )
+            assert (
+                connection.exec_driver_sql(
+                    "SELECT name FROM sqlite_master WHERE name = 'scholar_id_counter'"
+                ).first()
+                is None
+            )
     finally:
         engine.dispose()
 
@@ -180,13 +221,20 @@ def test_restore_never_lowers_retired_identity_floor(client, tmp_path, monkeypat
             database.execute("DELETE FROM schema_migrations WHERE version >= 4")
             database.commit()
     retired = client.post("/api/v1/fsdp", json={"name": "After backup"}).json()
-    assert client.delete(
-        f"/api/v1/fsdp/{retired['id']}", headers={"If-Match": str(retired["revision"])}
-    ).status_code == 204
+    assert (
+        client.delete(
+            f"/api/v1/fsdp/{retired['id']}", headers={"If-Match": str(retired["revision"])}
+        ).status_code
+        == 204
+    )
     assert client.post("/api/v1/maintenance/restore", json={"filename": backup}).status_code == 200
-    token = client.post("/api/v1/auth/login", json={
-        "username": "test-admin", "password": "test-password-123",
-    }).json()["token"]
+    token = client.post(
+        "/api/v1/auth/login",
+        json={
+            "username": "test-admin",
+            "password": "test-password-123",
+        },
+    ).json()["token"]
     client.headers.update({"Authorization": f"Bearer {token}"})
     replacement = client.post("/api/v1/fsdp", json={"name": "After restore"}).json()
     assert replacement["id"] > retired["id"] > first["id"]
@@ -194,13 +242,25 @@ def test_restore_never_lowers_retired_identity_floor(client, tmp_path, monkeypat
 
 
 def test_program_change_advances_each_scholar_once(client):
-    created = client.post("/api/v1/fsdp", json={
-        "name": "Two grants", "participations": [
-            {"program_name": "Shared"}, {"program_name": "Shared"},
-        ],
-    }).json()
+    created = client.post(
+        "/api/v1/fsdp",
+        json={
+            "name": "Two grants",
+            "participations": [
+                {"program_name": "Shared"},
+                {"program_name": "Shared"},
+            ],
+        },
+    ).json()
     program_id = created["participations"][0]["program_id"]
-    assert client.put(f"/api/v1/fsdp/programs/{program_id}", json={"name": "Renamed"}, headers={"If-Match":"0"}).status_code == 200
+    assert (
+        client.put(
+            f"/api/v1/fsdp/programs/{program_id}",
+            json={"name": "Renamed"},
+            headers={"If-Match": "0"},
+        ).status_code
+        == 200
+    )
     current = client.get(f"/api/v1/fsdp/{created['id']}").json()
     assert current["revision"] == created["revision"] + 1
     assert all(grant["name"] == "RENAMED" for grant in current["participations"])
@@ -226,7 +286,9 @@ def test_program_edit_preserves_concurrent_revision_and_rejects_stale_form(tmp_p
             connection_info = db.connection().info
             connection_info["program_test"] = True
             try:
-                fsdp.update_program(program_id, ProgramUpdate(name="Renamed"), 0, db, LocalUser(role="admin"))
+                fsdp.update_program(
+                    program_id, ProgramUpdate(name="Renamed"), 0, db, LocalUser(role="admin")
+                )
             finally:
                 connection_info.pop("program_test", None)
 
@@ -245,9 +307,13 @@ def test_program_edit_preserves_concurrent_revision_and_rejects_stale_form(tmp_p
             current = fsdp.get_scholar(scholar_id, db)
             assert current.revision == before.revision + 1 == 2
             grant = before.participations[0]
-            stale = ScholarUpdate(name=before.name, requirements=[], participations=[
-                {"id": grant.id, "program_name": grant.name},
-            ])
+            stale = ScholarUpdate(
+                name=before.name,
+                requirements=[],
+                participations=[
+                    {"id": grant.id, "program_name": grant.name},
+                ],
+            )
             with pytest.raises(HTTPException) as caught:
                 fsdp.update_scholar(scholar_id, stale, db, before.revision)
             assert caught.value.status_code == 409
@@ -274,9 +340,15 @@ def test_concurrent_username_creation_returns_one_conflict(tmp_path, monkeypatch
     def create(username):
         with Session(engine) as db:
             try:
-                account_api.create_user(account_api.UserCreate(
-                    username=username, password="synthetic-password-123", role="staff",
-                ), db, LocalUser(role="admin"))
+                account_api.create_user(
+                    account_api.UserCreate(
+                        username=username,
+                        password="synthetic-password-123",
+                        role="staff",
+                    ),
+                    db,
+                    LocalUser(role="admin"),
+                )
                 return 201
             except HTTPException as caught:
                 return caught.status_code
@@ -309,14 +381,21 @@ def test_username_integrity_error_is_rolled_back_as_conflict(tmp_path, monkeypat
     engine = create_engine_with_schema(tmp_path / "conflict.db")
     try:
         with Session(engine) as db:
+
             def fail_commit():
                 raise IntegrityError("synthetic unique violation", {}, Exception())
 
             monkeypatch.setattr(db, "commit", fail_commit)
             with pytest.raises(HTTPException) as caught:
-                account_api.create_user(account_api.UserCreate(
-                    username="Owner", password="synthetic-password-123", role="staff",
-                ), db, LocalUser(role="admin"))
+                account_api.create_user(
+                    account_api.UserCreate(
+                        username="Owner",
+                        password="synthetic-password-123",
+                        role="staff",
+                    ),
+                    db,
+                    LocalUser(role="admin"),
+                )
             assert caught.value.status_code == 409
             assert db.is_active
             assert db.scalars(select(LocalUser)).all() == []
@@ -325,20 +404,36 @@ def test_username_integrity_error_is_rolled_back_as_conflict(tmp_path, monkeypat
 
 
 def test_login_uses_database_normalization_on_both_sides(client):
-    assert client.post("/api/v1/auth/users", json={
-        "username": "Élodie", "password": "synthetic-password-123", "role": "staff",
-    }).status_code == 201
-    response = client.post("/api/v1/auth/login", json={
-        "username": "Élodie", "password": "synthetic-password-123",
-    })
+    assert (
+        client.post(
+            "/api/v1/auth/users",
+            json={
+                "username": "Élodie",
+                "password": "synthetic-password-123",
+                "role": "staff",
+            },
+        ).status_code
+        == 201
+    )
+    response = client.post(
+        "/api/v1/auth/login",
+        json={
+            "username": "Élodie",
+            "password": "synthetic-password-123",
+        },
+    )
     assert response.status_code == 200
     assert response.json()["user"]["username"] == "Élodie"
 
 
 def test_failed_program_commit_rolls_back_scholar_revision(client, monkeypatch):
-    created = client.post("/api/v1/fsdp", json={
-        "name": "Rollback", "participations": [{"program_name": "Original"}],
-    }).json()
+    created = client.post(
+        "/api/v1/fsdp",
+        json={
+            "name": "Rollback",
+            "participations": [{"program_name": "Original"}],
+        },
+    ).json()
     existing = client.post("/api/v1/fsdp/programs", json={"name": "Existing"}).json()
     commit = fsdp.commit_record
 
@@ -351,7 +446,9 @@ def test_failed_program_commit_rolls_back_scholar_revision(client, monkeypatch):
 
     monkeypatch.setattr(fsdp, "commit_record", conflict_at_commit)
     program_id = created["participations"][0]["program_id"]
-    response = client.put(f"/api/v1/fsdp/programs/{program_id}", json={"name": "Available"}, headers={"If-Match":"0"})
+    response = client.put(
+        f"/api/v1/fsdp/programs/{program_id}", json={"name": "Available"}, headers={"If-Match": "0"}
+    )
     assert response.status_code == 409
     after = client.get(f"/api/v1/fsdp/{created['id']}").json()
     assert after["revision"] == created["revision"]

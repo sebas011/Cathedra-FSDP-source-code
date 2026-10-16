@@ -22,7 +22,9 @@ def _participation_institutions(connection) -> None:
 def _record_quality(connection) -> None:
     columns = {row[1] for row in connection.exec_driver_sql("PRAGMA table_info(activity_events)")}
     if "subject_scholar_id" not in columns:
-        connection.exec_driver_sql("ALTER TABLE activity_events ADD COLUMN subject_scholar_id INTEGER")
+        connection.exec_driver_sql(
+            "ALTER TABLE activity_events ADD COLUMN subject_scholar_id INTEGER"
+        )
     connection.exec_driver_sql(
         "CREATE INDEX IF NOT EXISTS ix_activity_events_subject_scholar_id "
         "ON activity_events(subject_scholar_id)"
@@ -35,7 +37,8 @@ def _record_quality(connection) -> None:
         connection.exec_driver_sql(
             f"UPDATE activity_events SET subject_scholar_id = "
             f"(SELECT scholar_id FROM {table} WHERE {table}.id = activity_events.record_id) "
-            "WHERE record_type = ? AND subject_scholar_id IS NULL", (table,)
+            "WHERE record_type = ? AND subject_scholar_id IS NULL",
+            (table,),
         )
     Base.metadata.tables["backup_reviews"].create(connection, checkfirst=True)
 
@@ -93,15 +96,38 @@ def _profile_and_dashboard(connection: Connection) -> None:
         if name not in columns:
             connection.exec_driver_sql(f"ALTER TABLE scholars ADD COLUMN {name} {sql_type}")
     ScholarEducation.__table__.create(connection, checkfirst=True)
-    for row in connection.exec_driver_sql("SELECT id, previous_degree, tenure, tenure_years, tenure_note FROM scholars ORDER BY id").mappings().all():
+    for row in (
+        connection.exec_driver_sql(
+            "SELECT id, previous_degree, tenure, tenure_years, tenure_note FROM scholars ORDER BY id"
+        )
+        .mappings()
+        .all()
+    ):
         degree = (row["previous_degree"] or "").strip()
-        if degree and not connection.exec_driver_sql("SELECT 1 FROM scholar_education WHERE scholar_id=? LIMIT 1", (row["id"],)).first():
-            connection.exec_driver_sql("INSERT INTO scholar_education (scholar_id, level, degree, institution) VALUES (?, ?, ?, '')", (row["id"], education_level(degree), degree))
+        if (
+            degree
+            and not connection.exec_driver_sql(
+                "SELECT 1 FROM scholar_education WHERE scholar_id=? LIMIT 1", (row["id"],)
+            ).first()
+        ):
+            connection.exec_driver_sql(
+                "INSERT INTO scholar_education (scholar_id, level, degree, institution) VALUES (?, ?, ?, '')",
+                (row["id"], education_level(degree), degree),
+            )
         if row["tenure_years"] is None:
             years = tenure_in_years(row["tenure"])
             note = row["tenure_note"] or (row["tenure"] if years is None else None)
-            connection.exec_driver_sql("UPDATE scholars SET tenure_years=?, tenure_note=? WHERE id=?", (years, note, row["id"]))
-    for row in connection.exec_driver_sql("SELECT id, start_term, end_term, remarks FROM fsdp_participations").mappings().all():
+            connection.exec_driver_sql(
+                "UPDATE scholars SET tenure_years=?, tenure_note=? WHERE id=?",
+                (years, note, row["id"]),
+            )
+    for row in (
+        connection.exec_driver_sql(
+            "SELECT id, start_term, end_term, remarks FROM fsdp_participations"
+        )
+        .mappings()
+        .all()
+    ):
         notes = []
         values = []
         for field in ("start_term", "end_term"):
@@ -111,8 +137,13 @@ def _profile_and_dashboard(connection: Connection) -> None:
                 notes.append(f"Recorded {field.replace('_', ' ')}: {raw}")
             values.append(normalized)
         remarks = "\n".join([part for part in [row["remarks"], *notes] if part]) or None
-        connection.exec_driver_sql("UPDATE fsdp_participations SET start_term=?, end_term=?, remarks=? WHERE id=?", (*values, remarks, row["id"]))
-    grant_columns = {row[1] for row in connection.exec_driver_sql("PRAGMA table_info(fsdp_participations)")}
+        connection.exec_driver_sql(
+            "UPDATE fsdp_participations SET start_term=?, end_term=?, remarks=? WHERE id=?",
+            (*values, remarks, row["id"]),
+        )
+    grant_columns = {
+        row[1] for row in connection.exec_driver_sql("PRAGMA table_info(fsdp_participations)")
+    }
     for name in ("legacy_grant_label", "grant_standardized_at", "grant_standardization_note"):
         if name in grant_columns:
             connection.exec_driver_sql(f"ALTER TABLE fsdp_participations DROP COLUMN {name}")
@@ -121,32 +152,58 @@ def _profile_and_dashboard(connection: Connection) -> None:
 
 
 def _contract_completion(connection: Connection) -> None:
-    columns = {row[1] for row in connection.exec_driver_sql("PRAGMA table_info(fsdp_participations)")}
+    columns = {
+        row[1] for row in connection.exec_driver_sql("PRAGMA table_info(fsdp_participations)")
+    }
     if "contract_completed_on" not in columns:
-        connection.exec_driver_sql("ALTER TABLE fsdp_participations ADD COLUMN contract_completed_on DATE")
+        connection.exec_driver_sql(
+            "ALTER TABLE fsdp_participations ADD COLUMN contract_completed_on DATE"
+        )
 
 
 def _explicit_profiles_and_education(connection: Connection) -> None:
     from app.profile_values import education_level
+
     scholar_columns = {row[1] for row in connection.exec_driver_sql("PRAGMA table_info(scholars)")}
     if "personnel_type" not in scholar_columns:
         connection.exec_driver_sql("ALTER TABLE scholars ADD COLUMN personnel_type VARCHAR(20)")
-    education_columns = {row[1] for row in connection.exec_driver_sql("PRAGMA table_info(scholar_education)")}
+    education_columns = {
+        row[1] for row in connection.exec_driver_sql("PRAGMA table_info(scholar_education)")
+    }
     if "source_program_id" not in education_columns:
-        connection.exec_driver_sql("ALTER TABLE scholar_education ADD COLUMN source_program_id INTEGER REFERENCES programs(id) ON DELETE SET NULL")
-    entries = connection.exec_driver_sql("SELECT f.scholar_id, f.program_id, p.name, COALESCE(f.delivering_hei, '') FROM fsdp_participations f JOIN programs p ON p.id=f.program_id WHERE lower(trim(f.status))='graduated' ORDER BY f.id DESC").all()
+        connection.exec_driver_sql(
+            "ALTER TABLE scholar_education ADD COLUMN source_program_id INTEGER REFERENCES programs(id) ON DELETE SET NULL"
+        )
+    entries = connection.exec_driver_sql(
+        "SELECT f.scholar_id, f.program_id, p.name, COALESCE(f.delivering_hei, '') FROM fsdp_participations f JOIN programs p ON p.id=f.program_id WHERE lower(trim(f.status))='graduated' ORDER BY f.id DESC"
+    ).all()
     for scholar_id, program_id, degree, institution in entries:
         degree, institution = degree.strip(), institution.strip()
-        existing = connection.exec_driver_sql("SELECT source_program_id, degree, institution FROM scholar_education WHERE scholar_id=?", (scholar_id,)).all()
-        if any(origin == program_id or (stored_degree.strip().casefold() == degree.casefold() and stored_institution.strip().casefold() == institution.casefold()) for origin, stored_degree, stored_institution in existing):
+        existing = connection.exec_driver_sql(
+            "SELECT source_program_id, degree, institution FROM scholar_education WHERE scholar_id=?",
+            (scholar_id,),
+        ).all()
+        if any(
+            origin == program_id
+            or (
+                stored_degree.strip().casefold() == degree.casefold()
+                and stored_institution.strip().casefold() == institution.casefold()
+            )
+            for origin, stored_degree, stored_institution in existing
+        ):
             continue
-        connection.exec_driver_sql("INSERT INTO scholar_education (scholar_id, source_program_id, level, degree, institution, graduation_year) VALUES (?,?,?,?,?,NULL)", (scholar_id, program_id, education_level(degree), degree, institution))
+        connection.exec_driver_sql(
+            "INSERT INTO scholar_education (scholar_id, source_program_id, level, degree, institution, graduation_year) VALUES (?,?,?,?,?,NULL)",
+            (scholar_id, program_id, education_level(degree), degree, institution),
+        )
 
 
 def _safe_writes(connection: Connection) -> None:
     columns = {row[1] for row in connection.exec_driver_sql("PRAGMA table_info(programs)")}
     if "revision" not in columns:
-        connection.exec_driver_sql("ALTER TABLE programs ADD COLUMN revision INTEGER NOT NULL DEFAULT 0")
+        connection.exec_driver_sql(
+            "ALTER TABLE programs ADD COLUMN revision INTEGER NOT NULL DEFAULT 0"
+        )
     for table in ("creation_requests", "education_suppressions"):
         Base.metadata.tables[table].create(connection, checkfirst=True)
 
@@ -157,64 +214,64 @@ def _profile_remarks_and_colleges(connection: Connection) -> None:
     columns = {row[1] for row in connection.exec_driver_sql("PRAGMA table_info(scholars)")}
     if "profile_remarks" not in columns:
         connection.exec_driver_sql("ALTER TABLE scholars ADD COLUMN profile_remarks TEXT")
-    for row in connection.exec_driver_sql("SELECT id,department,personnel_type,profile_remarks FROM scholars").mappings().all():
+    for row in (
+        connection.exec_driver_sql(
+            "SELECT id,department,personnel_type,profile_remarks FROM scholars"
+        )
+        .mappings()
+        .all()
+    ):
         department = affiliation(row["department"])
         personnel = "Staff" if department == "Staff" else row["personnel_type"]
         if department != row["department"] or personnel != row["personnel_type"]:
             connection.exec_driver_sql(
                 "UPDATE scholars SET department=?,personnel_type=?,profile_remarks=?,revision=revision+1 WHERE id=?",
-                (department, personnel, previous_affiliation_note(row["department"], row["profile_remarks"]), row["id"]),
+                (
+                    department,
+                    personnel,
+                    previous_affiliation_note(row["department"], row["profile_remarks"]),
+                    row["id"],
+                ),
             )
 
 
 def _ensure_identity_columns(connection: Connection) -> None:
-    # Migration 11 loads the current ORM. Older databases need its newly mapped
-    # additive columns before that historical pass; migration 12 owns backfill.
     program_columns = {row[1] for row in connection.exec_driver_sql("PRAGMA table_info(programs)")}
     if "canonical_key" not in program_columns:
         connection.exec_driver_sql("ALTER TABLE programs ADD COLUMN canonical_key TEXT")
-    education_columns = {row[1] for row in connection.exec_driver_sql("PRAGMA table_info(scholar_education)")}
+    education_columns = {
+        row[1] for row in connection.exec_driver_sql("PRAGMA table_info(scholar_education)")
+    }
     if "graduation_year_manual" not in education_columns:
         connection.exec_driver_sql(
             "ALTER TABLE scholar_education ADD COLUMN graduation_year_manual BOOLEAN NOT NULL DEFAULT 0"
         )
-    # Historical ORM passes must also be able to load the current grant model.
-    participation_columns = {row[1] for row in connection.exec_driver_sql("PRAGMA table_info(fsdp_participations)")}
-    if "graduation_date" not in participation_columns:
-        connection.exec_driver_sql("ALTER TABLE fsdp_participations ADD COLUMN graduation_date DATE")
-    if "case_status" not in participation_columns:
-        connection.exec_driver_sql("ALTER TABLE fsdp_participations ADD COLUMN case_status VARCHAR(20) NOT NULL DEFAULT 'Open'")
 
 
 def _graduation_evidence_and_personnel(connection: Connection) -> None:
-    from sqlalchemy import select
-    from sqlalchemy.orm import Session
-
     from app.college_classification import affiliation, personnel_type, previous_affiliation_note
-    from app.fsdp_reporting import options
-    from app.graduated_education import sync_graduated_education
-    from app.models import Scholar
+    from app.historical_education import sync_historical_education
 
-    _ensure_identity_columns(connection)
-    # Join the upgrade's transaction; never commit or replace the office DB here.
-    timestamps = dict(connection.exec_driver_sql("SELECT id,updated_at FROM scholars").all())
-    changed_ids = []
-    with Session(bind=connection, join_transaction_mode="rollback_only") as session:
-        for scholar in session.scalars(select(Scholar).options(*options())):
-            department = affiliation(scholar.department)
-            personnel = personnel_type(department)
-            changed = department != scholar.department or personnel != scholar.personnel_type
-            scholar.profile_remarks = previous_affiliation_note(scholar.department, scholar.profile_remarks)
-            scholar.department, scholar.personnel_type = department, personnel
-            education_changed = sync_graduated_education(scholar)
-            if changed or education_changed:
-                scholar.revision += 1
-                changed_ids.append(scholar.id)
-        session.flush()
-        # Preserve the exact stored timestamp, including historical text formatting.
-        if changed_ids:
-            connection.exec_driver_sql("UPDATE scholars SET updated_at=? WHERE id=?",
-                                       [(timestamps[identity], identity) for identity in changed_ids])
+    changed_education = sync_historical_education(connection)
+    for row in (
+        connection.exec_driver_sql(
+            "SELECT id,department,personnel_type,profile_remarks FROM scholars ORDER BY id"
+        )
+        .mappings()
+        .all()
+    ):
+        department = affiliation(row["department"])
+        personnel = personnel_type(department)
+        changed = department != row["department"] or personnel != row["personnel_type"]
+        remarks = previous_affiliation_note(row["department"], row["profile_remarks"])
+        increment = int(changed or row["id"] in changed_education)
+        if increment or remarks != row["profile_remarks"]:
+            # Raw SQL leaves the exact stored updated_at text untouched.
+            connection.exec_driver_sql(
+                "UPDATE scholars SET department=?,personnel_type=?,profile_remarks=?,"
+                "revision=revision+? WHERE id=?",
+                (department, personnel, remarks, increment, row["id"]),
+            )
 
 
 def _program_identity_and_education_intent(connection: Connection) -> None:
@@ -240,32 +297,80 @@ def _program_identity_and_education_intent(connection: Connection) -> None:
 
 
 def _case_completion_and_office_logs(connection: Connection) -> None:
-    from sqlalchemy import select
-    from sqlalchemy.orm import Session
+    from app.historical_education import sync_historical_education
 
-    from app.fsdp_reporting import options
-    from app.graduated_education import sync_graduated_education
-    from app.models import OfficeLog, Scholar
-
-    _ensure_identity_columns(connection)
-    OfficeLog.__table__.create(connection, checkfirst=True)
-    changed_ids = set(connection.exec_driver_sql(
-        "SELECT DISTINCT scholar_id FROM fsdp_participations WHERE lower(trim(status))='graduated'"
-    ).scalars())
+    columns = {
+        row[1] for row in connection.exec_driver_sql("PRAGMA table_info(fsdp_participations)")
+    }
+    if "graduation_date" not in columns:
+        connection.exec_driver_sql(
+            "ALTER TABLE fsdp_participations ADD COLUMN graduation_date DATE"
+        )
+    if "case_status" not in columns:
+        connection.exec_driver_sql(
+            "ALTER TABLE fsdp_participations ADD COLUMN case_status VARCHAR(20) NOT NULL DEFAULT 'Open'"
+        )
+    connection.exec_driver_sql(
+        "CREATE TABLE IF NOT EXISTS office_logs (id INTEGER NOT NULL PRIMARY KEY,"
+        "scholar_id INTEGER REFERENCES scholars(id) ON DELETE SET NULL,scholar_name TEXT,"
+        "user_id INTEGER NOT NULL,username VARCHAR(80) NOT NULL,request_key VARCHAR(64),"
+        "payload_digest VARCHAR(64),occurred_on DATE NOT NULL,created_at DATETIME NOT NULL,"
+        "entry_type VARCHAR(40) NOT NULL,note TEXT NOT NULL,document_name TEXT,"
+        "from_department TEXT,to_department TEXT)"
+    )
+    connection.exec_driver_sql(
+        "CREATE INDEX IF NOT EXISTS ix_office_logs_scholar_id ON office_logs(scholar_id)"
+    )
+    connection.exec_driver_sql(
+        "CREATE INDEX IF NOT EXISTS ix_office_logs_occurred_id ON office_logs(occurred_on,id)"
+    )
+    connection.exec_driver_sql(
+        "CREATE UNIQUE INDEX IF NOT EXISTS uq_office_logs_user_request ON office_logs(user_id,request_key)"
+    )
+    changed_ids = set(
+        connection.exec_driver_sql(
+            "SELECT DISTINCT scholar_id FROM fsdp_participations WHERE lower(trim(status))='graduated'"
+        ).scalars()
+    )
     connection.exec_driver_sql(
         "UPDATE fsdp_participations SET status='Completed' WHERE lower(trim(status))='graduated'"
     )
-    timestamps = dict(connection.exec_driver_sql("SELECT id,updated_at FROM scholars").all())
-    with Session(bind=connection, join_transaction_mode="rollback_only") as session:
-        for scholar in session.scalars(select(Scholar).options(*options())):
-            education_changed = sync_graduated_education(scholar)
-            if education_changed or scholar.id in changed_ids:
-                scholar.revision += 1
-                changed_ids.add(scholar.id)
-        session.flush()
-        if changed_ids:
-            connection.exec_driver_sql("UPDATE scholars SET updated_at=? WHERE id=?",
-                                       [(timestamps[identity], identity) for identity in changed_ids])
+    changed_ids.update(sync_historical_education(connection))
+    if changed_ids:
+        connection.exec_driver_sql(
+            "UPDATE scholars SET revision=revision+1 WHERE id=?",
+            [(identity,) for identity in sorted(changed_ids)],
+        )
+
+
+def _scholar_documents_and_program_categories(connection: Connection) -> None:
+    # Unknown is intentionally distinct from a recorded No. No existing record
+    # is assumed to have either a paper copy or an electronic copy.
+    columns = {row[1] for row in connection.exec_driver_sql("PRAGMA table_info(scholars)")}
+    for name in ("has_hard_copy", "has_soft_copy"):
+        if name not in columns:
+            connection.exec_driver_sql(f"ALTER TABLE scholars ADD COLUMN {name} BOOLEAN")
+    columns = {
+        row[1] for row in connection.exec_driver_sql("PRAGMA table_info(fsdp_participations)")
+    }
+    if "program_category" not in columns:
+        connection.exec_driver_sql(
+            "ALTER TABLE fsdp_participations ADD COLUMN program_category VARCHAR(100)"
+        )
+    if "application_key" not in columns:
+        connection.exec_driver_sql(
+            "ALTER TABLE fsdp_participations ADD COLUMN application_key VARCHAR(64)"
+        )
+
+
+def _session_inactivity_lock(connection: Connection) -> None:
+    columns = {row[1] for row in connection.exec_driver_sql("PRAGMA table_info(local_sessions)")}
+    if "last_activity_at" not in columns:
+        # Historical tokens have no trustworthy input timestamp and require a
+        # new sign-in. Keep the rows and all business records untouched.
+        connection.exec_driver_sql(
+            "ALTER TABLE local_sessions ADD COLUMN last_activity_at DATETIME"
+        )
 
 
 MIGRATIONS = [
@@ -280,8 +385,18 @@ MIGRATIONS = [
     (9, "safe-writes-and-education-removal", _safe_writes),
     (10, "profile-remarks-and-college-classification", _profile_remarks_and_colleges),
     (11, "graduation-evidence-and-automatic-personnel", _graduation_evidence_and_personnel),
-    (12, "unicode-program-identity-and-education-edit-intent", _program_identity_and_education_intent),
+    (
+        12,
+        "unicode-program-identity-and-education-edit-intent",
+        _program_identity_and_education_intent,
+    ),
     (13, "completed-outcomes-case-status-and-office-logs", _case_completion_and_office_logs),
+    (
+        14,
+        "scholar-document-copies-and-program-categories",
+        _scholar_documents_and_program_categories,
+    ),
+    (15, "session-inactivity-lock", _session_inactivity_lock),
 ]
 
 

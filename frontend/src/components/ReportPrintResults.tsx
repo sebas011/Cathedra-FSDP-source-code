@@ -4,12 +4,141 @@ import type { PaybackData } from "../api/payback";
 
 export function ReportPrintResults({ report, view }: { report: FsdpReport; view: string }) {
   const actions = report.action_items || [];
-  return <section><h2>Dashboard reports — {view === "actions" ? "Follow-up actions" : view === "directory" ? "Scholar results" : "Overview"}</h2>
-    <p>{report.total} scholars · {report.action_total ?? actions.length} follow-up actions</p>
-    {view === "overview" ? <table><thead><tr><th>Department</th><th>Scholars</th><th>On Going</th><th>Completed</th><th>Payback</th><th>Pending contract</th><th>Requirements follow-up</th></tr></thead><tbody>{(report.department_totals || []).map(item => <tr key={item.department}><td>{item.department}</td><td>{item.scholars}</td><td>{item.ongoing}</td><td>{item.graduated}</td><td>{item.payback}</td><td>{item.payback_pending_contract || 0}</td><td>{item.requirements_follow_up}</td></tr>)}</tbody></table> : view === "actions" ? <table><thead><tr><th>Scholar</th><th>Department</th><th>Area</th><th>Detail</th><th>Follow-up</th></tr></thead><tbody>{actions.map((item, index) => <tr key={`${item.scholar_id}-${index}`}><td className="record-value">{item.scholar_name}</td><td>{item.department || "—"}</td><td>{item.kind}</td><td>{item.detail}</td><td>{displayGrantStatus(item.attention)}</td></tr>)}</tbody></table> : <table><thead><tr><th>Scholar</th><th>Department</th><th>Rank / position</th><th>Status</th><th>Program applied</th></tr></thead><tbody>{report.items.map(item => <tr key={item.id}><td className="record-value">{item.name}</td><td>{item.department || "—"}</td><td className="record-value">{item.rank || "—"}</td><td>{item.current_status ? displayGrantStatus(item.current_status) : "No grants"}</td><td className="record-value">{item.participations.map(grant => grant.name).join(" · ") || "—"}</td></tr>)}</tbody></table>}
-  </section>;
+  return (
+    <section>
+      <h2>
+        Dashboard reports —{" "}
+        {view === "actions"
+          ? "Follow-up actions"
+          : view === "directory"
+            ? "Scholar results"
+            : "Overview"}
+      </h2>
+      <p>
+        {report.total} scholars · {report.action_total ?? actions.length} follow-up actions
+      </p>
+      {view === "overview" ? (
+        <table>
+          <thead>
+            <tr>
+              <th>Department</th>
+              <th>Scholars</th>
+              <th>On Going</th>
+              <th>Completed</th>
+              <th>Payback</th>
+              <th>Pending contract</th>
+              <th>Requirements follow-up</th>
+            </tr>
+          </thead>
+          <tbody>
+            {(report.department_totals || []).map((item) => (
+              <tr key={item.department}>
+                <td>{item.department}</td>
+                <td>{item.scholars}</td>
+                <td>{item.ongoing}</td>
+                <td>{item.graduated}</td>
+                <td>{item.payback}</td>
+                <td>{item.payback_pending_contract || 0}</td>
+                <td>{item.requirements_follow_up}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : view === "actions" ? (
+        <table>
+          <thead>
+            <tr>
+              <th>Scholar</th>
+              <th>Department</th>
+              <th>Area</th>
+              <th>Detail</th>
+              <th>Follow-up</th>
+            </tr>
+          </thead>
+          <tbody>
+            {actions.map((item, index) => (
+              <tr key={`${item.scholar_id}-${index}`}>
+                <td className="record-value">{item.scholar_name}</td>
+                <td>{item.department || "—"}</td>
+                <td>{item.kind}</td>
+                <td>{item.detail}</td>
+                <td>{displayGrantStatus(item.attention)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <table>
+          <thead>
+            <tr>
+              <th>Scholar</th>
+              <th>Department</th>
+              <th>Rank / position</th>
+              <th>Status</th>
+              <th>Program applied</th>
+            </tr>
+          </thead>
+          <tbody>
+            {report.items.map((item) => (
+              <tr key={item.id}>
+                <td className="record-value">{item.name}</td>
+                <td>{item.department || "—"}</td>
+                <td className="record-value">{item.rank || "—"}</td>
+                <td>
+                  {item.current_status ? displayGrantStatus(item.current_status) : "No grants"}
+                </td>
+                <td className="record-value">
+                  {item.participations.map((grant) => grant.name).join(" · ") || "—"}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </section>
+  );
 }
 
 export function PaybackPrintResults({ data, group }: { data: PaybackData; group: string }) {
-  return <section><h2>Contract and payback assessment — {group || "All records"}</h2><p>{data.total ?? data.items.length} grant records · As of {data.as_of}</p><table><thead><tr><th>Scholar</th><th>Program / year</th><th>Recorded status</th><th>Contract completed</th><th>Grace ends</th><th>Follow-up</th></tr></thead><tbody>{data.items.map(item => <tr key={item.participation_id}><td className="record-value">{item.scholar_name}<small>{item.department || "Not recorded"}</small></td><td className="record-value">{item.program_name}<small>{item.academic_year || "Year not recorded"}</small></td><td>{displayGrantStatus(item.recorded_status)}</td><td>{item.contract_completed_on || "Not recorded"}</td><td>{item.grace_ends_on || "Not calculated"}</td><td>{displayGrantStatus(item.attention)}{item.days_remaining != null && <small>{item.days_remaining} days remaining</small>}</td></tr>)}</tbody></table></section>;
+  return (
+    <section>
+      <h2>Contract and payback assessment — {group || "All records"}</h2>
+      <p>
+        {data.total ?? data.items.length} grant records · As of {data.as_of}
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Scholar</th>
+            <th>Program / year</th>
+            <th>Recorded status</th>
+            <th>Contract completed</th>
+            <th>Grace ends</th>
+            <th>Follow-up</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.items.map((item) => (
+            <tr key={item.participation_id}>
+              <td className="record-value">
+                {item.scholar_name}
+                <small>{item.department || "Not recorded"}</small>
+              </td>
+              <td className="record-value">
+                {item.program_name}
+                <small>{item.academic_year || "Year not recorded"}</small>
+              </td>
+              <td>{displayGrantStatus(item.recorded_status)}</td>
+              <td>{item.contract_completed_on || "Not recorded"}</td>
+              <td>{item.grace_ends_on || "Not calculated"}</td>
+              <td>
+                {displayGrantStatus(item.attention)}
+                {item.days_remaining != null && <small>{item.days_remaining} days remaining</small>}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </section>
+  );
 }

@@ -27,14 +27,17 @@ def load_tool(name):
     return module
 
 
-@pytest.mark.parametrize("arguments,expected", [
-    (((3, 14, 7), "Windows", "AMD64", "v26.8.1", 64), []),
-    (((3, 14, 6), "Windows", "AMD64", "v26.8.1", 64), ["Python"]),
-    (((3, 14, 7), "Windows", "AMD64", "v26.8.0", 64), ["Node"]),
-    (((3, 14, 7), "Linux", "X86_64", "v26.8.1", 64), ["Platform"]),
-    (((3, 14, 7), "Windows", "ARM64", "v26.8.1", 64), ["Platform"]),
-    (((3, 14, 7), "Windows", "AMD64", "v26.8.1", 32), ["Platform"]),
-])
+@pytest.mark.parametrize(
+    "arguments,expected",
+    [
+        (((3, 14, 7), "Windows", "AMD64", "v26.8.1", 64), []),
+        (((3, 14, 6), "Windows", "AMD64", "v26.8.1", 64), ["Python"]),
+        (((3, 14, 7), "Windows", "AMD64", "v26.8.0", 64), ["Node"]),
+        (((3, 14, 7), "Linux", "X86_64", "v26.8.1", 64), ["Platform"]),
+        (((3, 14, 7), "Windows", "ARM64", "v26.8.1", 64), ["Platform"]),
+        (((3, 14, 7), "Windows", "AMD64", "v26.8.1", 32), ["Platform"]),
+    ],
+)
 def test_exact_windows_build_runtime(arguments, expected):
     errors = load_tool("verify_build_inputs").verify_runtime(*arguments)
     assert [message.split(":")[0] for message in errors] == expected
@@ -46,7 +49,9 @@ def build_environment(monkeypatch, node_version="v26.8.1"):
     monkeypatch.setattr(tool.platform, "system", lambda: "Windows")
     monkeypatch.setattr(tool.platform, "machine", lambda: "AMD64")
     monkeypatch.setattr(tool.struct, "calcsize", lambda _: 8)
-    monkeypatch.setattr(tool.subprocess, "run", lambda *_, **__: SimpleNamespace(stdout=node_version))
+    monkeypatch.setattr(
+        tool.subprocess, "run", lambda *_, **__: SimpleNamespace(stdout=node_version)
+    )
     return tool
 
 
@@ -84,13 +89,22 @@ def test_retired_migration_helper_import_and_cli_never_modify_files(tmp_path):
     with pytest.raises(RuntimeError, match="retired"):
         tool.verify_migration(source, destination)
     result = subprocess.run(
-        [sys.executable, str(ROOT / "tools/verify_office_migration.py"),
-         str(source), str(destination)], capture_output=True, text=True, timeout=10,
+        [
+            sys.executable,
+            str(ROOT / "tools/verify_office_migration.py"),
+            str(source),
+            str(destination),
+        ],
+        capture_output=True,
+        text=True,
+        timeout=10,
     )
     assert result.returncode != 0
     assert "tools/update-office.ps1" in result.stderr
     assert "No files were changed" in result.stderr
-    assert before == [hashlib.sha256(path.read_bytes()).hexdigest() for path in (source, destination)]
+    assert before == [
+        hashlib.sha256(path.read_bytes()).hexdigest() for path in (source, destination)
+    ]
     missing = tmp_path / "absent.db"
     with pytest.raises(RuntimeError, match="retired"):
         tool.verify_migration(missing, tmp_path / "never-created.db")
@@ -98,16 +112,30 @@ def test_retired_migration_helper_import_and_cli_never_modify_files(tmp_path):
 
 
 @pytest.mark.skipif(sys.platform != "win32", reason="Windows PowerShell 5.1 compatibility gate")
-@pytest.mark.parametrize("relative,arguments", [
-    ("desktop/build-split-release.ps1", []),
-    ("desktop/verify-release.ps1", ["-ReleaseFolder", "not-an-installation"]),
-    ("tools/check-packaged.ps1", ["-ReleaseFolder", "not-an-installation"]),
-])
+@pytest.mark.parametrize(
+    "relative,arguments",
+    [
+        ("desktop/build-split-release.ps1", []),
+        ("desktop/verify-release.ps1", ["-ReleaseFolder", "not-an-installation"]),
+        ("tools/check-packaged.ps1", ["-ReleaseFolder", "not-an-installation"]),
+    ],
+)
 def test_build_and_packaged_verifiers_reject_unsupported_powershell(relative, arguments):
     powershell = Path(os.environ["SystemRoot"]) / "System32/WindowsPowerShell/v1.0/powershell.exe"
     result = subprocess.run(
-        [str(powershell), "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass",
-         "-File", str(ROOT / relative), *arguments], capture_output=True, text=True, timeout=20,
+        [
+            str(powershell),
+            "-NoProfile",
+            "-NonInteractive",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            str(ROOT / relative),
+            *arguments,
+        ],
+        capture_output=True,
+        text=True,
+        timeout=20,
     )
     assert result.returncode != 0
     assert "7.0" in result.stderr and "PowerShell" in result.stderr
@@ -117,12 +145,21 @@ def test_build_and_packaged_verifiers_reject_unsupported_powershell(relative, ar
 def current_read_responses(client):
     scholars, grants = {}, {}
     for index, status in enumerate(("On Going", "Graduated", "Payback pending contract")):
-        response = client.post("/api/v1/fsdp", json={
-            "name": "=Formula scholar" if index == 0 else f"Synthetic scholar {index}",
-            "department": "CAS" if index < 2 else "Staff", "missing_requirements": index == 0,
-            "participations": [{"program_name": f"Synthetic program {index}", "status": status,
-                                "contract_completed_on": "2020-01-01"}],
-        })
+        response = client.post(
+            "/api/v1/fsdp",
+            json={
+                "name": "=Formula scholar" if index == 0 else f"Synthetic scholar {index}",
+                "department": "CAS" if index < 2 else "Staff",
+                "missing_requirements": index == 0,
+                "participations": [
+                    {
+                        "program_name": f"Synthetic program {index}",
+                        "status": status,
+                        "contract_completed_on": "2020-01-01",
+                    }
+                ],
+            },
+        )
         assert response.status_code == 201, response.text
         item = response.json()
         scholars[item["id"]] = item["name"]
@@ -151,19 +188,34 @@ def test_office_copy_cli_preserves_source_and_checks_private_snapshot(tmp_path, 
         engine = create_engine(f"sqlite:///{source.as_posix()}")
         try:
             with Session(engine) as session:
-                session.add(Scholar(
-                    name="Synthetic CLI scholar", department="CAS",
-                    participations=[FsdpParticipation(program=Program(name="Synthetic CLI program"))],
-                ))
+                session.add(
+                    Scholar(
+                        name="Synthetic CLI scholar",
+                        department="CAS",
+                        participations=[
+                            FsdpParticipation(program=Program(name="Synthetic CLI program"))
+                        ],
+                    )
+                )
                 session.commit()
         finally:
             engine.dispose()
     before = hashlib.sha256(source.read_bytes()).hexdigest()
     workspace = tmp_path / "private-workspace"
     result = subprocess.run(
-        [sys.executable, str(ROOT / "tools/check_records.py"), "--app", str(ROOT),
-         "--database", str(source), "--workspace", str(workspace)],
-        capture_output=True, text=True, timeout=30,
+        [
+            sys.executable,
+            str(ROOT / "tools/check_records.py"),
+            "--app",
+            str(ROOT),
+            "--database",
+            str(source),
+            "--workspace",
+            str(workspace),
+        ],
+        capture_output=True,
+        text=True,
+        timeout=30,
     )
     assert result.returncode == 0, result.stdout + result.stderr
     assert "Four FSDP office-copy endpoint checks passed" in result.stdout
@@ -173,11 +225,23 @@ def test_office_copy_cli_preserves_source_and_checks_private_snapshot(tmp_path, 
     assert responses["/fsdp/payback"]["total"] == int(populated)
 
 
-@pytest.mark.parametrize("corruption", [
-    "missing_response", "empty_json", "false_summary", "missing_scholar", "duplicate_scholar",
-    "missing_grant", "false_action_count", "missing_payback_grant", "false_payback_count",
-    "altered_csv_header", "missing_csv_record", "csv_wrong_totals",
-])
+@pytest.mark.parametrize(
+    "corruption",
+    [
+        "missing_response",
+        "empty_json",
+        "false_summary",
+        "missing_scholar",
+        "duplicate_scholar",
+        "missing_grant",
+        "false_action_count",
+        "missing_payback_grant",
+        "false_payback_count",
+        "altered_csv_header",
+        "missing_csv_record",
+        "csv_wrong_totals",
+    ],
+)
 def test_successful_but_incorrect_read_payloads_are_rejected(current_read_responses, corruption):
     tool, original, scholars, grants, contracts = current_read_responses
     results = copy.deepcopy(original)
@@ -201,7 +265,7 @@ def test_successful_but_incorrect_read_payloads_are_rejected(current_read_respon
         group = results["/fsdp/payback"]["items"][0]["attention"]
         results["/fsdp/payback"]["grant_counts"][group] += 1
     else:
-        csv_rows = list(csv.reader(StringIO(results["/fsdp/report.csv"])))
+        csv_rows = list(csv.reader(StringIO(results["/fsdp/report.csv"].lstrip("\ufeff"))))
         if corruption == "altered_csv_header":
             index = csv_rows.index(contracts["report"]["sections"]["records"])
             csv_rows[index][0] = "Wrong Name Header"

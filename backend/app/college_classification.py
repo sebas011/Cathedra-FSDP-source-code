@@ -19,10 +19,16 @@ def personnel_type(value: str | None) -> str:
 
 def affiliation_expression(column):
     label = func.upper(func.trim(func.coalesce(column, "")))
-    return case((label.in_(COLLEGES), label), (label.in_(("", "UNKNOWN", "NOT RECORDED")), "Unknown"), else_="Staff")
+    return case(
+        (label.in_(COLLEGES), label),
+        (label.in_(("", "UNKNOWN", "NOT RECORDED")), "Unknown"),
+        else_="Staff",
+    )
 
 
-def previous_affiliation_note(value: str | None, remarks: str | None, *, uppercase_new: bool = False) -> str | None:
+def previous_affiliation_note(
+    value: str | None, remarks: str | None, *, uppercase_new: bool = False
+) -> str | None:
     raw = (value or "").strip()
     if raw and affiliation(raw) == "Staff" and raw.casefold() != "staff":
         note = f"Previous affiliation: {raw}"

@@ -11,15 +11,100 @@ export default function ScholarHistory({ scholarId }: { scholarId: number }) {
   useEffect(() => {
     if (!open) return;
     let active = true;
-    setResult(null); setError("");
-    getScholarHistory(scholarId, page).then(value => { if (active) setResult(value); }).catch(caught => { if (active) setError(caught instanceof Error ? caught.message : "Unable to load history."); });
-    return () => { active = false; };
+    setResult(null);
+    setError("");
+    getScholarHistory(scholarId, page)
+      .then((value) => {
+        if (active) setResult(value);
+      })
+      .catch((caught) => {
+        if (active) setError(caught instanceof Error ? caught.message : "Unable to load history.");
+      });
+    return () => {
+      active = false;
+    };
   }, [scholarId, page, open, attempt]);
-  return <section className="profile-panel no-print"><button className="btn secondary" type="button" aria-expanded={open} aria-controls="scholar-change-history" onClick={() => setOpen(value => !value)}>Change history</button>{open && <div id="scholar-change-history" className="stack-md">
-    <p>Field names, editor and time are recorded. Older deleted grant or requirement links may not be recoverable.</p>
-    {error ? <div role="alert">{error}<button className="btn secondary" type="button" onClick={() => setAttempt(value => value + 1)}>Retry</button></div> : !result ? <p role="status">Loading change history…</p> : <>
-      {!result.total ? <p>No attributable changes recorded.</p> : <ol>{result.items.map(item => <li key={item.id}><strong>{item.operation} · {item.area}</strong><p>{item.username || "Unknown editor"} · {new Date(item.created_at).toLocaleString()}</p><p>{item.changed_fields.map(field => field.replaceAll("_", " ")).join(", ") || "No field details"}</p></li>)}</ol>}
-      {result.total > 20 && <nav aria-label="Change history pages" className="action-group"><button type="button" className="btn secondary" disabled={page === 1} onClick={() => setPage(value => value - 1)}>Previous</button><span>Page {page} of {Math.ceil(result.total / 20)}</span><button type="button" className="btn secondary" disabled={page * 20 >= result.total} onClick={() => setPage(value => value + 1)}>Next</button></nav>}
-    </>}
-  </div>}</section>;
+  return (
+    <section className="profile-panel no-print">
+      <button
+        className="btn secondary"
+        type="button"
+        aria-expanded={open}
+        aria-controls="scholar-change-history"
+        onClick={() => setOpen((value) => !value)}
+      >
+        Change history
+      </button>
+      {open && (
+        <div id="scholar-change-history" className="stack-md">
+          <p>
+            Field names, editor and time are recorded. Older deleted grant or requirement links may
+            not be recoverable.
+          </p>
+          {error ? (
+            <div role="alert">
+              {error}
+              <button
+                className="btn secondary"
+                type="button"
+                onClick={() => setAttempt((value) => value + 1)}
+              >
+                Retry
+              </button>
+            </div>
+          ) : !result ? (
+            <p role="status">Loading change history…</p>
+          ) : (
+            <>
+              {!result.total ? (
+                <p>No attributable changes recorded.</p>
+              ) : (
+                <ol>
+                  {result.items.map((item) => (
+                    <li key={item.id}>
+                      <strong>
+                        {item.operation} · {item.area}
+                      </strong>
+                      <p>
+                        {item.username || "Unknown editor"} ·{" "}
+                        {new Date(item.created_at).toLocaleString()}
+                      </p>
+                      <p>
+                        {item.changed_fields
+                          .map((field) => field.replaceAll("_", " "))
+                          .join(", ") || "No field details"}
+                      </p>
+                    </li>
+                  ))}
+                </ol>
+              )}
+              {result.total > 20 && (
+                <nav aria-label="Change history pages" className="action-group">
+                  <button
+                    type="button"
+                    className="btn secondary"
+                    disabled={page === 1}
+                    onClick={() => setPage((value) => value - 1)}
+                  >
+                    Previous
+                  </button>
+                  <span>
+                    Page {page} of {Math.ceil(result.total / 20)}
+                  </span>
+                  <button
+                    type="button"
+                    className="btn secondary"
+                    disabled={page * 20 >= result.total}
+                    onClick={() => setPage((value) => value + 1)}
+                  >
+                    Next
+                  </button>
+                </nav>
+              )}
+            </>
+          )}
+        </div>
+      )}
+    </section>
+  );
 }

@@ -19,7 +19,7 @@ $versionResource = Join-Path $PSScriptRoot 'build/windows-version.txt'
 if ($LASTEXITCODE -ne 0) { throw 'Build runtime differs from the release baseline.' }
 New-Item -ItemType Directory -Path (Join-Path $PSScriptRoot 'build') -Force | Out-Null
 if ($InstallDependencies) {
-  & $Python -m pip install -r (Join-Path $root 'backend/requirements.txt') -r (Join-Path $PSScriptRoot 'requirements-build.txt') -c (Join-Path $root 'backend/constraints-win-py314.txt')
+  & $Python -m pip install -r (Join-Path $root 'backend/requirements-dev.txt') -r (Join-Path $PSScriptRoot 'requirements-build.txt') -c (Join-Path $root 'backend/constraints-win-py314.txt')
   if ($LASTEXITCODE -ne 0) { throw 'Constrained dependency installation failed.' }
 }
 & $Python (Join-Path $root 'tools/verify_build_inputs.py') (Join-Path $root 'backend/constraints-win-py314.txt') --node $Node

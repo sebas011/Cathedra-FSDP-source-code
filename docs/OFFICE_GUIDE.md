@@ -1,10 +1,36 @@
 # Office operation and safe updates
 
+## Sign-in and recovery copies
+
+Cathedra locks after 30 minutes without user activity. Sign in again with the same account to resume unfinished forms. Background updates do not keep an unattended session open; the absolute sign-in limit remains 12 hours.
+
+On first-time setup, the private code appears in a local dialog. It is never included in the browser address. Existing accounts use the normal sign-in page. If setup has not been completed and the code is lost, close and reopen Cathedra to obtain a new code.
+
+Startup saves a verified daily recovery copy. The newest 14 unpinned daily copies and 30 unpinned pre-delete copies are kept; manual and pinned copies remain until explicitly managed. Deleting a scholar first creates a verified recovery copy and stops if that copy fails. Copy backups to private off-device storage as well; local copies do not protect against losing the computer.
+
+Transferred and Withdrawn grants remain eligible for calculated payback review when unfinished and past the three-year grace period. Recorded Payback remains visible independently of calculated review.
+
 ## Daily work
 
 Name and Program Applied are essential fields. Dates, years, personnel classification and education detail remain optional. The directory uses the newest grant for the overall scholar status, with year, term and record ID determining order. Individual grant statuses stay in the profile. Name search matches the beginning of each name word.
 
-Use separate annual grants for multi-year participation. A specific optional contract completion date starts the three-calendar-year grace period. Its final day is included; review starts the following day. Recorded Completed in the same program clears computed follow-up across annual grants. Recorded Payback and Payback pending contract stay visible. Did Not Avail does not become an overdue candidate. Missing dates cannot be calculated and are never guessed. Open/Closed case status is separate and does not override the recorded outcome.
+The directory is alphabetical by the full recorded name, ignoring case and surrounding spaces, with scholar ID breaking ties. Names are not automatically rearranged into surname order. Hard copy and Soft copy are independent optional profile choices: Available, Not available or Not recorded. A scholar can have only one kind of copy, both or neither. These facts appear on the directory/profile and do not mark requirements complete or upload files. Existing unchecked records remain Not recorded.
+
+Use separate annual grants for multi-year participation. A specific optional contract completion date starts the three-calendar-year grace period. Its final day is included; review starts the following day. Recorded Completed in the same application clears computed follow-up across its annual grants; a separate later application in the same program remains independent. Older unassigned records retain their previous same-program scope until reviewed and assigned. Recorded Payback and Payback pending contract stay visible. Did Not Avail does not become an overdue candidate. Missing dates cannot be calculated and are never guessed. Open/Closed case status is separate and does not override the recorded outcome.
+
+## Program applications and annual grants
+
+Use the single Program Applied field to enter the program name. Its catalog identity is resolved when saving; the separate Existing program selector has been removed. Keep established program names consistent. Program category optionally distinguishes Degree, Certification and Enhancement; Type of Grant still describes funding and remains separate.
+
+Use **Copy for next year** for another annual grant in the same application. Use **New application** for a later enrollment in the same program. For example, the 1st 2021-2022 to 2nd 2022-2023 application can stack separately from the 1st 2023-2024 to 2nd 2024-2025 application, while each keeps its own annual grant rows. The new-application draft proposes the next period after the previous end year and clears prior remarks/outcome/actual dates; review its proposed terms/years before saving. Save Grant finishes the draft; Save Scholar persists it. Administrators have the copy/new-application actions.
+
+Each application summary shows its overall period. The Application control can associate a reviewed grant with the intended group. Existing unassigned records stay together under their original program until explicitly assigned; the upgrade never guesses application boundaries from a gap in years or a repeated program name. Do not duplicate the program catalog merely to separate a later enrollment. Completing one explicit application does not clear another application's calculated contract follow-up.
+
+## Compact Office Log entries
+
+After a confirmed log save, the editor closes and focus returns to Add log entry. Failed or uncertain saves leave the original draft open for a safe retry. Saved entries stack as compact date/type/document/scholar rows; expand a row for notes, departments and author. Entries remain append-only, and a correction uses a subsequent explanatory entry.
+
+Confirmed saving clears active log search/type filters and returns to the first page. The register remains ordered by event date, so a backdated entry can appear on a later page. Log CSV includes all entries matching its filters. Printing temporarily expands all entries on the loaded page and restores their previous state afterward; it does not load other pages.
 
 Automatically added education is labelled in the editor. Remove and Save Scholar to retain its removal. Select Restore for the removed program and save to restore it. Corrected manual entries are retained; graduation years are extracted only from clear associated graduation remarks. Manual years and removals are preserved.
 
@@ -24,7 +50,7 @@ Profile Remarks and grant Remarks stay in separate columns. Education and Office
 
 Perform these steps on the **Office PC**. There are two separate folders: the **new update folder** you transferred, and the **existing Office app folder** containing the newest scholar records. The updater installs application files into the existing folder and keeps its database.
 
-1. Copy the complete `Cathedra-FSDP-0.5.19-Update` folder from the transfer drive to the Office Desktop. Keep its name and all contents, including `_internal`, `tools` and `docs`. Do not paste it into the existing Office app folder. If it arrived as a ZIP, extract it first.
+1. Copy the complete `Cathedra-FSDP-0.5.20-Update` folder from the transfer drive to the Office Desktop. Keep its name and all contents, including `_internal`, `tools` and `docs`. Do not paste it into the existing Office app folder. If it arrived as a ZIP, extract it first.
 2. Open the Office app you normally use and confirm that its newest scholars are present. As an administrator, open **Backup & Export**, click **Create Backup**, choose that newest backup and click **Download Selected Backup**. Keep the downloaded backup privately outside the app folder. Note the scholar total and a couple of recently added scholars for comparison afterward.
 3. Find the existing app folder in File Explorer. If you use a desktop shortcut, right-click it, open **Properties** and choose **Open File Location**. The installation folder contains `Cathedra FSDP.exe` and `data\cathedra.db`. Copy the folder address from File Explorer's address bar; select the folder above `data`, not the `data` folder itself.
 4. Save any edits. Use **Exit Cathedra** inside the app, confirm exit, wait for **Cathedra has stopped**, then close its window.
@@ -32,7 +58,7 @@ Perform these steps on the **Office PC**. There are two separate folders: the **
 
 ```powershell
 & {
-    $updateFolder = (Read-Host 'Paste the NEW Cathedra-FSDP-0.5.19-Update folder address').Trim().Trim('"')
+    $updateFolder = (Read-Host 'Paste the NEW Cathedra-FSDP-0.5.20-Update folder address').Trim().Trim('"')
     $officeFolder = (Read-Host 'Paste the EXISTING Office app folder address').Trim().Trim('"')
     if (-not (Test-Path -LiteralPath (Join-Path $updateFolder 'tools\update-office.ps1') -PathType Leaf)) { throw 'The NEW folder must contain tools\update-office.ps1. Select the extracted update folder.' }
     if (-not (Test-Path -LiteralPath (Join-Path $officeFolder 'data\cathedra.db') -PathType Leaf)) { throw 'The EXISTING folder must contain data\cathedra.db. Select the folder containing your current Office app.' }
@@ -45,7 +71,7 @@ Perform these steps on the **Office PC**. There are two separate folders: the **
 
 The update folder contains an empty seed for new installations, not your Office records. Do not copy a development `data` folder or replace the Office `data\cathedra.db` manually.
 
-If PowerShell shows an error, keep the full message and receipt path. A missing-database message usually means the wrong existing folder was selected. An active-app message requires exiting Cathedra normally before retrying. If the app is already on 0.5.19, confirm that version in the existing app instead of forcing another update. For other failures, retain the data and recovery files and review the message before attempting recovery. Do not restore an older database just to replace application files.
+If PowerShell shows an error, keep the full message and receipt path. A missing-database message usually means the wrong existing folder was selected. An active-app message requires exiting Cathedra normally before retrying. If the app is already on 0.5.20, confirm that version in the existing app instead of forcing another update. For other failures, retain the data and recovery files and review the message before attempting recovery. Do not restore an older database just to replace application files.
 
 Supported source versions begin at 0.5.4 and must have a valid FSDP product/history and runtime manifest. Wrong products, downgrades, active apps, missing databases, linked folders and damaged packages stop safely. The update journal and receipts are inside the existing data folder; recovery snapshots are inside its backups folder. No project database is part of the update payload.
 
@@ -78,7 +104,7 @@ Dashboard explanations are available in the searchable Office Guide. The overvie
 
 Personnel type follows affiliation: eight colleges mean Faculty, other known affiliations mean Staff, and missing information means Unknown. Profile remarks follow the scholar facts. Grant history groups years under one program and each group/annual record can be expanded. Printing temporarily expands all records.
 
-For a multi-year program, retain the same Program Applied, make a separate grant for each academic year, and choose each year’s grant type. Copy for next year advances recognized year ranges, resets outcome to On Going and clears completion dates, remarks and extension. Duplicate program is only for a distinct catalog program.
+For a multi-year program, retain the same Program Applied, make a separate grant for each academic year, and choose each year’s grant type. Copy for next year advances recognized year ranges, resets outcome to On Going and clears completion dates and extension; remarks are retained for review. Duplicate program is only for a distinct catalog program.
 
 Use Payback pending contract while the repayment contract is being arranged. Record final Payback after the office completes that contract; the system never assigns it automatically. Transferred is another available recorded outcome.
 
@@ -90,7 +116,7 @@ Summer remains supported alongside 1st/2nd/3rd. Education inference accepts dire
 
 Existing education and manual corrections are preserved. Review and correct/remove an achievement in the existing editor when necessary; do not delete all automatically linked entries. A maintainer has a read-only snapshot review tool described in the technical requirements. A flagged entry may still be a valid historical achievement.
 
-Recorded Payback and Payback pending contract take precedence over same-program graduation. Education inferred from remarks does not change recorded status or payback assessment. Category counts describe the college/year scope; paged results, complete results and CSV share the selected category.
+Recorded Payback and Payback pending contract take precedence over completion within an application. Education inferred from remarks does not change recorded status or payback assessment. Category counts describe the college/year scope; paged results, complete results and CSV share the selected category.
 
 Staff can select an existing program or create a missing typed program name during Save Scholar. Use the existing-program selector for subsequent annual grants. Direct catalog administration and duplication are available to administrators in Settings → Programs. If older equivalent names are flagged, select the correct existing identity; no grant history is merged automatically.
 

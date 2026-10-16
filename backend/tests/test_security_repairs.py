@@ -121,7 +121,10 @@ def test_launcher_does_not_open_an_occupied_service(tmp_path, monkeypatch):
         foreign.bind(("127.0.0.1", 0))
         foreign.listen()
         args = SimpleNamespace(
-            data_dir=str(tmp_path), port=foreign.getsockname()[1], no_browser=False, update_target=None
+            data_dir=str(tmp_path),
+            port=foreign.getsockname()[1],
+            no_browser=False,
+            update_target=None,
         )
         monkeypatch.setattr(launcher, "parse_arguments", lambda: args)
         monkeypatch.setattr(launcher, "service_is_ready", lambda *args: True)

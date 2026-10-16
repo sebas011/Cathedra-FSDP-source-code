@@ -1,8 +1,8 @@
 # Design brief
 
 **Product:** Cathedra FSDP  
-**Documented:** 14 October 2026, Asia/Manila<br>
-**Baseline:** release 0.5.19; database schema 13<br>
+**Documented:** 16 October 2026, Asia/Manila<br>
+**Baseline:** release 0.5.21; database schema 15<br>
 **Status:** implementation-derived documentation; see [baseline and evidence](README.md).
 
 ## Objective
@@ -75,6 +75,8 @@ Zero/unknown categories remain represented as recorded rather than guessed. The 
 
 Place search, filters, counts and actions consistently above results. Provide stable identity/profile links, readable status labels, pagination and clear no-results feedback. Preserve complete filtered printing/export. On smaller screens, tables scroll inside their own labelled region rather than widening the whole page.
 
+Directory rows use stable case-insensitive alphabetical order of the full recorded name, with ID as a tie-breaker. This does not invent a surname field or reinterpret names. Show hard-copy and soft-copy availability separately using Available, Not available and Not recorded text rather than color alone.
+
 ### Scholar profile
 
 Use an identity header and compact facts, followed by whole-profile remarks, education and annual grant history. Keep “Profile remarks” and “Grant remarks” visibly different. The full grant history has its own disclosure, in addition to individual program/year groups, so it need not dominate the page. Profile, education and grant actions use icons with accessible labels and tooltips; icons never rely on shape alone. Staff should not appear twice as redundant identity pills. COE/COED remain separate. Requirements and privileged change history support the profile without dominating its core information.
@@ -83,9 +85,13 @@ Use an identity header and compact facts, followed by whole-profile remarks, edu
 
 Use clear sections for Scholar Information, Education, Grants and Requirements. Distinguish finishing a subentry from persisting the scholar. Keep open drafts, errors and uncertain-save notices visible. Confirm discards/removals where implemented. Preserve explicit recorded unknowns and optional fields; do not turn completeness guidance into mandatory fields. Place grant outcome and case state after the remarks near Save Grant. Optional graduation and contract-completion dates have distinct labels. Display new record text in uppercase, format recognized consecutive academic-year ranges with a dash, complete a single four-digit year on blur/save and protect age/tenure from mouse-wheel changes while keeping normal keyboard editing available.
 
+Use a single Program Applied input in grants and a separate optional Degree/Certification/Enhancement category. Keep funding in Type of Grant. Stack annual records by application, including repeat enrollments in the same program, with each application's overall period visible in its summary. Keep Copy for next year and New application distinct. Existing unassigned program history stays together until explicitly reviewed and reassigned.
+
 ### Office Log
 
 Use a compact new-entry form and a paginated, filterable document register. Receipt/transfer information includes the document, optional scholar, date, from/to department and notes without introducing file-upload behavior. Author and scholar snapshots explain who recorded an entry and which scholar was linked at that time. Keep Office Log separate from administrator Activity History. Append-only entries have no misleading edit/delete controls.
+
+Close the editor only after confirmed saving and return focus to Add log entry. Keep failed/uncertain drafts open. Stack saved entries as native keyboard-operable disclosures with date/type/document/scholar summaries; expand for full notes, movement and author. Profile printing temporarily expands the loaded log entries and restores their prior state, just as grant history does.
 
 ### Guide, settings and recovery
 

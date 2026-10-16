@@ -1,6 +1,6 @@
 # Office acceptance and release evidence
 
-Target release: 0.5.19; schema 13. **Actual Office-PC acceptance remains open.** Copy this checklist into a private device-specific record; leave results unverified until actually checked.
+Target release: 0.5.21; schema 15. **Actual Office-PC acceptance remains open.** Copy this checklist into a private device-specific record; leave results unverified until actually checked.
 
 Record checker, date, device/Windows/browser, previous/current version and evidence location. Do not include scholar names, credentials or private backups in public evidence.
 
@@ -18,7 +18,11 @@ Record checker, date, device/Windows/browser, previous/current version and evide
 | Optional graduation dates | Date remains optional, supplies a year when applicable and clears together with all actual dates in copied grants | Unverified on Office PC |
 | Compact entry and profile controls | Named icon actions, final-position status controls, full-history disclosure and wheel-protected age/tenure work on the intended mouse/keyboard | Unverified on Office PC |
 | Office Log | Receipt/transfer/general note, optional scholar link and date, author/name snapshots, retry safety, complete filtered CSV and append-only behavior | Unverified on Office PC |
-| Contract assessment | Inclusive three-year grace; pending/final manual outcomes; same-program clearing and filtered CSV agree | Unverified on Office PC |
+| Copy availability | Paper and electronic copies each retain independent Available/Not available/Not recorded values after save/reopen, without marking requirements complete | Unverified on Office PC |
+| Repeated applications | Same-program enrollments stack separately; annual copies stay in their group, new applications do not inherit completion/payback clearing, old unassigned records remain intact | Unverified on Office PC |
+| Program category and alphabetical order | Degree/Certification/Enhancement are separate from funding; full-name A–Z order remains stable across directory pages | Unverified on Office PC |
+| Compact Office Log | Confirmed save closes the editor; failed/uncertain draft stays open; compact rows expand and print full loaded detail | Unverified on Office PC |
+| Contract assessment | Inclusive three-year grace; pending/final manual outcomes; application-scoped clearing and filtered CSV agree | Unverified on Office PC |
 | Print and exports | Prepared print includes more than 50 matching records and full profile history; changing filters cancels preparation; native Ctrl+P has its visible-view label | Unverified on Office PC |
 | Grouped CSV grants | Profile on first row, grant-only continuation rows, separate equal-name scholars, full filtered grant details and no provenance columns | Unverified on Office PC |
 | Keyboard, 200% zoom, representative assistive technology | Usable controls/focus and readable layout | Unverified on Office PC |

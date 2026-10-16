@@ -1,8 +1,8 @@
 # Application flow
 
 **Product:** Cathedra FSDP  
-**Documented:** 14 October 2026, Asia/Manila<br>
-**Baseline:** release 0.5.19; database schema 13<br>
+**Documented:** 16 October 2026, Asia/Manila<br>
+**Baseline:** release 0.5.21; database schema 15<br>
 **Status:** implementation-derived documentation; see [baseline and evidence](README.md).
 
 ## Navigation map
@@ -55,8 +55,8 @@ Only the process owning the selected database lock may open that data directory.
 
 ## Create or edit a scholar
 
-1. Find the scholar in the directory, or choose Add scholar. Name search matches the start of name words; program, department, rank and HEI may also match the general search.
-2. Enter Name and select the correct College / Staff. Fill optional information only when known. Add whole-profile remarks separately from grant notes.
+1. Find the scholar in the directory, or choose Add scholar. Results are alphabetical by the complete stored name, ignoring case and surrounding spaces, with scholar ID breaking ties. Name search matches the start of name words; program, department, rank and HEI may also match the general search.
+2. Enter Name and select the correct College / Staff. Record hard-copy and soft-copy availability independently as Available, Not available or Not recorded. These optional facts do not mark requirements complete or upload a file. Add whole-profile remarks separately from grant notes.
 3. Add/edit each education item and finish that entry. Add/edit grants through their own editor. Each grant requires Program Applied; its period, type, outcome, case state, optional graduation date and remarks remain individual to that grant. Status and case controls follow the remarks near the save action.
 4. **Save Grant** updates the open scholar draft, not the database. **Save Scholar** persists the profile and related lists. An open education/grant draft must be saved or cancelled before the scholar can be submitted.
 5. Review similar-name warnings. Confirm separate people when appropriate; no automatic merge occurs.
@@ -94,13 +94,19 @@ If the session expires, the interface pauses editing and asks the same account t
 
 Administrators choose Copy for next year in the scholar editor. It opens a new draft with separate identity, On Going outcome, Open case state and cleared actual dates, including contract completion and graduation. Update the copied academic year/terms and other applicable details, Save Grant, then Save Scholar. Recognized academic-year ranges advance by one; terms stay as recorded. Remarks are retained for review, while extension is cleared; review copied remarks for their new annual context. The privileged persisted-grant duplication endpoint is separate from this draft-copy interaction.
 
-Choose an existing catalog program when recording another annual grant in the same academic program. The selected program ID preserves its history, including when older catalog names are equivalent. Administrators manage and duplicate programs in Settings → Programs. Program duplication creates a separate catalog program immediately with a unique Copy suffix; it does not duplicate a scholar or all their grants. Keep the same program identity for annual grants unless a separate program is intended; same-program graduation rules use program IDs. Navigation remains guarded while a copy is pending.
+Annual copying preserves the selected program ID, including when older catalog names are equivalent. Administrators manage and duplicate programs in Settings → Programs. Catalog duplication creates a separate program immediately with a unique Copy suffix; it does not duplicate a scholar or all their grants. Use New application for another enrollment under the existing program. Unsaved scholar drafts and in-flight catalog mutations retain their respective navigation guards.
+
+The grant editor uses one Program Applied field; it resolves the catalog identity without a separate Existing program field. Select Degree, Certification or Enhancement as an optional Program category independently of Type of Grant. For another academic year within an existing application, use Copy for next year. For a separate later enrollment in the same program, use New application; it receives a new application identity, clears remarks/outcome/actual dates and proposes the next period after the previous end year. Review the proposed period before saving. The Application control can associate existing annual records with the intended application. The editor and profile stack records under that application and show its overall term/year span.
+
+Existing grants with an unrecorded application identity remain together under their original program. The upgrade does not guess enrollment boundaries or split historical grants. Assign applications only after reviewing office evidence. Completion clears calculated follow-up only within the same explicit application; unassigned older records retain the former same-program rule. Recorded repayment outcomes remain explicit office decisions.
 
 Completed replaces Graduated as the displayed recorded outcome. It can add the program to the scholar's education even without recognizable remarks; optional graduation date supplies a year only where manual education intent permits. Opening or closing a case does not change its outcome. Collapse the whole grant history or expand the program/year needed; prepared profile printing includes all history.
 
 ## Record document receipts and transfers
 
 Open Office Log, enter the document/event details and optionally link a scholar. Record the date and from/to department when known, then save the log entry. A submission is an immediate log operation, separate from Save Scholar. The authenticated author and linked scholar name are captured for the register. Entries are append-only; use a subsequent explanatory entry to record a correction rather than silently changing the historical entry. Filter/page the register for review; CSV covers the complete selected scope. Uploaded document files are not stored.
+
+After a confirmed save the log editor closes, focus returns to Add log entry and search/type filters reset to the first page. The register keeps event-date order, so backdated entries can appear on later pages. Each compact entry shows its date/type and available document/scholar context; expand it for notes, departments and author. Failed or uncertain saves keep the original draft open for a safe retry. Printing expands all entries on the loaded page and restores their previous disclosure states afterward; it does not load other pages.
 
 ## Dashboard, reports and contract review
 

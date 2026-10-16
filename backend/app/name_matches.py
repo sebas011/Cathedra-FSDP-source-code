@@ -4,8 +4,13 @@ from difflib import SequenceMatcher
 
 def name_key(name: str) -> str:
     text = unicodedata.normalize("NFKD", name.casefold())
-    return " ".join("".join(character if character.isalnum() else " "
-                            for character in text if not unicodedata.combining(character)).split())
+    return " ".join(
+        "".join(
+            character if character.isalnum() else " "
+            for character in text
+            if not unicodedata.combining(character)
+        ).split()
+    )
 
 
 def name_similarity(candidate: str, existing: str) -> tuple[float, str]:

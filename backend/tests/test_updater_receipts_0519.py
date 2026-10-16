@@ -52,7 +52,9 @@ def test_verifier_command_never_selects_data_or_opens_application(monkeypatch, t
 
 
 @pytest.mark.parametrize("failure_phase", ["Existing installation", "Update operation"])
-def test_failed_update_receipt_names_phase_without_touching_database(monkeypatch, tmp_path, failure_phase):
+def test_failed_update_receipt_names_phase_without_touching_database(
+    monkeypatch, tmp_path, failure_phase
+):
     launcher = launcher_module()
     target = tmp_path / "Office installation"
     data = target / "data"
@@ -61,15 +63,25 @@ def test_failed_update_receipt_names_phase_without_touching_database(monkeypatch
     database.write_bytes(b"Synthetic Office records must stay intact")
     receipt = data / "result.json"
     arguments = SimpleNamespace(
-        verify_package=None, data_dir=None, update_target=str(target),
-        maintenance_result=str(receipt), rollback_update=False,
+        verify_package=None,
+        data_dir=None,
+        update_target=str(target),
+        maintenance_result=str(receipt),
+        rollback_update=False,
     )
     monkeypatch.setattr(launcher, "parse_arguments", lambda: arguments)
-    monkeypatch.setattr(launcher, "writable_data_directory", lambda _: tmp_path / "private helper data")
+    monkeypatch.setattr(
+        launcher, "writable_data_directory", lambda _: tmp_path / "private helper data"
+    )
     monkeypatch.setattr(launcher, "bundled_release_version", lambda: "0.5.19")
     monkeypatch.setattr(launcher, "resource_path", lambda *_: tmp_path / "private helper backend")
     monkeypatch.setattr(sys, "path", list(sys.path))
-    for name in ("CATHEDRA_DATA_DIR", "CATHEDRA_PRODUCT", "CATHEDRA_FRONTEND_DIST", "CATHEDRA_RELEASE_VERSION"):
+    for name in (
+        "CATHEDRA_DATA_DIR",
+        "CATHEDRA_PRODUCT",
+        "CATHEDRA_FRONTEND_DIST",
+        "CATHEDRA_RELEASE_VERSION",
+    ):
         monkeypatch.setenv(name, launcher.os.environ.get(name, ""))
 
     def failed(*_, **__):

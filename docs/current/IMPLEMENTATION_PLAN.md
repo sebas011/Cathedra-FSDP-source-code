@@ -1,13 +1,15 @@
 # Implementation and release plan
 
 **Product:** Cathedra FSDP  
-**Documented:** 14 October 2026, Asia/Manila<br>
-**Baseline:** release 0.5.19; database schema 13<br>
+**Documented:** 16 October 2026, Asia/Manila<br>
+**Baseline:** release 0.5.21; database schema 15<br>
 **Status:** implementation-derived documentation; see [baseline and evidence](README.md).
 
 ## Purpose and boundary
 
 Maintain and deliver the existing FSDP application without replacing its architecture or overwriting Office records. This is a plan derived from current implementation and known gaps. The approved 0.5.17 findings implementation is described below; final regression, packaging and installation are recorded independently, and external Office acceptance remains open. Stages have prerequisites and exit criteria; no schedule or completed external acceptance is invented.
+
+The 16 October 0.5.21 source implements the [audit remediation plan](../plans/2026-10-16-audit-remediation.md): verified recovery before deletion, bounded daily snapshots, strict restore selection, private error references, UTF-8 CSV signatures, frozen historical migrations, scoped UI recovery and inactivity locking. Schema 15 adds nullable session activity time. Prior optional document facts, application grouping, certification/enhancement categories, Summer and lightweight validation remain. Runtime installation and package acceptance are recorded independently in [validation](../VALIDATION_0.5.21.md).
 
 ## Delivered baseline
 
@@ -17,7 +19,7 @@ Maintain and deliver the existing FSDP application without replacing its archite
 | Profiles | Multiple education entries, years-based tenure, profile remarks, individual grant remarks, eight colleges plus Staff | Models/API, migrations 6/8/10 |
 | Annual records | Multiple grants, administrator program/grant duplication and separate outcomes | FSDP API and editor |
 | Reporting | Dashboard analytics/recent ten, embedded scoped reports, complete CSV and printing | Dashboard/report components and API |
-| Payback review | Optional contract completion, calendar-year grace and same-program graduation clearing | Contract rules/payback service |
+| Payback review | Optional contract completion, calendar-year grace and application-scoped completion clearing | Contract rules/payback service |
 | Integrity/access | Revisions, account-scoped create retries, durable education suppression, account/session controls | Migration 9, concurrency/auth services |
 | Recovery/updates | Protected snapshots, compatible restore gating, runtime-only updater and rollback safeguards | Upgrade, maintenance and desktop updater |
 | Chart correction | College bars, status doughnut, grant-type pie | Included in 0.5.14 |
@@ -34,7 +36,7 @@ Use this dependency sequence when rebuilding the existing product in an isolated
 | B2 | Add authentication before exposing protected data | First-admin setup, hashed passwords, sessions, role/temporary-password checks, revocation and protected shell | PRD-01/18; API access inventory |
 | B3 | Build scholar/program services on B1/B2 | Owned nested CRUD, program resolution, revisions, account-scoped create retries and audit events | PRD-02/03/15; TR-03/04/05 |
 | B4 | Build editor/profile on B3 | Education, years-based tenure, separate remarks, requirements, annual grants, duplication and unsaved-draft controls | PRD-04 through PRD-09/14 |
-| B5 | Add derived status and contract rules on saved grant history | Latest grant ordering, optional completion/grace calculations and same-program graduation handling | PRD-10/11; contract boundary tests |
+| B5 | Add derived status and contract rules on saved grant history | Latest grant ordering, optional completion/grace calculations and application-scoped completion handling | PRD-10/11; contract boundary tests |
 | B6 | Add overview/reporting on B3/B5 | Scoped counts, mixed charts, recent ten, paginated results and complete filtered print/CSV | PRD-12/13/17; report reconciliation |
 | B7 | Add operating/release recovery on B1/B2 | Backup/protection/restore, readiness, packaged launch and data-preserving updater | PRD-16; TR-11/12 |
 | B8 | Verify the integrated workflow across B1–B7 | Regression evidence, responsive/keyboard review, manifest and intended-device acceptance | Release verification matrix below |
@@ -86,7 +88,7 @@ Establish a verified off-device recovery routine using existing snapshots/review
 
 **Owner:** backend maintainer. **Status:** optional scale work, not a current correctness failure.
 
-The existing 0.5.11 packaged service benchmark shows slower full report computations at 10,000 synthetic scholars. First define the actual Office data scale and a representative end-to-end budget. Profile scoped totals and reporting joins; optimize measured bottlenecks while preserving distinct scholar counts and same-program graduation joins. Recheck query count, report totals, complete CSV/print and memory using disposable datasets.
+The existing 0.5.11 packaged service benchmark shows slower full report computations at 10,000 synthetic scholars. First define the actual Office data scale and a representative end-to-end budget. Profile scoped totals and reporting joins; optimize measured bottlenecks while preserving distinct scholar counts and application-scoped completion joins. Recheck query count, report totals, complete CSV/print and memory using disposable datasets.
 
 **Exit criteria:** measured improvement on representative data without an invented p95 claim or incomplete exports. Do not add an unrequested caching/server architecture solely to satisfy synthetic scale.
 

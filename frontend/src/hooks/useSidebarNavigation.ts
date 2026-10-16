@@ -7,7 +7,11 @@ const mobileQuery = "(max-width: 760px)";
 export function useSidebarNavigation() {
   const [open, setOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(() => {
-    try { return localStorage.getItem(preferenceKey) === "true"; } catch { return false; }
+    try {
+      return localStorage.getItem(preferenceKey) === "true";
+    } catch {
+      return false;
+    }
   });
   const [mobile, setMobile] = useState(() => window.matchMedia(mobileQuery).matches);
   const sidebar = useRef<HTMLElement>(null);
@@ -22,7 +26,9 @@ export function useSidebarNavigation() {
   };
 
   useEffect(() => {
-    try { localStorage.setItem(preferenceKey, String(collapsed)); } catch {}
+    try {
+      localStorage.setItem(preferenceKey, String(collapsed));
+    } catch {}
   }, [collapsed]);
 
   useEffect(() => {
@@ -47,8 +53,10 @@ export function useSidebarNavigation() {
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     closeButton.current?.focus();
-    const focusable = () => Array.from(sidebar.current?.querySelectorAll<HTMLElement>("a[href], button:not(:disabled)") || [])
-      .filter(element => element.getClientRects().length > 0);
+    const focusable = () =>
+      Array.from(
+        sidebar.current?.querySelectorAll<HTMLElement>("a[href], button:not(:disabled)") || [],
+      ).filter((element) => element.getClientRects().length > 0);
     const handleKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault();
@@ -60,8 +68,13 @@ export function useSidebarNavigation() {
       const elements = focusable();
       const first = elements[0];
       const last = elements[elements.length - 1];
-      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
-      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last?.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first?.focus();
+      }
     };
     document.addEventListener("keydown", handleKey);
     return () => {
@@ -76,6 +89,15 @@ export function useSidebarNavigation() {
     document.getElementById("main-content")?.focus();
   }, [location.pathname]);
 
-  return { open, mobile, collapsed: !mobile && collapsed, sidebar, menuButton, closeButton, closeMenu,
-    openMenu: () => setOpen(true), toggleSidebar: () => setCollapsed(value => !value) };
+  return {
+    open,
+    mobile,
+    collapsed: !mobile && collapsed,
+    sidebar,
+    menuButton,
+    closeButton,
+    closeMenu,
+    openMenu: () => setOpen(true),
+    toggleSidebar: () => setCollapsed((value) => !value),
+  };
 }

@@ -1,3 +1,7 @@
+# Cathedra FSDP 0.5.20
+
+Office Log entries close after confirmed saving and stack in compact disclosures. Scholar profiles track hard-copy and soft-copy availability independently. Grants support separate repeat applications with annual entries and application-specific completion/payback, plus optional Degree, Certification and Enhancement categories. The directory sorts names consistently before pagination. Schema14 is additive; existing records remain authoritative. See [validation](VALIDATION_0.5.20.md) and [current documentation](current/README.md).
+
 # Cathedra FSDP 0.5.19
 
 Corrects the Windows Office updater's tool identity/counting and directory enumeration. A verified existing installation with unlisted runtime/tool leftovers receives a clean manifest-only preceding-runtime archive, while all leftovers are separately preserved under its private updates directory. Missing or altered declared files, linked paths, unreadable trees and unlisted incoming bundled files remain blocked. Working database replacement is prohibited. Failure receipts now identify the phase, selected root and affected paths; maintenance failures exit quietly. Production packaging requires database-free verification by the actual bundled updater. Schema 13 and CSV/business features remain unchanged. See [the repair plan](plans/2026-10-14-updater-inventory.md) and [validation](VALIDATION_0.5.19.md).

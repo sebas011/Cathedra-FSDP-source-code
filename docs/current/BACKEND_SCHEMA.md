@@ -1,13 +1,13 @@
 # Backend schema and data dictionary
 
 **Product:** Cathedra FSDP  
-**Documented:** 14 October 2026, Asia/Manila<br>
-**Baseline:** release 0.5.19; database schema 13<br>
+**Documented:** 16 October 2026, Asia/Manila<br>
+**Baseline:** release 0.5.21; database schema 15<br>
 **Status:** implementation-derived documentation; see [baseline and evidence](README.md).
 
 ## Database baseline
 
-Persistence is SQLite through SQLAlchemy 2. The dictionary describes models and migrations through version 13, not a production dump. A disposable in-memory database initialized through models, product binding and migrations contains 15 application/infrastructure tables and 112 columns. No live database is inspected for documentation. SQLite may additionally maintain `sqlite_sequence` in compatible historical files; that internal table is permitted by the product guard.
+Persistence is SQLite through SQLAlchemy 2. The dictionary describes models and migrations through version 15, not a production dump. The current models define 15 application/infrastructure tables and 117 columns, one more than schema 14. No live database is inspected for documentation. SQLite may additionally maintain `sqlite_sequence` in compatible historical files; that internal table is permitted by the product guard.
 
 The default backend path is the project's `data/cathedra.db` unless `CATHEDRA_DATA_DIR` is set. The packaged launcher selects the data directory adjacent to its executable or the explicit `--data-dir`. Software release version and applied schema version are separate facts.
 
@@ -54,11 +54,15 @@ Root scholar profile. Name is indexed but not unique; revision supports optimist
 | `tenure_years` | `FLOAT` | Yes | 0 | — |
 | `tenure_note` | `TEXT` | Yes | 0 | — |
 | `profile_remarks` | `TEXT` | Yes | 0 | — |
+| `has_hard_copy` | `BOOLEAN` | Yes | 0 | — |
+| `has_soft_copy` | `BOOLEAN` | Yes | 0 | — |
 | `data_source` | `VARCHAR(30)` | No | 0 | — |
 | `created_at` | `DATETIME` | No | 0 | — |
 | `updated_at` | `DATETIME` | No | 0 | — |
 
 Indexes: `ix_scholars_department`; `ix_scholars_name`.
+
+The two copy flags are independent: true means Yes, false means No and NULL means Not recorded. Existing records migrate to NULL for both. They do not infer requirement completeness, point to uploaded documents or require either copy to save the scholar. Omitted fields in compatible older updates preserve stored values; an explicit null clears that fact to unrecorded.
 
 ## `programs`
 
@@ -84,6 +88,8 @@ Individual annual grant/participation. Several rows may share scholar/program. S
 | `id` | `INTEGER` | No | 1 | — |
 | `scholar_id` | `INTEGER` | No | 0 | — |
 | `program_id` | `INTEGER` | No | 0 | — |
+| `program_category` | `VARCHAR(100)` | Yes | 0 | — |
+| `application_key` | `VARCHAR(64)` | Yes | 0 | — |
 | `delivering_hei` | `VARCHAR(200)` | Yes | 0 | — |
 | `start_date` | `DATE` | Yes | 0 | — |
 | `end_date` | `DATE` | Yes | 0 | — |
@@ -108,6 +114,8 @@ Foreign keys:
 | `scholar_id` | `scholars.id` | NO ACTION | NO ACTION |
 
 Indexes: `ix_fsdp_participations_scholar_id`; `ix_fsdp_participations_program_id`; `ix_fsdp_participations_status`; `ix_fsdp_participations_status_scholar`.
+
+`program_category` optionally records Degree, Certification or Enhancement independently of the funding/grant type; unrecorded and retained custom categories remain valid. `application_key` is an optional logical grouping token, not a separate relational table or a program identity. Its effective scope is scholar + program + application key. Annual records can share a token; a new application to the same program receives a distinct token. NULL preserves the original unassigned same-program history. Migration 14 does not infer/split historical applications or create tokens for them. Compatible older updates that omit these fields preserve existing values. Group labels and combined term/year spans are derived from member grants.
 
 ## `scholar_education`
 
@@ -234,7 +242,7 @@ Foreign key: `scholar_id` → `scholars.id`, ON DELETE SET NULL, ON UPDATE NO AC
 
 ## `local_sessions`
 
-Bearer session digest, user ID and UTC-naive expiry time. Raw tokens are never stored here. Expired sessions are pruned when sessions are created; account controls revoke sessions explicitly.
+Bearer session digest, user ID, UTC-naive absolute expiry and last user activity time. Raw tokens are never stored here. Sessions expire after 30 minutes without activity or at absolute expiry. NULL activity in older sessions requires sign-in again. Expired sessions are pruned when sessions are created; account controls revoke sessions explicitly.
 
 | Column | SQLite declared type | Nullable | PK position | SQL default |
 |---|---|---|---|---|
@@ -242,6 +250,7 @@ Bearer session digest, user ID and UTC-naive expiry time. Raw tokens are never s
 | `user_id` | `INTEGER` | No | 0 | — |
 | `token_hash` | `VARCHAR(128)` | No | 0 | — |
 | `expires_at` | `DATETIME` | No | 0 | — |
+| `last_activity_at` | `DATETIME` | Yes | 0 | — |
 
 Foreign keys:
 
@@ -326,7 +335,7 @@ Infrastructure singleton id=1 with nonnegative high_water CHECK. Allocation and 
 
 API response values such as `current_status`, `manual_requirements_follow_up`, `payback_attention`, `grace_ends_on` and `suppressed_education_program_ids` are calculated/assembled from stored rows; they are not extra columns in `scholars`. Latest grant is ordered by the starting academic year's initial four-digit year, then current term order, then grant ID. Current term order is 1st, 2nd, 3rd, Summer, as retained by the owner.
 
-Contract review uses actual completion plus three calendar years, retaining recorded Payback and Payback pending contract precedence and clearing calculated follow-up for a Completed record in the same scholar/program. Graduated is a compatible legacy input. Case closure does not override outcome-based assessment, and the calculation does not persist an automatic Payback outcome. Tenure conversion uses recorded years plus months/12. Inference checks at most 128 source characters with bounded token scanning; longer or unconvertible text remains available as the original tenure/note rather than being rejected or truncated.
+Contract review uses actual completion plus three calendar years, retaining recorded Payback and Payback pending contract precedence and clearing calculated follow-up for a Completed record in the same scholar/program/application. A distinct explicit application never inherits another application's completion. Unassigned NULL-key grants retain the original same-program behavior among unassigned records. Graduated is a compatible legacy input. Case closure does not override outcome-based assessment, and the calculation does not persist an automatic Payback outcome. Tenure conversion uses recorded years plus months/12. Inference checks at most 128 source characters with bounded token scanning; longer or unconvertible text remains available as the original tenure/note rather than being rejected or truncated.
 
 An explicit edit or clear of a generated education entry's graduation year sets `graduation_year_manual`, preventing later remark inference from restoring or replacing that choice. Historical blank years lack edit-intent evidence and retain the established inference behavior until explicitly edited. This marker is not an additional required user field.
 
@@ -347,11 +356,14 @@ An explicit edit or clear of a generated education entry's graduation year sets 
 | 11 | `graduation-evidence-and-automatic-personnel` |
 | 12 | `unicode-program-identity-and-education-edit-intent` |
 | 13 | `completed-outcomes-case-status-and-office-logs` |
+| 14 | `scholar-document-copies-and-program-categories` |
 Migration 6 establishes education/tenure/term handling and removes active `fsdp_records` and `fsdp_legacy_fields` tables plus legacy grant-standardization columns. Migration 7 adds optional actual contract completion. Migration 8 adds explicit personnel/source-program education support. Migration 9 adds program revisions, creation request keys and education-removal persistence. Migration 10 adds profile remarks and canonicalizes affiliations while preserving former labels in remarks. Migration 11 derives Faculty/Staff/Unknown and backfills graduation evidence into education; changed scholar revisions advance. It does not change grant outcomes or replace manual education corrections/suppressions.
 
 Migration 12 adds canonical program keys and explicit education-year edit intent. It preserves program names, program/grant/scholar IDs and existing education; equivalent historical identities are flagged for explicit selection rather than merged. Historical migrations initialize additive columns before using current ORM models so populated older FSDP versions can upgrade safely.
 
 Migration 13 adds optional graduation date, independent Open/Closed case status and the append-only Office Log. Existing Graduated outcomes become Completed, existing grants start Open, and affected profile revisions advance. It does not mass-uppercase historical text, reset credentials, merge program identities or reinterpret Summer. Compatible earlier model migrations initialize the additive grant fields before operating on current models.
+
+Migration 14 adds nullable `scholars.has_hard_copy`, `scholars.has_soft_copy`, `fsdp_participations.program_category` and `fsdp_participations.application_key`. Existing values remain NULL. It adds no tables, deletes no records and does not classify document holdings or split application history automatically. Startup keeps the protected-snapshot/transactional migration sequence.
 
 The migration runner validates known contiguous versions/names and applies each migration once. The startup upgrade wrapper reserves a SQLite write, verifies product identity, creates an integrity-checked protected snapshot when an existing database needs upgrading, applies migrations transactionally and checks foreign keys before commit. Failure aborts the change rather than proceeding with a partially trusted database.
 

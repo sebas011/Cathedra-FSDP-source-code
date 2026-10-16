@@ -9,5 +9,11 @@ import "./design-workspace.css";
 import "./skeleton.css";
 import "./print.css";
 
-const router = createBrowserRouter([{ path: "*", element: <App />, errorElement: <RouteErrorPage /> }]);
-createRoot(document.getElementById("root")!).render(<StrictMode><RouterProvider router={router} /></StrictMode>);
+const router = createBrowserRouter([
+  { path: "*", element: <App />, errorElement: <RouteErrorPage /> },
+]);
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    <RouterProvider router={router} />
+  </StrictMode>,
+);

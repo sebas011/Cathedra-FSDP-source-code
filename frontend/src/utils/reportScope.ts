@@ -7,5 +7,12 @@ export const reportFilters = (params: URLSearchParams) => ({
   delivering_hei: params.get("delivering_hei") || "",
   missing_requirements: params.get("missing_requirements") === "true",
 });
-export const reportView = (params: URLSearchParams) => ["overview", "actions", "directory"].includes(params.get("view") || "") ? params.get("view")! : "overview";
-export const reportScopeLabel = (filters: ReturnType<typeof reportFilters>) => Object.entries(filters).filter(([, value]) => Boolean(value)).map(([key, value]) => `${key.replaceAll("_", " ")}: ${value === true ? "Yes" : value}`).join(" · ") || "All scholars";
+export const reportView = (params: URLSearchParams) =>
+  ["overview", "actions", "directory"].includes(params.get("view") || "")
+    ? params.get("view")!
+    : "overview";
+export const reportScopeLabel = (filters: ReturnType<typeof reportFilters>) =>
+  Object.entries(filters)
+    .filter(([, value]) => Boolean(value))
+    .map(([key, value]) => `${key.replaceAll("_", " ")}: ${value === true ? "Yes" : value}`)
+    .join(" · ") || "All scholars";

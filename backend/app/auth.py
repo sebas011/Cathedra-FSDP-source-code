@@ -12,6 +12,7 @@ from app.db import get_db
 from app.models import LocalSession, LocalUser
 
 SESSION_HOURS = 12
+SESSION_IDLE_MINUTES = 30
 PASSWORD_ITERATIONS = 600_000
 
 
@@ -49,18 +50,27 @@ def token_digest(token: str) -> str:
 
 
 def create_session(db: Session, user: LocalUser, *, commit: bool = True) -> str:
-    db.execute(delete(LocalSession).where(LocalSession.expires_at <= utc_now()))
+    now = utc_now()
+    db.execute(delete(LocalSession).where(LocalSession.expires_at <= now))
     token = secrets.token_urlsafe(32)
     db.add(
         LocalSession(
             user_id=user.id,
             token_hash=token_digest(token),
-            expires_at=utc_now() + timedelta(hours=SESSION_HOURS),
+            expires_at=now + timedelta(hours=SESSION_HOURS),
+            last_activity_at=now,
         )
     )
     if commit:
         db.commit()
     return token
+
+
+def active_session_conditions(now: datetime):
+    return (
+        LocalSession.expires_at > now,
+        LocalSession.last_activity_at > now - timedelta(minutes=SESSION_IDLE_MINUTES),
+    )
 
 
 def require_signed_in(
@@ -76,7 +86,7 @@ def require_signed_in(
     session = db.scalar(
         select(LocalSession).where(
             LocalSession.token_hash == token_digest(token),
-            LocalSession.expires_at > utc_now(),
+            *active_session_conditions(utc_now()),
         )
     )
     if session is None:
@@ -93,12 +103,15 @@ def require_signed_in(
         "/api/v1/auth/change-password",
         "/api/v1/auth/me",
         "/api/v1/auth/logout",
+        "/api/v1/auth/activity",
     }:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Change your temporary password before continuing.",
         )
     request.state.local_user = user
+    request.state.local_session_id = session.id
+    request.state.local_session_token_hash = session.token_hash
     db.info["audit_actor"] = (user.id, user.username)
     return user
 
@@ -114,5 +127,7 @@ def require_admin(user: LocalUser = Depends(require_signed_in)) -> LocalUser:
 
 def require_editor(user: LocalUser = Depends(require_signed_in)) -> LocalUser:
     if user.role not in {"admin", "staff"}:
-        raise HTTPException(status_code=403, detail="Office editing access is required for this action.")
+        raise HTTPException(
+            status_code=403, detail="Office editing access is required for this action."
+        )
     return user
