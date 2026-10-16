@@ -9,9 +9,9 @@ from pathlib import Path
 
 def verify(root: Path, package: Path | None = None) -> list[str]:
     issues = []
-    version = (root / "VERSION").read_text().strip()
-    frontend = json.loads((root / "frontend/package.json").read_text())
-    lock = json.loads((root / "frontend/package-lock.json").read_text())
+    version = (root / "VERSION").read_text(encoding="utf-8-sig").strip()
+    frontend = json.loads((root / "frontend/package.json").read_text(encoding="utf-8-sig"))
+    lock = json.loads((root / "frontend/package-lock.json").read_text(encoding="utf-8-sig"))
     if {version, frontend["version"], lock["version"], lock["packages"][""]["version"]} != {version}:
         issues.append("Source/frontend/lockfile versions disagree")
     tree = ast.parse((root / "backend/app/migrations.py").read_text(encoding="utf-8-sig"))
@@ -31,20 +31,20 @@ def verify(root: Path, package: Path | None = None) -> list[str]:
         for target in re.findall(r"\[[^\]]*\]\(([^)]+)\)", file.read_text(encoding="utf-8-sig")):
             if "://" not in target and not target.startswith("#") and not (file.parent / target.split("#")[0]).exists():
                 issues.append(f"Missing link in {file.name}: {target}")
-    export_text = (root / "docs/EXPORT_SCHEMAS.md").read_text()
-    for contract in json.loads((current / "EXPORT_CONTRACTS.json").read_text()).values():
+    export_text = (root / "docs/EXPORT_SCHEMAS.md").read_text(encoding="utf-8-sig")
+    for contract in json.loads((current / "EXPORT_CONTRACTS.json").read_text(encoding="utf-8-sig")).values():
         for header in contract["sections"].values():
             if ",".join(header) not in export_text:
                 issues.append(f"Export prose/header contract disagree: {contract['path']}")
-    technical = (current / "TECHNICAL_REQUIREMENTS.md").read_text()
+    technical = (current / "TECHNICAL_REQUIREMENTS.md").read_text(encoding="utf-8-sig")
     if f"Automatic migration runs through version {ceiling}" not in technical:
         issues.append("Technical migration ceiling disagrees")
-    if "Reconcile the three-term requirement" in (current / "IMPLEMENTATION_PLAN.md").read_text():
+    if "Reconcile the three-term requirement" in (current / "IMPLEMENTATION_PLAN.md").read_text(encoding="utf-8-sig"):
         issues.append("Superseded Summer-removal stage remains")
     if package:
-        manifest = json.loads((package / "release-manifest.json").read_text())
-        if {manifest["version"], (package / "VERSION").read_text().strip(),
-            (package / "_internal/VERSION").read_text().strip()} != {version}:
+        manifest = json.loads((package / "release-manifest.json").read_text(encoding="utf-8-sig"))
+        if {manifest["version"], (package / "VERSION").read_text(encoding="utf-8-sig").strip(),
+            (package / "_internal/VERSION").read_text(encoding="utf-8-sig").strip()} != {version}:
             issues.append("Package identities disagree with source")
     return issues
 
