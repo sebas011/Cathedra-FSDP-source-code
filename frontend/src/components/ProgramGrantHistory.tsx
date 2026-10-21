@@ -81,7 +81,7 @@ export default function ProgramGrantHistory({ grants }: { grants: ParticipationR
                   >
                     <summary>
                       <span>
-                        <strong>{grant.start_academic_year || "Academic year not recorded"}</strong>
+                        <strong>{grant.start_academic_year || "Year not recorded"}</strong>
                         <span className="program-history-meta">
                           {grant.program_category || "Category not recorded"} ·{" "}
                           {grant.grant_type === "Others"
@@ -98,12 +98,36 @@ export default function ProgramGrantHistory({ grants }: { grants: ParticipationR
                         <dd>{period(grant.start_term, grant.start_academic_year)}</dd>
                       </div>
                       <div>
-                        <dt>Contract end period</dt>
+                        <dt>Ending period</dt>
                         <dd>{period(grant.end_term, grant.end_academic_year)}</dd>
                       </div>
                       <div>
-                        <dt>Contract completed</dt>
+                        <dt>Previously recorded completion date</dt>
                         <dd>{value(grant.contract_completed_on)}</dd>
+                      </div>
+                      <div>
+                        <dt>Program start date</dt>
+                        <dd>{value(grant.start_date)}</dd>
+                      </div>
+                      <div>
+                        <dt>Allowed duration</dt>
+                        <dd>
+                          {grant.allowed_duration_years
+                            ? `${grant.allowed_duration_years} years`
+                            : "Not recorded"}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>Completion deadline</dt>
+                        <dd>
+                          {grant.completion_deadline_on ||
+                            grant.completion_due_on ||
+                            "Not calculated"}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>Payment progress</dt>
+                        <dd>{grant.payback_payment_status || "Not recorded"}</dd>
                       </div>
                       <div>
                         <dt>Graduation date</dt>

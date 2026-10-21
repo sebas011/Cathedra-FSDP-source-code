@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import PageHeading from "../components/PageHeading";
 import { BackupIcon, FsdpIcon, HelpIcon, ReportsIcon, SettingsIcon } from "../components/Icons";
 import { productName } from "../product";
@@ -14,6 +14,33 @@ const categories = [
 ] as const;
 const articles = [
   {
+    title: "Google Sheets reporting",
+    category: "Reports",
+    paragraphs: [
+      "Administrators can open Backup & Export and configure a separate Google reporting spreadsheet. No app hosting is needed. Internet access is required when connecting or sending a report. Cathedra remains the source of truth; Google edits do not update the local database.",
+      "Prepare a separate spreadsheet in Google Sheets. In its Share settings, confirm that the Google account you will connect is an Owner or Editor. Copy the spreadsheet address. Test-user approval in Google Cloud and editing access to this spreadsheet are separate requirements.",
+      "Google Cloud setup: select or create the approved project, then enable Google Sheets API under APIs & Services → Library. In Google Auth platform → Branding, complete the app name and support/contact email setup. Use External for a personal Gmail account; Internal is available only for a suitable Google Workspace organization. For External/Testing, open Audience → Test users → Add users, add the exact Google sign-in account and save. In Data Access, add the https://www.googleapis.com/auth/spreadsheets permission and save.",
+      "In Google Auth platform → Clients, choose Create client → Desktop app and download its JSON file. Keep it private and unchanged; a Web client, service account key or API key cannot replace it. In Cathedra, open Backup & Export → Google Sheets report → Connection details. Enter the reporting spreadsheet address, select Google Desktop credentials JSON and choose Save connection details.",
+      "Choose Connect Google. In the browser, select the account with spreadsheet editing access and review the requested permission. Return to Cathedra and wait for Google account connected; the browser's sign-in received message comes before the app finishes saving access. Sign-in expires after three minutes. Retry Connect if needed; an ordinary retry does not need a new project or JSON file. Saving and connecting do not send scholar records.",
+      "Choose Update Google Sheet, review the confirmation and choose Replace reporting tab. The first update creates CATHEDRA REPORT. Each update atomically replaces its report values, including stale values in former extra columns. Other tabs, formatting and notes are preserved. Keep manual work outside CATHEDRA REPORT. Wait for the success message and update time, then open the reporting spreadsheet. Updates never run automatically at startup or after an edit. This is a report, not a database backup.",
+      "The Google report has only these 15 columns: No., Name, Age, Tenure, Department, Rank/position, Previous degree, Program, Delivering HEI, Grant type, Date started, Date ended, Extension, Status and Remarks. CSV downloads retain their fuller export formats. No. counts scholars in alphabetical order, not internal IDs. Each scholar's first grant row contains the profile details; grant-only continuation rows follow. A scholar without grants still has one profile row. Keep these rows together when sorting or filtering.",
+      "Previous degree includes the recorded education background on separate lines. Tenure is in years. Actual start/end dates are shown when recorded; otherwise the corresponding term/year is used. Single calendar years and Summer stay as recorded; no dates or completion deadlines are invented as program end dates. Status belongs to the individual grant. Profile remarks appear on the first row; grant remarks stay on their own rows, with Profile and Grant labels when both occur. Use Google Sheets Format → Wrapping → Wrap for long education entries and remarks.",
+      "Google consent permits spreadsheet access for the selected account, although this app writes only the configured reporting tab. Connection details are encrypted for the current Windows account and are excluded from database backups, releases and GitHub. Configure and sign in separately on the Office PC or under another Windows account; do not copy the encrypted connection file or replace the Office database. An ordinary app update preserves the connection already saved on that PC. Disconnect Google forgets the local token; use Google Account → Security → Third-party connections to revoke Google's permission too.",
+      "For Access blocked or developer-approved testers, add the exact account under the correct Cloud project's Audience → Test users, save, then reconnect. If Google is connected but cannot open the reporting sheet, check the saved file address and that same account's Owner/Editor access in Share. The caller does not have permission is a file-access denial. For API or scope errors, enable Sheets API in the client project's Library, check Data Access and reconnect. Ask your organization administrator about policy restrictions.",
+      "External/Testing refresh tokens for this Sheets connection expire after seven days; reconnect while testing. Long-term publishing or Workspace audience decisions belong to your organization. After a failed network request, check CATHEDRA REPORT before retrying. If an old connection cannot be unlocked, save valid Desktop credentials again or choose Forget Google connection and configure/sign in again. Keep the local scholar database unchanged.",
+    ],
+    links: [{ to: "/backup-export", label: "Open Google reporting" }],
+  },
+  {
+    title: "Payback payment progress",
+    category: "Scholars & grants",
+    paragraphs: [
+      "When a grant has Payback or Payback pending contract status, choose Payback payment progress in the grant editor: Unpaid, Partially paid or Fully paid. Not recorded means the payment position has not been checked. Save Grant, then Save Scholar.",
+      "Payment progress is separate from the grant's recorded outcome and Open/Closed case status. Fully paid keeps the Payback history and does not automatically close the case. Each grant retains its own payment fact, which appears in the profile, follow-up table, printouts and CSV reports. Copying an annual grant clears payment progress for review but retains recorded program start/duration/deadline rules within the same application. A new application clears those prior rules too. This tracks progress rather than individual payment transactions or amounts.",
+    ],
+    links: [{ to: "/fsdp", label: "Open scholars" }],
+  },
+  {
     title: "Program catalog permissions",
     category: "Scholars & grants",
     paragraphs: [
@@ -27,7 +54,7 @@ const articles = [
     category: "Scholars & grants",
     paragraphs: [
       "Keep the same Program Applied for each year of a multi-year application. Each annual grant keeps its own funding type, outcome, case status, optional dates and remarks. Program category is optional: choose Degree, Certification or Enhancement independently of Type of Grant.",
-      "Administrators can use Copy for next year to open another annual draft in the same application. It advances recognized academic-year ranges, retains remarks, resets the outcome to On Going and the case to Open, and clears the extension plus actual dates. Use New application for a later enrollment in the same program: it creates a separate group, clears previous remarks and proposes a period after the earlier end year. Review the period and funding before Save Grant, then Save Scholar.",
+      "Administrators can use Copy for next year to open another annual draft in the same application. It advances single calendar years or recognized academic-year ranges, retains remarks, resets the outcome to On Going and the case to Open, and clears the extension, graduation and previous completion dates. When recorded, the program start/duration and exact allowed deadline stay with the same application. Use New application for a later enrollment in the same program: it creates a separate group, clears previous remarks and proposes a period after the earlier end year. Review the period and funding before Save Grant, then Save Scholar.",
       "Use the Application control when an existing grant needs to join the intended application. Older unassigned history remains together until you review and assign it; the app does not guess enrollment boundaries. For example, a Master's application spanning 1st 2021-2022 through 2nd 2022-2023 can stay separate from another spanning 1st 2023-2024 through 2nd 2024-2025. Completion in one explicit application does not clear another application's calculated follow-up.",
       "Grant history starts collapsed. Expand Grant history, then an application and an academic-year row to see details. Each application summary shows its overall term/year period. Printing expands every grant and restores the previous expanded or collapsed view afterward. Icon actions have labels available on hover and to assistive technology.",
     ],
@@ -88,7 +115,7 @@ const articles = [
     category: "Scholars & grants",
     paragraphs: [
       "New or edited scholar, education, program, grant, requirement and office-log text is saved in capital letters, including remarks. Account names and passwords keep their original case. Existing text that you have not changed is retained.",
-      "Typing a consecutive range such as 20262027 inserts the academic-year dash: 2026-2027. A single four-digit year completes to the next year when you leave the field or save. Partial, custom and nonconsecutive historical values remain accepted. Terms remain 1st, 2nd, 3rd and Summer.",
+      "Typing a consecutive range such as 20262027 inserts the academic-year dash: 2026-2027. A single four-digit year stays a calendar year when you leave the field or save; use an explicit range when it is an academic year. Typing or replacing text on an earlier line keeps your cursor there, including when text becomes uppercase. Partial, custom and nonconsecutive historical values remain accepted. Terms remain 1st, 2nd, 3rd and Summer.",
       "The mouse wheel does not alter age or tenure while those fields have focus. You can still type a number or use the arrow keys. Grant outcome and Open/Closed controls are near remarks at the end of the grant editor.",
     ],
     links: [{ to: "/fsdp", label: "Open scholars" }],
@@ -97,7 +124,7 @@ const articles = [
     title: "Grant outcomes and Open/Closed cases",
     category: "Scholars & grants",
     paragraphs: [
-      "Outcome records what happened to the grant, including On Going, Completed, Transferred, Payback and Payback pending contract. Case status records whether the office is still handling that grant: Open or Closed. These are separate fields.",
+      "Outcome records what happened to the grant, including On Going, Incomplete, Completed, Transferred, Payback and Payback pending contract. Case status records whether the office is still handling that grant: Open or Closed. These are separate fields.",
       "Closing a case keeps its recorded outcome and does not clear payback review. Completing an application clears its annual grants' calculated follow-up, independently of case status; a separate later application does not inherit that completion. Older unassigned grants retain their same-program behavior until assigned. Confirm office evidence before recording Completed or a repayment outcome.",
     ],
     links: [{ to: "/fsdp", label: "Open scholars" }],
@@ -117,7 +144,7 @@ const articles = [
     category: "Reports",
     paragraphs: [
       "Contract assessment counts each scholar once in each category. A scholar with multiple grants may appear in more than one category. Category counts cover the selected college/year scope; the table and CSV contain the selected category. Use Payback pending contract while the repayment contract is being arranged. Change the recorded outcome to Payback after the office completes that contract. Payback review identifies unfinished programs after the grace period and does not change a grant’s outcome automatically.",
-      "The grace period is three calendar years after the optional contract completion date, including its final day. Payback review starts the following day. Recorded Payback and Payback pending contract keep their classifications even when another annual grant is Completed. Did Not Avail is excluded. Otherwise, a recorded completion clears calculated follow-up only within that same application. Existing unassigned records retain their original same-program scope until assigned. Closing a case does not clear follow-up. Review candidates before changing recorded outcome; missing completion dates cannot produce a calculated deadline.",
+      "The grace period is three calendar years after the allowed completion deadline, including its final day. Enter an exact Allowed completion deadline, or a Program start date and Allowed duration in whole years. An exact deadline takes priority, and also supports programs shorter than a year. A previously saved completion date remains a fallback if neither new rule supplies a deadline. For example, 1 June 2021 plus three allowed years gives 1 June 2024; grace ends 1 June 2027 and review starts 2 June 2027. Payback review starts the following day. Recorded Payback and Payback pending contract keep their classifications even when another annual grant is Completed. Did Not Avail is excluded. Otherwise, a recorded completion clears calculated follow-up only within that same application. Existing unassigned records retain their original same-program scope until assigned. Closing a case does not clear follow-up. Review candidates before changing recorded outcome; missing completion dates cannot produce a calculated deadline.",
     ],
     links: [{ to: "/#contract-assessment", label: "Review contract assessment" }],
   },
@@ -135,7 +162,7 @@ const articles = [
     title: "Follow up on requirements and grant periods",
     category: "Scholars & grants",
     paragraphs: [
-      "Scholar profiles retain requirement details. Dashboard contract assessment lists payback records and three-year grace periods. Grant terms use 1st, 2nd, 3rd and Summer, with a separate academic year. The optional contract completion date starts the grace period and is not a graduation date.",
+      "Scholar profiles retain requirement details. Dashboard contract assessment lists payback records and three-year grace periods. Grant terms use 1st, 2nd, 3rd and Summer, with a separate academic year. The optional allowed completion deadline starts the grace period and is not a graduation date. A recorded Completed outcome clears calculated review within the same application. Incomplete, Transferred and Withdrawn remain eligible for calculated review after the deadline and grace period.",
       "Edit the scholar profile to update grant and requirement details, then save your changes.",
     ],
     links: [{ to: "/", label: "Open dashboard" }],
@@ -209,6 +236,12 @@ const articles = [
 ] as const;
 
 export default function ProductGuidePage() {
+  const location = useLocation();
+  useEffect(() => {
+    if (location.hash === "#cloud-reporting") {
+      document.getElementById("cloud-reporting")?.scrollIntoView?.({ block: "start" });
+    }
+  }, [location.hash]);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All topics");
   const search = query.trim().toLocaleLowerCase();
@@ -290,7 +323,16 @@ export default function ProductGuidePage() {
             </div>
           )}
           {results.map((article) => (
-            <details className="guide-article" key={article.title} open={!!search}>
+            <details
+              className="guide-article"
+              key={article.title}
+              id={article.title === "Google Sheets reporting" ? "cloud-reporting" : undefined}
+              open={
+                !!search ||
+                (location.hash === "#cloud-reporting" &&
+                  article.title === "Google Sheets reporting")
+              }
+            >
               <summary>
                 <h2>{article.title}</h2>
               </summary>

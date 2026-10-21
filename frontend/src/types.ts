@@ -20,6 +20,9 @@ export interface ParticipationInput {
   start_date: string | null;
   end_date: string | null;
   contract_completed_on?: string | null;
+  allowed_duration_years?: number | null;
+  completion_due_on?: string | null;
+  payback_payment_status?: "Unpaid" | "Partially paid" | "Fully paid" | null;
   graduation_date?: string | null;
   case_status?: "Open" | "Closed";
   start_term: string;
@@ -50,6 +53,8 @@ export interface ParticipationRead extends Omit<
   name: string;
   payback_attention?: string | null;
   grace_ends_on?: string | null;
+  completion_deadline_on?: string | null;
+  completion_deadline_source?: string | null;
   delivering_hei: string | null;
   start_term: string | null;
   start_academic_year: string | null;
@@ -118,6 +123,7 @@ export interface FsdpSummary {
   graduated: number;
   payback: number;
   withdrawn: number;
+  incomplete?: number;
   did_not_avail?: number;
   missing_requirements: number;
 }
@@ -144,6 +150,7 @@ export interface FsdpDepartmentTotal {
   graduated: number;
   payback: number;
   withdrawn: number;
+  incomplete?: number;
   did_not_avail?: number;
   transferred?: number;
   payback_pending_contract?: number;

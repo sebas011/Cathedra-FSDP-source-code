@@ -159,9 +159,12 @@ def test_follow_up_report_counts_scholars_and_preserves_manual_actions(client, m
             "Transferred",
             "Payback pending contract",
             "Requirements follow-up (scholars)",
+            "Incomplete",
         ]
     )
-    assert rows[header + 1][-1] == str(needs_follow_up)
+    requirements_column = rows[header].index("Requirements follow-up (scholars)")
+    assert rows[header + 1][requirements_column] == str(needs_follow_up)
+    assert rows[header + 1][rows[header].index("Incomplete")] == "0"
     assert sum(bool(row) and row[-1] == "Manual follow-up" for row in rows) == int(manual)
 
 

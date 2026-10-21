@@ -2,7 +2,8 @@ import { useState } from "react";
 import type { EducationInput } from "../types";
 import TableRegion from "./TableRegion";
 import { useDiscardConfirmation } from "../hooks/useDiscardConfirmation";
-import { recordText, uppercaseEducation } from "../utils/recordText";
+import { uppercaseEducation } from "../utils/recordText";
+import { RecordInput } from "./RecordTextInput";
 import IconAction from "./IconAction";
 import { EditIcon, PlusIcon, TrashIcon } from "./Icons";
 
@@ -160,18 +161,16 @@ export default function EducationSection({
             </label>
             <label>
               Degree
-              <input
+              <RecordInput
                 value={draft.degree}
-                onChange={(event) => change({ ...draft, degree: recordText(event.target.value) })}
+                onValueChange={(value) => change({ ...draft, degree: value })}
               />
             </label>
             <label>
               Institution
-              <input
+              <RecordInput
                 value={draft.institution}
-                onChange={(event) =>
-                  change({ ...draft, institution: recordText(event.target.value) })
-                }
+                onValueChange={(value) => change({ ...draft, institution: value })}
               />
             </label>
             <label>

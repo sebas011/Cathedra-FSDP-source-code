@@ -110,7 +110,7 @@ test("education rows and fractional years save with independent copied annual gr
     "3rd",
     "Summer",
   ]);
-  fireEvent.change(screen.getByLabelText("Start Academic Year"), {
+  fireEvent.change(screen.getByLabelText("Start year / academic year"), {
     target: { value: "2026-2027" },
   });
   fireEvent.click(screen.getByRole("button", { name: "Save Grant" }));
@@ -132,7 +132,7 @@ test("new application retains the program without creating a catalog copy", asyn
   expect((screen.getByLabelText("Program Applied *") as HTMLInputElement).value).toBe(
     "Annual program",
   );
-  expect((screen.getByLabelText("Start Academic Year") as HTMLInputElement).value).toBe(
+  expect((screen.getByLabelText("Start year / academic year") as HTMLInputElement).value).toBe(
     "2026-2027",
   );
   fireEvent.click(screen.getByRole("button", { name: "Save Grant" }));
@@ -286,11 +286,14 @@ test("contract date persists while annual copy starts with no completion or outc
   const row = await screen.findByRole("row", { name: /Annual program/ });
   fireEvent.click(within(row).getByRole("button", { name: /^Copy for next year / }));
   expect(
-    ((await screen.findByLabelText("Contract completion date (optional)")) as HTMLInputElement)
-      .value,
+    (
+      (await screen.findByLabelText(
+        "Previously recorded completion date (optional)",
+      )) as HTMLInputElement
+    ).value,
   ).toBe("");
   expect((screen.getByLabelText("Status") as HTMLSelectElement).value).toBe("On Going");
-  fireEvent.change(screen.getByLabelText("Contract completion date (optional)"), {
+  fireEvent.change(screen.getByLabelText("Previously recorded completion date (optional)"), {
     target: { value: "2025-06-30" },
   });
   fireEvent.click(screen.getByRole("button", { name: "Save Grant" }));

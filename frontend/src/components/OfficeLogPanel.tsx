@@ -12,6 +12,7 @@ import {
 import { useDiscardConfirmation } from "../hooks/useDiscardConfirmation";
 import { useUnsavedChanges } from "../hooks/useUnsavedChanges";
 import UnsavedChangesDialog from "./UnsavedChangesDialog";
+import { RecordInput, RecordTextarea } from "./RecordTextInput";
 import "../office-log.css";
 
 const today = () => {
@@ -120,12 +121,10 @@ function OfficeLogEditor({
   ) => (
     <label>
       {label}
-      <input
+      <RecordInput
         value={draft[field]}
         disabled={saving || !!uncertainPayload}
-        onChange={(event) =>
-          setDraft((value) => ({ ...value, [field]: event.target.value.toUpperCase() }))
-        }
+        onValueChange={(text) => setDraft((value) => ({ ...value, [field]: text }))}
       />
     </label>
   );
@@ -168,13 +167,11 @@ function OfficeLogEditor({
         </div>
         <label>
           Log note
-          <textarea
+          <RecordTextarea
             rows={3}
             value={draft.note}
             disabled={saving || !!uncertainPayload}
-            onChange={(event) =>
-              setDraft((value) => ({ ...value, note: event.target.value.toUpperCase() }))
-            }
+            onValueChange={(text) => setDraft((value) => ({ ...value, note: text }))}
           />
         </label>
         {error && (

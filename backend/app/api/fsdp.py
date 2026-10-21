@@ -121,6 +121,11 @@ def scholar_statement(search: str, status_filter: str, missing: str = ""):
         statement = statement.where(
             Scholar.participations.any(
                 FsdpParticipation.contract_completed_on.is_(None)
+                & FsdpParticipation.completion_due_on.is_(None)
+                & or_(
+                    FsdpParticipation.start_date.is_(None),
+                    FsdpParticipation.allowed_duration_years.is_(None),
+                )
                 & ~func.lower(func.trim(FsdpParticipation.status)).in_(
                     ["graduated", "completed", "did not avail"]
                 )
@@ -354,7 +359,12 @@ def apply_payload(db: Session, scholar: Scholar, payload: ScholarCreate | Schola
             if (
                 field
                 in {
+                    "start_date",
+                    "end_date",
                     "contract_completed_on",
+                    "allowed_duration_years",
+                    "completion_due_on",
+                    "payback_payment_status",
                     "graduation_date",
                     "case_status",
                     "program_category",
@@ -432,22 +442,28 @@ def duplicate_grant(
     if original is None:
         raise HTTPException(status_code=404, detail="Grant does not belong to this scholar.")
     advance_revision(db, Scholar, scholar_id, if_match)
+    reset_fields = {
+        "id",
+        "scholar_id",
+        "start_date",
+        "end_date",
+        "contract_completed_on",
+        "completion_due_on",
+        "payback_payment_status",
+        "graduation_date",
+        "extension",
+        "status",
+        "case_status",
+    }
+    if original.allowed_duration_years is not None or original.completion_due_on is not None:
+        # Annual grants share one program application and its recorded deadline.
+        # Keep historical copy behavior for old dates without new completion rules.
+        reset_fields.difference_update({"start_date", "completion_due_on"})
     copy = FsdpParticipation(
         **{
             column.key: getattr(original, column.key)
             for column in FsdpParticipation.__table__.columns
-            if column.key
-            not in {
-                "id",
-                "scholar_id",
-                "start_date",
-                "end_date",
-                "contract_completed_on",
-                "graduation_date",
-                "extension",
-                "status",
-                "case_status",
-            }
+            if column.key not in reset_fields
         }
     )
     copy.status = "On Going"
@@ -605,6 +621,7 @@ def summary(db: Session = Depends(get_db)) -> FsdpSummary:
         ongoing=count("On Going"),
         graduated=count("Completed"),
         completed=count("Completed"),
+        incomplete=count("Incomplete"),
         payback=count("Payback"),
         withdrawn=count("Withdrawn"),
         did_not_avail=count("Did Not Avail"),
@@ -797,6 +814,11 @@ def export_payback(
             "Contract completed",
             "Grace ends",
             "Follow-up",
+            "Program Start Date",
+            "Allowed Duration (years)",
+            "Allowed Completion Deadline",
+            "Effective Completion Deadline",
+            "Payback Payment Status",
         ]
     )
     previous_scholar_id = None
@@ -814,6 +836,11 @@ def export_payback(
                     "contract_completed_on",
                     "grace_ends_on",
                     "attention",
+                    "start_date",
+                    "allowed_duration_years",
+                    "completion_due_on",
+                    "completion_deadline_on",
+                    "payback_payment_status",
                 )
             ]
         )
@@ -919,6 +946,7 @@ def export_fsdp_report(
             "Transferred",
             "Payback pending contract",
             "Requirements follow-up (scholars)",
+            "Incomplete",
         ]
     )
     for item in report["department_totals"]:
@@ -934,6 +962,7 @@ def export_fsdp_report(
                 item["transferred"],
                 item["payback_pending_contract"],
                 item["requirements_follow_up"],
+                item["incomplete"],
             ]
         )
     writer.writerow([])
@@ -972,6 +1001,11 @@ def export_fsdp_report(
             "Recorded grant status",
             "Graduation Date",
             "Case Status",
+            "Program Start Date",
+            "Allowed Duration (years)",
+            "Allowed Completion Deadline",
+            "Effective Completion Deadline",
+            "Payback Payment Status",
         ]
     )
     for scholar in report["items"]:
@@ -1011,6 +1045,11 @@ def export_fsdp_report(
                     participation.status if participation else "",
                     participation.graduation_date or "" if participation else "",
                     participation.case_status if participation else "",
+                    participation.start_date if participation else None,
+                    participation.allowed_duration_years if participation else None,
+                    participation.completion_due_on if participation else None,
+                    participation.completion_deadline_on if participation else None,
+                    participation.payback_payment_status if participation else None,
                 ]
             )
     return csv_response(output, "cathedra-fsdp-report.csv")

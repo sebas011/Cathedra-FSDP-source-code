@@ -1,0 +1,32 @@
+{
+  "passed": true,
+  "version": "0.5.23",
+  "from_version": "0.5.22",
+  "synthetic_only": true,
+  "prior_schema": 16,
+  "installed_schema": 16,
+  "database_replaced": false,
+  "database_hash_unchanged_during_runtime_replacement": true,
+  "protected_snapshot_and_private_rehearsal_verified": true,
+  "historical_rows_ids_credentials_and_summer_retained": true,
+  "prior_scholars": 5,
+  "prior_grants": 8,
+  "prior_accounts": 2,
+  "native_powershell51_update_passed": true,
+  "bundled_verifier_no_database_access": true,
+  "daily_backup_predelete_recovery_activity_and_csv_verified_in_frozen_runtime": true,
+  "normal_startup_shutdown_passed": true,
+  "runtime_files": 149,
+  "actual_office_pc_tested": false,
+  "literal_year_deadline_incomplete_and_payment_verified": true,
+  "google_configuration_route_verified_without_external_requests": true,
+  "google_frozen_dpapi_and_forget_verified": true,
+  "fixture_provenance": {
+    "support_reconstructed_after_temporary_helper_removal": true,
+    "preserved_synthetic_0522_sha256": "2c34a647f84018e590fb3069638249be7dd7342b8057f03137c0bc05475f8362",
+    "synthetic_admin_password_seeded_before_baseline_only": true,
+    "other_accounts_and_all_scholar_grant_history_retained": true,
+    "original_fixture_unchanged": true,
+    "working_database_or_google_credentials_used": false
+  }
+}

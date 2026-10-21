@@ -38,6 +38,11 @@ DIRECTORY_HEADERS = [
     "Remarks",
     "Graduation Date",
     "Case Status",
+    "Program Start Date",
+    "Allowed Duration (years)",
+    "Allowed Completion Deadline",
+    "Effective Completion Deadline",
+    "Payback Payment Status",
 ]
 REPORT_HEADERS = [
     "Name",
@@ -61,6 +66,11 @@ REPORT_HEADERS = [
     "Recorded grant status",
     "Graduation Date",
     "Case Status",
+    "Program Start Date",
+    "Allowed Duration (years)",
+    "Allowed Completion Deadline",
+    "Effective Completion Deadline",
+    "Payback Payment Status",
 ]
 PAYBACK_HEADERS = [
     "Scholar",
@@ -73,6 +83,11 @@ PAYBACK_HEADERS = [
     "Contract completed",
     "Grace ends",
     "Follow-up",
+    "Program Start Date",
+    "Allowed Duration (years)",
+    "Allowed Completion Deadline",
+    "Effective Completion Deadline",
+    "Payback Payment Status",
 ]
 
 
@@ -358,6 +373,13 @@ def test_payback_groups_by_identity_and_keeps_all_filtered_details(client):
             item["contract_completed_on"],
             item["grace_ends_on"],
             item["attention"],
+            item["start_date"] or "",
+            str(item["allowed_duration_years"])
+            if item["allowed_duration_years"] is not None
+            else "",
+            item["completion_due_on"] or "",
+            item["completion_deadline_on"] or "",
+            item["payback_payment_status"] or "",
         ]
     assert (
         client.get(
@@ -402,9 +424,10 @@ def test_exports_remove_provenance_headings_and_legacy_date_fallback_without_db_
             or "import" in value.casefold()
             for value in headers
         )
-        assert not any(
-            "1998-01-02" in value or "1999-03-04" in value for row in rows for value in row
-        )
+        # The separately labelled optional program start date is now a reporting
+        # fact, but it never replaces the recorded term or academic-year labels.
+        assert details[0][headers.index("Program Start Date")] == "1998-01-02"
+        assert not any("1999-03-04" in value for row in rows for value in row)
         assert details[0][headers.index("Start Term")] == "Summer"
         assert details[0][headers.index("Start Academic Year")] == "2020-2021"
     education_headers = [

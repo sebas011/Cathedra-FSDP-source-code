@@ -14,6 +14,30 @@ GROUPS = (
 )
 
 
+def completion_deadline(
+    start_date: date | None = None,
+    allowed_duration_years: int | None = None,
+    completion_due_on: date | None = None,
+    contract_completed_on: date | None = None,
+) -> tuple[date | None, str | None]:
+    """Choose recorded facts, preserving old contract dates as a fallback."""
+    if completion_due_on is not None:
+        return completion_due_on, "Explicit deadline"
+    if start_date is not None and allowed_duration_years is not None:
+        target_year = start_date.year + allowed_duration_years
+        if 1 <= target_year <= 9999:
+            try:
+                deadline = start_date.replace(year=target_year)
+            except ValueError:
+                # 29 February has a 28 February anniversary in a non-leap year.
+                deadline = start_date.replace(year=target_year, day=28)
+            return deadline, "Program start and allowed duration"
+        return None, None
+    if contract_completed_on is not None:
+        return contract_completed_on, "Previously recorded completion date"
+    return None, None
+
+
 def matches_attention(attention: str, selected: str) -> bool:
     selected = selected.strip()
     if selected.casefold() == "graduated":

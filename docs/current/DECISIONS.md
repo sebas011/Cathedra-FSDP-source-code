@@ -1,6 +1,6 @@
 # Current business-rule decisions
 
-Baseline: source 0.5.21/schema 15.
+Baseline: source 0.5.23/schema 16.
 
 15 October 2026: document-copy availability is independent Available/Not available/Not recorded for paper and electronic copies, with no inference from requirements and no document upload feature. Degree, Certification and Enhancement describe program category separately from grant funding. Annual copies remain in their application; New application separates later enrollment in the same program. Completion clearing is limited to the same scholar/program/application, while NULL-key historical grants retain their established same-program behavior until reviewed and explicitly assigned. Migration 14 does not guess application boundaries. The directory uses the full stored name for alphabetical order; no surname parser is inferred.
 
@@ -32,3 +32,13 @@ The owner clarified that “for work” means the Office Log form, so no work-hi
 - Optional/custom record facts remain permitted under the essential Name/Program Applied policy.
 - Idle locking after 30 minutes preserves mounted drafts for same-account reauthentication. Background polling does not count as activity.
 - Automatic retention applies only to automatic unpinned copies, never manual or pinned backups. A failed pre-delete recovery copy prevents deletion.
+
+## Completion and reporting update (0.5.22)
+
+Calendar years stay literal: 2021 remains 2021; 2021-2022 remains an explicit academic-year range. Uppercase record controls preserve cursor/selection and multiline composition. Incomplete is an additional known grant outcome. The optional program start date and whole allowed duration produce a completion deadline; an explicit optional deadline takes priority, including for shorter programs. Previous completion dates remain a fallback. Grace runs three calendar years from the effective deadline, including its final day. Repayment progress (Not recorded, Unpaid, Partially paid, Fully paid) is separate from outcome and case status.
+
+The administrator can configure and connect Google reporting from Backup & Export, then explicitly confirm a one-way replacement of the CATHEDRA REPORT tab. Other tabs are preserved. Connection credentials are Windows-user encrypted outside SQLite. Internet and OAuth setup are needed for cloud delivery; offline records work independently. See [setup](../GOOGLE_SHEETS_SETUP.md) and [validation](../VALIDATION_0.5.22.md).
+
+## Google report update (0.5.23)
+
+Google reporting uses a dedicated [fifteen-column contract](GOOGLE_REPORT_CONTRACT.json) rather than the full CSV table. Each scholar is numbered once and their grants remain on consecutive rows. The report retains recorded education, tenure in years, exact dates or recorded academic periods, each grant's outcome and clearly labeled profile/grant remarks. Existing CSV exports and schema16 are unchanged. Setup, approved test accounts, spreadsheet editing access and per-PC sign-in are described in the [detailed guide](../GOOGLE_SHEETS_SETUP.md). See [0.5.23 validation](../VALIDATION_0.5.23.md) for observed delivery status.

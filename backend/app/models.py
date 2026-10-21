@@ -142,6 +142,9 @@ class FsdpParticipation(Base):
     start_date: Mapped[date | None] = mapped_column(Date)
     end_date: Mapped[date | None] = mapped_column(Date)
     contract_completed_on: Mapped[date | None] = mapped_column(Date)
+    allowed_duration_years: Mapped[int | None] = mapped_column(Integer)
+    completion_due_on: Mapped[date | None] = mapped_column(Date)
+    payback_payment_status: Mapped[str | None] = mapped_column(String(30))
     graduation_date: Mapped[date | None] = mapped_column(Date)
     case_status: Mapped[str] = mapped_column(
         String(20), default="Open", server_default="Open", nullable=False

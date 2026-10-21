@@ -1,8 +1,8 @@
 # Technical requirements
 
 **Product:** Cathedra FSDP  
-**Documented:** 16 October 2026, Asia/Manila<br>
-**Baseline:** release 0.5.21; database schema 15<br>
+**Documented:** 22 October 2026, Asia/Manila<br>
+**Baseline:** release 0.5.23; database schema 16<br>
 **Status:** implementation-derived documentation; see [baseline and evidence](README.md).
 
 ## Architecture and deployment
@@ -61,7 +61,7 @@ Current record updates send full related lists, not PATCH fragments. Omitted com
 
 Generated education years retain explicit edits and clears through a stored intent marker. Tenure inference bounds source scanning while preserving longer text and notes. Prepared print snapshots are separate from normal table state and cancel when filters, navigation or underlying data change. The release build checks runtime versions and pointer width before installing dependencies, then verifies all pinned packages.
 
-New editable business text passes a shared uppercase normalizer before persistence; unchanged historical values and selected program IDs are preserved rather than mass-renamed. The API normalizes recognized consecutive eight-digit academic years; the editor additionally formats common separators and infers a following year from a complete single four-digit year on blur/Save Grant. Partial, custom, reversed or nonconsecutive ranges remain accepted; formatting is not chronology validation. Completed status can link the current program to education independently of remark parsing, with optional graduation-date year inference subordinate to durable manual intent. Case status is a per-grant Open/Closed field and never substitutes for its outcome. Annual copy preserves remarks and clears extension/all actual dates.
+New editable business text passes a shared uppercase normalizer before persistence; unchanged historical values and selected program IDs are preserved rather than mass-renamed. The API normalizes recognized consecutive eight-digit academic years; the editor additionally formats common separators and preserves a single four-digit year on blur/Save Grant. Partial, custom, reversed or nonconsecutive ranges remain accepted; formatting is not chronology validation. Completed status can link the current program to education independently of remark parsing, with optional graduation-date year inference subordinate to durable manual intent. Case status is a per-grant Open/Closed field and never substitutes for its outcome. Annual copy preserves remarks and recorded program completion rules in the same application while clearing extension, graduation, prior completion/end dates and repayment progress.
 
 ## Authentication and access
 
@@ -178,7 +178,7 @@ The launcher binds loopback. Trusted hosts are localhost/127.0.0.1 plus the test
 
 Use existing installation-access tooling and protect private snapshots/journals. Database-file permissions and device encryption are separate protections. No claim of built-in SQLite encryption, hosted HTTPS, cloud IAM, MFA or network-safe deployment is made. Keep live data, password hashes, tokens, backups and personnel exports out of repositories/public release assets.
 
-Restore only compatible FSDP snapshots. Automatic migration runs through version 15 with a protected snapshot on older existing databases. A runtime update does not itself substitute the tested copy for the actual Office database; startup performs needed migration on the retained database. Manual backup deletion is explicit and protection-aware. Startup creates one verified daily copy; the newest 14 unpinned automatic daily copies and 30 unpinned pre-delete copies are retained. Manual and pinned copies are excluded from automatic pruning. Scholar deletion is blocked if its immediate recovery copy fails. Office Log storage is part of the compatible backup/table allowlist.
+Restore only compatible FSDP snapshots. Automatic migration runs through version 16 with a protected snapshot on older existing databases. A runtime update does not itself substitute the tested copy for the actual Office database; startup performs needed migration on the retained database. Manual backup deletion is explicit and protection-aware. Startup creates one verified daily copy; the newest 14 unpinned automatic daily copies and 30 unpinned pre-delete copies are retained. Manual and pinned copies are excluded from automatic pruning. Scholar deletion is blocked if its immediate recovery copy fails. Office Log storage is part of the compatible backup/table allowlist.
 
 ## Build, quality and release requirements
 
@@ -209,3 +209,17 @@ Directory ordering applies Unicode casefolding and surrounding-space trimming to
 Payback attention filters apply to paged JSON, unpaged JSON and CSV. `total` counts selected assessment rows; `scholar_counts`/`grant_counts` remain department/year-wide category summaries. Empty attention selects all rows. Pagination bounds displayed items, not export scope.
 
 [Export contracts](EXPORT_CONTRACTS.json) are verified against actual CSV writer output in backend tests. [Office acceptance](OFFICE_ACCEPTANCE.md) records external checks without treating development tests as Office sign-off.
+
+## Completion and reporting update (0.5.22)
+
+Calendar years stay literal: 2021 remains 2021; 2021-2022 remains an explicit academic-year range. Uppercase record controls preserve cursor/selection and multiline composition. Incomplete is an additional known grant outcome. The optional program start date and whole allowed duration produce a completion deadline; an explicit optional deadline takes priority, including for shorter programs. Previous completion dates remain a fallback. Grace runs three calendar years from the effective deadline, including its final day. Repayment progress (Not recorded, Unpaid, Partially paid, Fully paid) is separate from outcome and case status.
+
+The administrator can configure and connect Google reporting from Backup & Export, then explicitly confirm a one-way replacement of the CATHEDRA REPORT tab. Other tabs are preserved. Connection credentials are Windows-user encrypted outside SQLite. Internet and OAuth setup are needed for cloud delivery; offline records work independently. See [setup](../GOOGLE_SHEETS_SETUP.md) and [validation](../VALIDATION_0.5.22.md).
+
+Google reporting endpoints are administrator-only: `GET /api/v1/google-sheets`, `POST /api/v1/google-sheets/configure`, `POST /api/v1/google-sheets/connect`, `POST /api/v1/google-sheets/sync` (requires `replace_report: true`) and `DELETE /api/v1/google-sheets/connection`. They introduce no runtime dependency or external callback server: the existing local Python runtime performs standard OAuth authorization-code flow with PKCE and a short-lived loopback listener. Tokens are refreshed only for manual delivery. The local connection file is excluded from data snapshots and software publication; corrupt or different-Windows-user connection files can be replaced through explicit reconfiguration/forget actions.
+
+Annual copies in the same application retain an explicitly recorded program start/duration/deadline rule, so another funding year does not move that program deadline. Payment progress, graduation, previous completion dates, end dates and outcome are reset for review. When no new program completion rule is recorded, the former actual-start clearing behavior is retained. New application clears program start, duration, deadline and payment progress; existing historical records are never mass-rewritten.
+
+## Google report update (0.5.23)
+
+Google reporting uses a dedicated [fifteen-column contract](GOOGLE_REPORT_CONTRACT.json) rather than the full CSV table. Each scholar is numbered once and their grants remain on consecutive rows. The report retains recorded education, tenure in years, exact dates or recorded academic periods, each grant's outcome and clearly labeled profile/grant remarks. Existing CSV exports and schema16 are unchanged. Setup, approved test accounts, spreadsheet editing access and per-PC sign-in are described in the [detailed guide](../GOOGLE_SHEETS_SETUP.md). See [0.5.23 validation](../VALIDATION_0.5.23.md) for observed delivery status.

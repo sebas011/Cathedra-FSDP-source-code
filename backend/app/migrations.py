@@ -373,6 +373,23 @@ def _session_inactivity_lock(connection: Connection) -> None:
         )
 
 
+def _completion_deadlines_and_payback_payment(connection: Connection) -> None:
+    # Add only nullable facts. Existing contract dates and payment history are
+    # never inferred or rewritten during an Office upgrade.
+    columns = {
+        row[1] for row in connection.exec_driver_sql("PRAGMA table_info(fsdp_participations)")
+    }
+    for name, sql_type in (
+        ("allowed_duration_years", "INTEGER"),
+        ("completion_due_on", "DATE"),
+        ("payback_payment_status", "VARCHAR(30)"),
+    ):
+        if name not in columns:
+            connection.exec_driver_sql(
+                f"ALTER TABLE fsdp_participations ADD COLUMN {name} {sql_type}"
+            )
+
+
 MIGRATIONS = [
     (1, "fsdp-only-baseline", _baseline),
     (2, "participation-institution-attribution", _participation_institutions),
@@ -397,6 +414,7 @@ MIGRATIONS = [
         _scholar_documents_and_program_categories,
     ),
     (15, "session-inactivity-lock", _session_inactivity_lock),
+    (16, "completion-deadlines-and-payback-payment", _completion_deadlines_and_payback_payment),
 ]
 
 

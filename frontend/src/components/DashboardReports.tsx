@@ -414,6 +414,7 @@ export default function DashboardReports({ compactFilters = false }: { compactFi
                     <th>Scholars</th>
                     <th>On-going</th>
                     <th>Completed</th>
+                    <th>Incomplete</th>
                     <th>Payback</th>
                     <th>Withdrawn</th>
                     <th>Did Not Avail</th>
@@ -425,7 +426,7 @@ export default function DashboardReports({ compactFilters = false }: { compactFi
                 <tbody>
                   {departmentTotals.length === 0 ? (
                     <tr>
-                      <td colSpan={10} className="empty-table">
+                      <td colSpan={11} className="empty-table">
                         No department totals match the selected filters.
                       </td>
                     </tr>
@@ -438,6 +439,7 @@ export default function DashboardReports({ compactFilters = false }: { compactFi
                         <td>{item.scholars}</td>
                         <td>{item.ongoing}</td>
                         <td>{item.graduated}</td>
+                        <td>{item.incomplete || 0}</td>
                         <td>{item.payback}</td>
                         <td>{item.withdrawn}</td>
                         <td>{item.did_not_avail || 0}</td>

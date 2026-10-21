@@ -1,8 +1,8 @@
 # Application flow
 
 **Product:** Cathedra FSDP  
-**Documented:** 16 October 2026, Asia/Manila<br>
-**Baseline:** release 0.5.21; database schema 15<br>
+**Documented:** 22 October 2026, Asia/Manila<br>
+**Baseline:** release 0.5.23; database schema 16<br>
 **Status:** implementation-derived documentation; see [baseline and evidence](README.md).
 
 ## Navigation map
@@ -64,7 +64,7 @@ Only the process owning the selected database lock may open that data directory.
 
 Removing a grant or education row from the editor takes effect when the scholar is saved. Submitted grant/requirement lists replace that scholar's related collection. This is not a partial-list PATCH operation. IDs from another scholar are rejected.
 
-New business-record text is uppercased consistently; account credentials retain their case. A recognized consecutive year range formats as YYYY-YYYY, including eight digits or common separators. A complete single four-digit year infers the next year on blur or Save Grant; partial, custom and nonconsecutive optional values stay editable and saveable. Age and tenure can be typed normally without accidental mouse-wheel changes. Icon-only profile/education/grant controls retain named tooltips and keyboard access.
+New business-record text is uppercased consistently; account credentials retain their case. A recognized consecutive year range formats as YYYY-YYYY, including eight digits or common separators. A complete single four-digit year remains a single calendar year on blur or Save Grant; partial, custom and nonconsecutive optional values stay editable and saveable. Age and tenure can be typed normally without accidental mouse-wheel changes. Icon-only profile/education/grant controls retain named tooltips and keyboard access.
 
 ### Save and recovery sequence
 
@@ -147,3 +147,15 @@ Sources: [frontend routes](../../frontend/src/App.tsx), [scholar editor](../../f
 Review graduation remarks as evidence about the current program; previous degrees or another person’s graduation must not create a current achievement. Unsupported or ambiguous wording stays saveable. Confirm outcomes explicitly: inferred education does not change the grant’s status. Existing automatic achievements are retained for individual review and correction/removal. Summer remains selectable.
 
 Payback category selection is consistent in complete CSV, paged and unpaged results. Category cards describe the entire department/year scope; the selected table total describes its filtered records. Staff may create a missing program name while saving a scholar; direct catalog management remains privileged.
+
+## Completion and reporting update (0.5.22)
+
+Calendar years stay literal: 2021 remains 2021; 2021-2022 remains an explicit academic-year range. Uppercase record controls preserve cursor/selection and multiline composition. Incomplete is an additional known grant outcome. The optional program start date and whole allowed duration produce a completion deadline; an explicit optional deadline takes priority, including for shorter programs. Previous completion dates remain a fallback. Grace runs three calendar years from the effective deadline, including its final day. Repayment progress (Not recorded, Unpaid, Partially paid, Fully paid) is separate from outcome and case status.
+
+The administrator can configure and connect Google reporting from Backup & Export, then explicitly confirm a one-way replacement of the CATHEDRA REPORT tab. Other tabs are preserved. Connection credentials are Windows-user encrypted outside SQLite. Internet and OAuth setup are needed for cloud delivery; offline records work independently. See [setup](../GOOGLE_SHEETS_SETUP.md) and [validation](../VALIDATION_0.5.22.md).
+
+Annual copies in the same application retain an explicitly recorded program start/duration/deadline rule, so another funding year does not move that program deadline. Payment progress, graduation, previous completion dates, end dates and outcome are reset for review. When no new program completion rule is recorded, the former actual-start clearing behavior is retained. New application clears program start, duration, deadline and payment progress; existing historical records are never mass-rewritten.
+
+## Google report update (0.5.23)
+
+Google reporting uses a dedicated [fifteen-column contract](GOOGLE_REPORT_CONTRACT.json) rather than the full CSV table. Each scholar is numbered once and their grants remain on consecutive rows. The report retains recorded education, tenure in years, exact dates or recorded academic periods, each grant's outcome and clearly labeled profile/grant remarks. Existing CSV exports and schema16 are unchanged. Setup, approved test accounts, spreadsheet editing access and per-PC sign-in are described in the [detailed guide](../GOOGLE_SHEETS_SETUP.md). See [0.5.23 validation](../VALIDATION_0.5.23.md) for observed delivery status.

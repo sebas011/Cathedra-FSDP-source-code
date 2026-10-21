@@ -16,6 +16,7 @@ from sqlalchemy.orm import Session, selectinload
 from app.auth import require_admin, require_signed_in
 from app.backups import backup_operations_lock, make_backup, verify_backup_file
 from app.college_classification import affiliation, personnel_type
+from app.contract_rules import completion_deadline
 from app.csv_export import SafeCsvWriter, csv_response
 from app.current_grant import current_status, grant_order
 from app.db import DB_PATH, get_db
@@ -369,8 +370,8 @@ def restore_database(
     return {"restored_from": selected.name, "safety_backup": pre_restore.name}
 
 
-@router.get("/exports/fsdp.csv")
-def export_fsdp(db: Session = Depends(get_db)) -> Response:
+def fsdp_export_table(db: Session) -> tuple[list[str], list[list[object | None]]]:
+    """Raw grouped scholar/grant cells for the directory CSV export."""
     scholars = (
         db.scalars(
             select(Scholar)
@@ -402,7 +403,7 @@ def export_fsdp(db: Session = Depends(get_db)) -> Response:
             scholar.profile_remarks,
         ]
         if not scholar.participations:
-            rows.append(base + [None] * 14)
+            rows.append(base + [None] * 19)
             continue
         for index, participation in enumerate(sorted(scholar.participations, key=grant_order)):
             rows.append(
@@ -422,10 +423,19 @@ def export_fsdp(db: Session = Depends(get_db)) -> Response:
                     participation.remarks,
                     participation.graduation_date,
                     participation.case_status,
+                    participation.start_date,
+                    participation.allowed_duration_years,
+                    participation.completion_due_on,
+                    completion_deadline(
+                        participation.start_date,
+                        participation.allowed_duration_years,
+                        participation.completion_due_on,
+                        participation.contract_completed_on,
+                    )[0],
+                    participation.payback_payment_status,
                 ]
             )
-    return csv_download(
-        "cathedra-fsdp.csv",
+    return (
         [
             "Scholar ID",
             "Name",
@@ -454,9 +464,19 @@ def export_fsdp(db: Session = Depends(get_db)) -> Response:
             "Remarks",
             "Graduation Date",
             "Case Status",
+            "Program Start Date",
+            "Allowed Duration (years)",
+            "Allowed Completion Deadline",
+            "Effective Completion Deadline",
+            "Payback Payment Status",
         ],
         rows,
     )
+
+
+@router.get("/exports/fsdp.csv")
+def export_fsdp(db: Session = Depends(get_db)) -> Response:
+    return csv_download("cathedra-fsdp.csv", *fsdp_export_table(db))
 
 
 @router.get("/exports/education.csv")

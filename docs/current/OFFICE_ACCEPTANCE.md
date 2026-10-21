@@ -1,6 +1,6 @@
 # Office acceptance and release evidence
 
-Target release: 0.5.21; schema 15. **Actual Office-PC acceptance remains open.** Copy this checklist into a private device-specific record; leave results unverified until actually checked.
+Target release: 0.5.23; schema 16. **Actual Office-PC acceptance remains open.** Copy this checklist into a private device-specific record; leave results unverified until actually checked.
 
 Record checker, date, device/Windows/browser, previous/current version and evidence location. Do not include scholar names, credentials or private backups in public evidence.
 
@@ -13,7 +13,7 @@ Record checker, date, device/Windows/browser, previous/current version and evide
 | Explicit graduation-year clearing | A cleared generated year remains blank after saving and reopening | Unverified on Office PC |
 | Program identities/catalog | Existing annual grants select the same ID; equivalent historical names remain distinct; administrator catalog actions work | Unverified on Office PC |
 | Summer and copying | Summer retained; next-year draft preserves program/remarks, resets outcome/case and clears extension/all actual dates | Unverified on Office PC |
-| Uppercase and academic-year entry | Edited business text is uppercase; credentials and unchanged identities remain intact; recognized ranges format with a dash, a complete single year infers its following year on blur/save and partial/custom years remain saveable | Unverified on Office PC |
+| Uppercase and academic-year entry | Edited business text is uppercase; credentials and unchanged identities remain intact; recognized ranges format with a dash, a complete single year remains unchanged on blur/save and partial/custom years remain saveable | Unverified on Office PC |
 | Completed and case status | Former Graduated rows read Completed; per-grant Open/Closed state is independent; completion adds linked education while preserving manual choices | Unverified on Office PC |
 | Optional graduation dates | Date remains optional, supplies a year when applicable and clears together with all actual dates in copied grants | Unverified on Office PC |
 | Compact entry and profile controls | Named icon actions, final-position status controls, full-history disclosure and wheel-protected age/tenure work on the intended mouse/keyboard | Unverified on Office PC |
@@ -31,3 +31,13 @@ Record checker, date, device/Windows/browser, previous/current version and evide
 | Device encryption, signing, remote CI | Record actual status/evidence separately; never infer from workflow existence | Unverified external checks |
 
 Release maintainer checks before delivery: source/frontend/bundled/manifest versions agree; schema ceiling matches docs; actual regression evidence linked; local Markdown links resolve; export contracts pass; no working database in payload; update rehearsal and recovery receipt retained. Office sign-off does not follow from package transfer alone.
+
+## Completion and reporting update (0.5.22)
+
+Calendar years stay literal: 2021 remains 2021; 2021-2022 remains an explicit academic-year range. Uppercase record controls preserve cursor/selection and multiline composition. Incomplete is an additional known grant outcome. The optional program start date and whole allowed duration produce a completion deadline; an explicit optional deadline takes priority, including for shorter programs. Previous completion dates remain a fallback. Grace runs three calendar years from the effective deadline, including its final day. Repayment progress (Not recorded, Unpaid, Partially paid, Fully paid) is separate from outcome and case status.
+
+The administrator can configure and connect Google reporting from Backup & Export, then explicitly confirm a one-way replacement of the CATHEDRA REPORT tab. Other tabs are preserved. Connection credentials are Windows-user encrypted outside SQLite. Internet and OAuth setup are needed for cloud delivery; offline records work independently. See [setup](../GOOGLE_SHEETS_SETUP.md) and [validation](../VALIDATION_0.5.22.md).
+
+## Google report update (0.5.23)
+
+Google reporting uses a dedicated [fifteen-column contract](GOOGLE_REPORT_CONTRACT.json) rather than the full CSV table. Each scholar is numbered once and their grants remain on consecutive rows. The report retains recorded education, tenure in years, exact dates or recorded academic periods, each grant's outcome and clearly labeled profile/grant remarks. Existing CSV exports and schema16 are unchanged. Setup, approved test accounts, spreadsheet editing access and per-PC sign-in are described in the [detailed guide](../GOOGLE_SHEETS_SETUP.md). See [0.5.23 validation](../VALIDATION_0.5.23.md) for observed delivery status.

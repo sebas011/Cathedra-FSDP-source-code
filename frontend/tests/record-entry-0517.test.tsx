@@ -65,6 +65,63 @@ function GrantHarness() {
 const current = () => JSON.parse(screen.getByLabelText("Draft").textContent!);
 beforeEach(() => vi.resetAllMocks());
 
+test("grant editor records an exact short-program deadline and independent repayment progress", () => {
+  render(<GrantHarness />);
+  fireEvent.change(screen.getByLabelText("Status"), { target: { value: "Incomplete" } });
+  expect(current().status).toBe("Incomplete");
+  fireEvent.change(screen.getByLabelText("Program start date (optional)"), {
+    target: { value: "2021-01-15" },
+  });
+  fireEvent.change(screen.getByLabelText("Allowed completion deadline (optional)"), {
+    target: { value: "2021-09-30" },
+  });
+  fireEvent.change(screen.getByLabelText("Status"), { target: { value: "Payback" } });
+  fireEvent.change(screen.getByLabelText("Payback payment progress"), {
+    target: { value: "Fully paid" },
+  });
+  expect(current()).toMatchObject({
+    start_date: "2021-01-15",
+    completion_due_on: "2021-09-30",
+    payback_payment_status: "Fully paid",
+    status: "Payback",
+    case_status: "Closed",
+  });
+});
+
+test("saving another profile field preserves loaded completion and repayment facts", async () => {
+  api.getFsdpRecord.mockResolvedValue({
+    ...scholar,
+    participations: [
+      {
+        ...grant,
+        program_id: 7,
+        name: grant.program_name,
+        allowed_duration_years: 3,
+        completion_due_on: "2024-06-01",
+        payback_payment_status: "Partially paid",
+      },
+    ],
+  });
+  api.updateFsdpRecord.mockResolvedValue(scholar);
+  const router = createMemoryRouter(
+    [
+      { path: "/fsdp/:id/edit", element: <FsdpFormPage /> },
+      { path: "/fsdp/:id", element: <h1>Saved profile</h1> },
+    ],
+    { initialEntries: ["/fsdp/1/edit"] },
+  );
+  render(<RouterProvider router={router} />);
+  const remarks = await screen.findByRole("textbox", { name: "Profile remarks" });
+  fireEvent.change(remarks, { target: { value: "checked file" } });
+  fireEvent.click(screen.getByRole("button", { name: "Save Scholar" }));
+  await waitFor(() => expect(api.updateFsdpRecord).toHaveBeenCalled());
+  expect(api.updateFsdpRecord.mock.calls[0][1].participations[0]).toMatchObject({
+    allowed_duration_years: 3,
+    completion_due_on: "2024-06-01",
+    payback_payment_status: "Partially paid",
+  });
+});
+
 test("opening a new scholar clears previous education-restoration controls", async () => {
   api.getFsdpRecord.mockResolvedValue({ ...scholar, suppressed_education_program_ids: [7] });
   const router = createMemoryRouter(
@@ -86,20 +143,19 @@ test("opening a new scholar clears previous education-restoration controls", asy
 });
 
 test.each([
-  ["20262027", false, "2026-2027"],
-  ["2026 2027", false, "2026-2027"],
-  ["2026–2027", false, "2026-2027"],
-  ["2026", false, "2026"],
-  ["2026", true, "2026-2027"],
-  ["202", true, "202"],
-  ["20272026", true, "20272026"],
-  ["custom period", true, "custom period"],
-  ["9999", true, "9999"],
-  ["2026-2028", true, "2026-2028"],
+  ["20262027", "2026-2027"],
+  ["2026 2027", "2026-2027"],
+  ["2026–2027", "2026-2027"],
+  ["2026", "2026"],
+  ["202", "202"],
+  ["20272026", "20272026"],
+  ["custom period", "custom period"],
+  ["9999", "9999"],
+  ["2026-2028", "2026-2028"],
 ])(
   "academic-year entry formats recognized input %s without rejecting historical/custom values",
-  (input, blur, expected) => {
-    expect(formatAcademicYear(input, blur)).toBe(expected);
+  (input, expected) => {
+    expect(formatAcademicYear(input)).toBe(expected);
   },
 );
 
@@ -126,16 +182,16 @@ test("grant entry places date and remarks before independent outcome and case co
   expect(grantStatuses).not.toContain("Closed");
 });
 
-test("academic-year controls normalize eight digits and complete a single year on blur", () => {
+test("academic-year controls normalize explicit ranges and retain a single year on blur", () => {
   render(<GrantHarness />);
-  const start = screen.getByRole("textbox", { name: "Start Academic Year" });
+  const start = screen.getByRole("textbox", { name: "Start year / academic year" });
   fireEvent.change(start, { target: { value: "20262027" } });
   expect(current().start_academic_year).toBe("2026-2027");
-  const end = screen.getByRole("textbox", { name: "Contract End Academic Year" });
+  const end = screen.getByRole("textbox", { name: "End year / academic year" });
   fireEvent.change(end, { target: { value: "2027" } });
   expect(current().end_academic_year).toBe("2027");
   fireEvent.blur(end);
-  expect(current().end_academic_year).toBe("2027-2028");
+  expect(current().end_academic_year).toBe("2027");
 });
 
 test("next-year copy clears actual dates and case outcome while retaining original notes and identity", () => {

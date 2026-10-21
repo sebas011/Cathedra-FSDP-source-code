@@ -12,7 +12,7 @@ export default function AcademicYearInput({ value, onValueChange, onBlur, ...pro
       value={value}
       onChange={(event) => onValueChange(formatAcademicYear(event.target.value))}
       onBlur={(event) => {
-        onValueChange(formatAcademicYear(event.target.value, true));
+        onValueChange(formatAcademicYear(event.target.value));
         onBlur?.(event);
       }}
     />

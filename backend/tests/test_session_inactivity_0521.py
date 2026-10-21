@@ -196,7 +196,7 @@ def test_authorization_reads_do_not_commit_pending_business_records(client, cloc
 
 
 def test_migration_fifteen_adds_nullable_activity_without_deleting_or_rewriting_records():
-    assert MIGRATIONS[-1][:2] == (15, "session-inactivity-lock")
+    assert MIGRATIONS[14][:2] == (15, "session-inactivity-lock")
     engine = create_engine("sqlite://")
     try:
         with engine.begin() as connection:

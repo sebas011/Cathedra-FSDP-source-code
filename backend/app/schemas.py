@@ -67,6 +67,9 @@ class ParticipationInput(TextModel):
     start_date: date | None = None
     end_date: date | None = None
     contract_completed_on: date | None = None
+    allowed_duration_years: int | None = Field(default=None, ge=1, le=100)
+    completion_due_on: date | None = None
+    payback_payment_status: Literal["Unpaid", "Partially paid", "Fully paid"] | None = None
     graduation_date: date | None = None
     case_status: Literal["Open", "Closed"] = "Open"
     start_term: Literal["1st", "2nd", "3rd", "Summer"] | None = None
@@ -162,6 +165,8 @@ class RequirementRead(BaseModel):
 class ParticipationRead(BaseModel):
     payback_attention: str | None = None
     grace_ends_on: date | None = None
+    completion_deadline_on: date | None = None
+    completion_deadline_source: str | None = None
     id: int
     program_id: int
     name: str
@@ -170,6 +175,9 @@ class ParticipationRead(BaseModel):
     start_date: date | None
     end_date: date | None
     contract_completed_on: date | None = None
+    allowed_duration_years: int | None = None
+    completion_due_on: date | None = None
+    payback_payment_status: str | None = None
     graduation_date: date | None = None
     case_status: Literal["Open", "Closed"] = "Open"
     start_term: str | None
@@ -220,4 +228,5 @@ class FsdpSummary(BaseModel):
     payback: int
     withdrawn: int
     did_not_avail: int = 0
+    incomplete: int = 0
     missing_requirements: int

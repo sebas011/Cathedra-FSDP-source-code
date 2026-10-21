@@ -35,3 +35,11 @@ No GitHub21 publication, remote green CI run, actual Office-PC/E-drive update, p
 ## Local Office delivery
 
 Published and verified `Releases/Cathedra-FSDP-0.5.21-Update`:148 runtime files and23 delivery documents, with a verified empty schema15 seed. No working database, account credentials, mutable data directory or backups are included. The prior0.5.20 package is preserved. Publication evidence (local historical evidence; excluded from this source snapshot) records local delivery separately from actual Office-PC acceptance and GitHub publication.
+
+## GitHub publication follow-up —16 October2026
+
+After the earlier local acceptance, GitHub release v0.5.21 and source commit ae35dcb48e7bc700f1ae0b1f71b438e05bc85675 were published through normal history-preserving pushes. Three release assets were downloaded back with matching checksums; the downloaded app passed native Windows PowerShell5.1 smoke/restore/shutdown.311 prepared source files were downloaded back and hash-verified. No working database, accounts, backups or private installation receipts were uploaded. Version19 release/assets remain intact. Publication evidence (local historical evidence; excluded from this source snapshot) records CI run38883014243 as still running at verification; a green result is not claimed.
+
+### Complete GitHub CI acceptance
+
+The final source commit da2d5f4c7cdecf236993b4f90070fcb47a373d08 passed [complete Windows CI](https://github.com/sebas011/Cathedra-FSDP-source-code/actions/runs/38884335647). All494 backend and220 frontend tests passed, backend branch coverage was92%, and formatting, dependency advisories, type checks, frontend coverage/build, packaged workflow and native PowerShell5.1/7 smoke checks passed. The two source-build follow-ups enforce checkout line endings and explicit UTF-8 documentation reads. The published Office ZIP remains byte-identical to the verified upload. Earlier pending/failed observations above are historical stages of this publication, not the final result. Actual Office-PC acceptance, signing and encryption remain separate.

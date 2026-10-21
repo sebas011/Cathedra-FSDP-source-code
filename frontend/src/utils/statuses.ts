@@ -1,5 +1,6 @@
 export const grantStatuses = [
   "On Going",
+  "Incomplete",
   "Completed",
   "Payback",
   "Payback pending contract",

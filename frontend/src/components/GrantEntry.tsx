@@ -1,8 +1,9 @@
 import { displayGrantStatus, grantStatuses } from "../utils/statuses";
-import { recordText } from "../utils/recordText";
+import { RecordInput, RecordTextarea } from "./RecordTextInput";
 import AcademicYearInput from "./AcademicYearInput";
 import type { ParticipationInput } from "../types";
 import FormError from "./FormError";
+import NumberInput from "./NumberInput";
 
 const statuses = grantStatuses;
 const grantTypes = [
@@ -48,11 +49,9 @@ export default function GrantEntry({
       <div className="entry-grid">
         <label className="entry-wide">
           Program Applied *
-          <input
+          <RecordInput
             value={draft.program_name}
-            onChange={(event) =>
-              update({ program_name: recordText(event.target.value), source_program_id: undefined })
-            }
+            onValueChange={(program_name) => update({ program_name, source_program_id: undefined })}
           />
         </label>
         <label>
@@ -96,9 +95,9 @@ export default function GrantEntry({
         )}
         <label>
           Delivering HEI
-          <input
+          <RecordInput
             value={draft.delivering_hei}
-            onChange={(event) => update({ delivering_hei: recordText(event.target.value) })}
+            onValueChange={(delivering_hei) => update({ delivering_hei })}
           />
         </label>
         <label>
@@ -123,17 +122,17 @@ export default function GrantEntry({
         {draft.grant_type === "Others" && (
           <label className="entry-wide">
             Other Grant
-            <input
+            <RecordInput
               value={draft.grant_other}
-              onChange={(event) => update({ grant_other: recordText(event.target.value) })}
+              onValueChange={(grant_other) => update({ grant_other })}
             />
           </label>
         )}
         <label className="entry-wide">
           Extension
-          <input
+          <RecordInput
             value={draft.extension}
-            onChange={(event) => update({ extension: recordText(event.target.value) })}
+            onValueChange={(extension) => update({ extension })}
           />
         </label>
       </div>
@@ -153,18 +152,18 @@ export default function GrantEntry({
             </select>
           </label>
           <label>
-            Start Academic Year
+            Start year / academic year
             <AcademicYearInput
-              placeholder="2026-2027"
+              placeholder="2026 or 2026-2027"
               value={draft.start_academic_year}
               onValueChange={(start_academic_year) => update({ start_academic_year })}
             />
           </label>
         </fieldset>
         <fieldset>
-          <legend>Contract end period</legend>
+          <legend>Ending period</legend>
           <label>
-            Contract End Term
+            End Term
             <select
               value={draft.end_term}
               onChange={(event) => update({ end_term: event.target.value })}
@@ -176,9 +175,9 @@ export default function GrantEntry({
             </select>
           </label>
           <label>
-            Contract End Academic Year
+            End year / academic year
             <AcademicYearInput
-              placeholder="2026-2027"
+              placeholder="2026 or 2026-2027"
               value={draft.end_academic_year}
               onValueChange={(end_academic_year) => update({ end_academic_year })}
             />
@@ -187,10 +186,40 @@ export default function GrantEntry({
       </div>
       <div className="entry-grid">
         <label>
-          Contract completion date (optional)
+          Program start date (optional)
           <input
             type="date"
-            aria-label="Contract completion date (optional)"
+            value={draft.start_date || ""}
+            onChange={(event) => update({ start_date: event.target.value || null })}
+          />
+        </label>
+        <label>
+          Allowed duration in years (optional)
+          <NumberInput
+            min={1}
+            max={100}
+            step={1}
+            value={draft.allowed_duration_years ?? ""}
+            onChange={(event) =>
+              update({
+                allowed_duration_years: event.target.value ? Number(event.target.value) : null,
+              })
+            }
+          />
+        </label>
+        <label>
+          Allowed completion deadline (optional)
+          <input
+            type="date"
+            value={draft.completion_due_on || ""}
+            onChange={(event) => update({ completion_due_on: event.target.value || null })}
+          />
+        </label>
+        <label>
+          Previously recorded completion date (optional)
+          <input
+            type="date"
+            aria-label="Previously recorded completion date (optional)"
             value={draft.contract_completed_on || ""}
             onChange={(event) => update({ contract_completed_on: event.target.value || null })}
           />
@@ -206,10 +235,10 @@ export default function GrantEntry({
       </div>
       <label>
         Remarks
-        <textarea
+        <RecordTextarea
           rows={3}
           value={draft.remarks}
-          onChange={(event) => update({ remarks: recordText(event.target.value) })}
+          onValueChange={(remarks) => update({ remarks })}
         />
       </label>
       <div className="entry-grid">
@@ -237,6 +266,25 @@ export default function GrantEntry({
             <option>Closed</option>
           </select>
         </label>
+        {(draft.status.toLowerCase().includes("payback") || draft.payback_payment_status) && (
+          <label>
+            Payback payment progress
+            <select
+              value={draft.payback_payment_status || ""}
+              onChange={(event) =>
+                update({
+                  payback_payment_status: (event.target.value ||
+                    null) as ParticipationInput["payback_payment_status"],
+                })
+              }
+            >
+              <option value="">Not recorded</option>
+              <option>Unpaid</option>
+              <option>Partially paid</option>
+              <option>Fully paid</option>
+            </select>
+          </label>
+        )}
       </div>
       <footer>
         <div className="action-group">

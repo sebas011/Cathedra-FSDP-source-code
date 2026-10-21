@@ -422,16 +422,24 @@ def test_csv_new_fields_and_no_grant_row_width(client):
             io.StringIO(client.get("/api/v1/maintenance/exports/fsdp.csv").text.lstrip("\ufeff"))
         )
     )
-    assert rows[0][-2:] == ["Graduation Date", "Case Status"]
-    assert all(len(item) == len(rows[0]) == 27 for item in rows)
-    values = {item[1]: item[-2:] for item in rows[1:]}
+    assert rows[0][25:27] == ["Graduation Date", "Case Status"]
+    assert rows[0][27:] == [
+        "Program Start Date",
+        "Allowed Duration (years)",
+        "Allowed Completion Deadline",
+        "Effective Completion Deadline",
+        "Payback Payment Status",
+    ]
+    assert all(len(item) == len(rows[0]) == 32 for item in rows)
+    values = {item[1]: item[25:27] for item in rows[1:]}
     assert values["OFFICE SCHOLAR"] == ["2023-06-01", "Closed"] and values["NO GRANT"] == ["", ""]
     report = list(
         csv.reader(io.StringIO(client.get("/api/v1/fsdp/report.csv").text.lstrip("\ufeff")))
     )
     header = next(index for index, row in enumerate(report) if row and row[0] == "Name")
-    assert report[header][-2:] == ["Graduation Date", "Case Status"]
-    assert all(len(item) == 21 for item in report[header:])
+    assert report[header][19:21] == ["Graduation Date", "Case Status"]
+    assert report[header][21:] == rows[0][27:]
+    assert all(len(item) == 26 for item in report[header:])
 
 
 def test_schema_thirteen_is_additive_retains_history_and_is_repeatable(tmp_path):

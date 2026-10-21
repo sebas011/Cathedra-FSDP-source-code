@@ -1,8 +1,8 @@
 # Product requirements
 
 **Product:** Cathedra FSDP  
-**Documented:** 16 October 2026, Asia/Manila<br>
-**Baseline:** release 0.5.21; database schema 15<br>
+**Documented:** 22 October 2026, Asia/Manila<br>
+**Baseline:** release 0.5.23; database schema 16<br>
 **Status:** implementation-derived documentation; see [baseline and evidence](README.md).
 
 ## Purpose and users
@@ -62,7 +62,7 @@ A recorded Completed grant or a direct affirmative current-program graduation cl
 
 ### Terms and dates
 
-Current implementation accepts 1st, 2nd, 3rd and Summer, plus an unrecorded value. Summer is retained by the later requirement and the owner’s explicit confirmation; the older three-term-only policy is superseded. A recognized consecutive year range, including 20262027, formats as 2026-2027. The grant editor infers the following year from a complete single four-digit year on blur or Save Grant; partial, custom or nonconsecutive values remain saveable. Grant start/end dates are optional compatibility data and are not compulsory editor inputs. Contract completion and graduation dates are separate optional facts. Term/year or closing a case does not invent either date. Annual grant copying clears all actual dates, including graduation, and extension; it retains remarks for review and begins an Open case with an On Going outcome.
+Current implementation accepts 1st, 2nd, 3rd and Summer, plus an unrecorded value. Summer is retained by the later requirement and the owner’s explicit confirmation; the older three-term-only policy is superseded. A recognized consecutive year range, including 20262027, formats as 2026-2027. The grant editor preserves a complete single four-digit year on blur or Save Grant; partial, custom or nonconsecutive values remain saveable. Grant start/end dates are optional compatibility data and are not compulsory editor inputs. Contract completion and graduation dates are separate optional facts. Term/year or closing a case does not invent either date. Annual grant copying clears graduation, prior completion/end dates, payment progress and extension; recorded program start/duration/deadline rules remain in the same application; it retains remarks for review and begins an Open case with an On Going outcome.
 
 ### Contract assessment
 
@@ -72,8 +72,8 @@ Classification order is important:
 2. Recorded Payback pending contract remains pending even if another grant for that program is Completed.
 3. Did Not Avail remains outside unfinished-program follow-up.
 4. Any recorded Completed grant for the same scholar, **same program ID and same application identity** clears calculated follow-up for that application's other annual grants, subject to the recorded repayment categories above. Separate applications to the same program remain independent. Existing unassigned grants retain the previous same-program rule among those unassigned records until staff explicitly assign them. Education inferred from remarks alone does not clear assessment. Open/Closed case state does not override these recorded outcome rules.
-5. Missing completion date produces Completion date missing, not a guessed deadline.
-6. A future completion date produces Contract not completed.
+5. Choose the effective allowed completion deadline: explicit completion_due_on, then actual start_date plus allowed_duration_years, then the previously recorded contract_completed_on fallback. Missing facts produce Completion date missing, not a guessed deadline.
+6. A future effective deadline produces Contract not completed.
 7. Through the third anniversary, including that final day, the grant is In grace period. The next day starts Payback review.
 
 For a 29 February completion, the three-year anniversary uses 28 February in the target year. Example: completion on 9 October 2023 stays in grace through 9 October 2026; review begins 10 October 2026. A duplicated program has a new ID; same-program graduation clearing does not automatically extend to that new program.
@@ -127,3 +127,15 @@ Sources: [schemas](../../backend/app/schemas.py), [FSDP API](../../backend/app/a
 - Outcome, Open/Closed case state and optional graduation date are distinct fields on each annual grant. Existing Graduated outcomes become Completed without changing their identities.
 - Status and case controls follow grant remarks so finishing data entry does not require scrolling back to the top. Icon actions retain accessible names, numeric fields ignore accidental wheel changes and the whole grant history can collapse.
 - General Office Log entries are append-only, can remain unlinked to a scholar, retain author and optional scholar-name snapshots and support complete filtered CSV export.
+
+## Completion and reporting update (0.5.22)
+
+Calendar years stay literal: 2021 remains 2021; 2021-2022 remains an explicit academic-year range. Uppercase record controls preserve cursor/selection and multiline composition. Incomplete is an additional known grant outcome. The optional program start date and whole allowed duration produce a completion deadline; an explicit optional deadline takes priority, including for shorter programs. Previous completion dates remain a fallback. Grace runs three calendar years from the effective deadline, including its final day. Repayment progress (Not recorded, Unpaid, Partially paid, Fully paid) is separate from outcome and case status.
+
+The administrator can configure and connect Google reporting from Backup & Export, then explicitly confirm a one-way replacement of the CATHEDRA REPORT tab. Other tabs are preserved. Connection credentials are Windows-user encrypted outside SQLite. Internet and OAuth setup are needed for cloud delivery; offline records work independently. See [setup](../GOOGLE_SHEETS_SETUP.md) and [validation](../VALIDATION_0.5.22.md).
+
+Annual copies in the same application retain an explicitly recorded program start/duration/deadline rule, so another funding year does not move that program deadline. Payment progress, graduation, previous completion dates, end dates and outcome are reset for review. When no new program completion rule is recorded, the former actual-start clearing behavior is retained. New application clears program start, duration, deadline and payment progress; existing historical records are never mass-rewritten.
+
+## Google report update (0.5.23)
+
+Google reporting uses a dedicated [fifteen-column contract](GOOGLE_REPORT_CONTRACT.json) rather than the full CSV table. Each scholar is numbered once and their grants remain on consecutive rows. The report retains recorded education, tenure in years, exact dates or recorded academic periods, each grant's outcome and clearly labeled profile/grant remarks. Existing CSV exports and schema16 are unchanged. Setup, approved test accounts, spreadsheet editing access and per-PC sign-in are described in the [detailed guide](../GOOGLE_SHEETS_SETUP.md). See [0.5.23 validation](../VALIDATION_0.5.23.md) for observed delivery status.

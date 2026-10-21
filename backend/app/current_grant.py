@@ -27,6 +27,7 @@ def current_status_expression():
     grant = aliased(FsdpParticipation)
     status = case(
         (func.lower(func.trim(grant.status)).in_(["graduated", "completed"]), "Completed"),
+        (func.lower(func.trim(grant.status)) == "incomplete", "Incomplete"),
         else_=func.trim(grant.status),
     )
     return (

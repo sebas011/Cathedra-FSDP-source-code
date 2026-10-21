@@ -62,6 +62,12 @@ release-manifest.json
 update-archives/
 docs/INSTALLATION_MANIFEST_*.json
 
+# Local Google OAuth files are never release/source assets.
+client_secret_*.json
+credentials.json
+token.json
+google-connection.bin
+
 # Keep future source uploads free of local records and credentials.
 .env.*
 !.env.example

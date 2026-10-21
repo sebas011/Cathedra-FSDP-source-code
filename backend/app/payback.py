@@ -6,7 +6,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.college_classification import affiliation, affiliation_expression
-from app.contract_rules import GROUPS, classify_contract
+from app.contract_rules import GROUPS, classify_contract, completion_deadline
 from app.contract_rules import grace_end as grace_end
 from app.grant_applications import has_completed_application_expression
 from app.models import FsdpParticipation, Program, Scholar
@@ -35,6 +35,10 @@ def payback_data(
             FsdpParticipation.start_academic_year,
             FsdpParticipation.status,
             FsdpParticipation.contract_completed_on,
+            FsdpParticipation.start_date,
+            FsdpParticipation.allowed_duration_years,
+            FsdpParticipation.completion_due_on,
+            FsdpParticipation.payback_payment_status,
             has_graduated,
         )
         .join(FsdpParticipation, FsdpParticipation.scholar_id == Scholar.id)
@@ -62,9 +66,16 @@ def payback_data(
         year,
         status,
         completed,
+        start_date,
+        allowed_duration_years,
+        completion_due_on,
+        payment_status,
         graduated,
     ) in db.execute(statement):
-        group, deadline = classify_contract(status, completed, graduated, today)
+        effective_deadline, deadline_source = completion_deadline(
+            start_date, allowed_duration_years, completion_due_on, completed
+        )
+        group, deadline = classify_contract(status, effective_deadline, graduated, today)
         scholar_sets[group].add(scholar_id)
         grant_counts[group] += 1
         if not include_items:
@@ -81,6 +92,12 @@ def payback_data(
                 "academic_year": year,
                 "recorded_status": outcome(status),
                 "contract_completed_on": completed,
+                "start_date": start_date,
+                "allowed_duration_years": allowed_duration_years,
+                "completion_due_on": completion_due_on,
+                "completion_deadline_on": effective_deadline,
+                "completion_deadline_source": deadline_source,
+                "payback_payment_status": payment_status,
                 "grace_ends_on": deadline,
                 "attention": group,
                 "days_remaining": max(0, (deadline - today).days)

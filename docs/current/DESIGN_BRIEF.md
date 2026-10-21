@@ -1,8 +1,8 @@
 # Design brief
 
 **Product:** Cathedra FSDP  
-**Documented:** 16 October 2026, Asia/Manila<br>
-**Baseline:** release 0.5.21; database schema 15<br>
+**Documented:** 22 October 2026, Asia/Manila<br>
+**Baseline:** release 0.5.23; database schema 16<br>
 **Status:** implementation-derived documentation; see [baseline and evidence](README.md).
 
 ## Objective
@@ -83,7 +83,7 @@ Use an identity header and compact facts, followed by whole-profile remarks, edu
 
 ### Scholar editor
 
-Use clear sections for Scholar Information, Education, Grants and Requirements. Distinguish finishing a subentry from persisting the scholar. Keep open drafts, errors and uncertain-save notices visible. Confirm discards/removals where implemented. Preserve explicit recorded unknowns and optional fields; do not turn completeness guidance into mandatory fields. Place grant outcome and case state after the remarks near Save Grant. Optional graduation and contract-completion dates have distinct labels. Display new record text in uppercase, format recognized consecutive academic-year ranges with a dash, complete a single four-digit year on blur/save and protect age/tenure from mouse-wheel changes while keeping normal keyboard editing available.
+Use clear sections for Scholar Information, Education, Grants and Requirements. Distinguish finishing a subentry from persisting the scholar. Keep open drafts, errors and uncertain-save notices visible. Confirm discards/removals where implemented. Preserve explicit recorded unknowns and optional fields; do not turn completeness guidance into mandatory fields. Place grant outcome and case state after the remarks near Save Grant. Optional graduation and contract-completion dates have distinct labels. Display new record text in uppercase, format recognized consecutive academic-year ranges with a dash, retain a single four-digit year on blur/save and protect age/tenure from mouse-wheel changes while keeping normal keyboard editing available.
 
 Use a single Program Applied input in grants and a separate optional Degree/Certification/Enhancement category. Keep funding in Type of Grant. Stack annual records by application, including repeat enrollments in the same program, with each application's overall period visible in its summary. Keep Copy for next year and New application distinct. Existing unassigned program history stays together until explicitly reviewed and reassigned.
 
@@ -115,3 +115,13 @@ Maintain semantic headings, explicit control labels, keyboard focus visibility, 
 - Printing hides navigation/actions while preserving relevant report/profile information.
 
 Sources: [design tokens](../../frontend/src/design-tokens.css), [design system](../../frontend/src/design-system.css), [Dashboard CSS](../../frontend/src/dashboard.css), [profile CSS](../../frontend/src/profile.css), [Dashboard page](../../frontend/src/pages/FsdpDashboardPage.tsx), [Guide page](../../frontend/src/pages/ProductGuidePage.tsx). Mixed charts remain in 0.5.14.
+
+## Completion and reporting update (0.5.22)
+
+Calendar years stay literal: 2021 remains 2021; 2021-2022 remains an explicit academic-year range. Uppercase record controls preserve cursor/selection and multiline composition. Incomplete is an additional known grant outcome. The optional program start date and whole allowed duration produce a completion deadline; an explicit optional deadline takes priority, including for shorter programs. Previous completion dates remain a fallback. Grace runs three calendar years from the effective deadline, including its final day. Repayment progress (Not recorded, Unpaid, Partially paid, Fully paid) is separate from outcome and case status.
+
+The administrator can configure and connect Google reporting from Backup & Export, then explicitly confirm a one-way replacement of the CATHEDRA REPORT tab. Other tabs are preserved. Connection credentials are Windows-user encrypted outside SQLite. Internet and OAuth setup are needed for cloud delivery; offline records work independently. See [setup](../GOOGLE_SHEETS_SETUP.md) and [validation](../VALIDATION_0.5.22.md).
+
+## Google report update (0.5.23)
+
+Google reporting uses a dedicated [fifteen-column contract](GOOGLE_REPORT_CONTRACT.json) rather than the full CSV table. Each scholar is numbered once and their grants remain on consecutive rows. The report retains recorded education, tenure in years, exact dates or recorded academic periods, each grant's outcome and clearly labeled profile/grant remarks. Existing CSV exports and schema16 are unchanged. Setup, approved test accounts, spreadsheet editing access and per-PC sign-in are described in the [detailed guide](../GOOGLE_SHEETS_SETUP.md). See [0.5.23 validation](../VALIDATION_0.5.23.md) for observed delivery status.

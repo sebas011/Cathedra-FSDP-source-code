@@ -4,6 +4,7 @@ from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session, selectinload
 
 from app.college_classification import affiliation, affiliation_expression, personnel_type
+from app.contract_rules import completion_deadline
 from app.current_grant import current_status, current_status_expression
 from app.fsdp_values import effective_hei, has_missing_requirements
 from app.grant_applications import application_group_key, completed_application_keys
@@ -91,6 +92,11 @@ def read_scholar(scholar: Scholar) -> ScholarRead:
                 start_date=item.start_date,
                 end_date=item.end_date,
                 contract_completed_on=item.contract_completed_on,
+                allowed_duration_years=item.allowed_duration_years,
+                completion_due_on=item.completion_due_on,
+                completion_deadline_on=effective_deadline,
+                completion_deadline_source=deadline_source,
+                payback_payment_status=item.payback_payment_status,
                 graduation_date=item.graduation_date,
                 case_status=item.case_status,
                 payback_attention=attention,
@@ -108,10 +114,18 @@ def read_scholar(scholar: Scholar) -> ScholarRead:
                 remarks=item.remarks,
             )
             for item in scholar.participations
+            for effective_deadline, deadline_source in [
+                completion_deadline(
+                    item.start_date,
+                    item.allowed_duration_years,
+                    item.completion_due_on,
+                    item.contract_completed_on,
+                )
+            ]
             for attention, deadline in [
                 classify_contract(
                     item.status,
-                    item.contract_completed_on,
+                    effective_deadline,
                     application_group_key(item) in completed_applications,
                     today,
                 )
@@ -213,6 +227,7 @@ def fsdp_report_data(db: Session, **filters: object) -> dict[str, object]:
             [
                 "On Going",
                 "Completed",
+                "Incomplete",
                 "Payback",
                 "Payback pending contract",
                 "Transferred",
@@ -260,6 +275,7 @@ def fsdp_report_data(db: Session, **filters: object) -> dict[str, object]:
                 "ongoing": 0,
                 "graduated": 0,
                 "completed": 0,
+                "incomplete": 0,
                 "payback": 0,
                 "withdrawn": 0,
                 "did_not_avail": 0,
@@ -297,7 +313,12 @@ def fsdp_report_data(db: Session, **filters: object) -> dict[str, object]:
         for participation in selected:
             attention, deadline = classify_contract(
                 participation.status,
-                participation.contract_completed_on,
+                completion_deadline(
+                    participation.start_date,
+                    participation.allowed_duration_years,
+                    participation.completion_due_on,
+                    participation.contract_completed_on,
+                )[0],
                 application_group_key(participation) in completed_applications,
                 today,
             )
@@ -315,6 +336,11 @@ def fsdp_report_data(db: Session, **filters: object) -> dict[str, object]:
                             else "Payback recorded by the office"
                             if attention == "Recorded Payback"
                             else f"grace period ended {deadline.isoformat()}"
+                        )
+                        + (
+                            f" · Payment: {participation.payback_payment_status}"
+                            if participation.payback_payment_status
+                            else ""
                         ),
                         "attention": attention,
                         "priority": 0,
@@ -323,6 +349,7 @@ def fsdp_report_data(db: Session, **filters: object) -> dict[str, object]:
         status_key = {
             "On Going": "ongoing",
             "Completed": "completed",
+            "Incomplete": "incomplete",
             "Payback": "payback",
             "Withdrawn": "withdrawn",
             "Did Not Avail": "did_not_avail",

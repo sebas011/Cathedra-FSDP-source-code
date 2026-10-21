@@ -9,6 +9,9 @@ export interface ContractFollowUp {
   academic_year: string | null;
   recorded_status: string;
   contract_completed_on: string | null;
+  completion_deadline_on?: string | null;
+  completion_deadline_source?: string | null;
+  payback_payment_status?: string | null;
   grace_ends_on: string | null;
   attention: string;
   days_remaining: number | null;

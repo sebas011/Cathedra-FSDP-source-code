@@ -4,6 +4,7 @@ import { useUnsavedChanges } from "../hooks/useUnsavedChanges";
 import { useNavigate } from "react-router-dom";
 import PageHeading from "../components/PageHeading";
 import BackupReviewPanel from "../components/BackupReviewPanel";
+import GoogleSheetsPanel from "../components/GoogleSheetsPanel";
 import ConfirmationDialog from "../components/ConfirmationDialog";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -57,6 +58,7 @@ export default function BackupExportPage() {
   const [error, setError] = useState("");
   const [statusError, setStatusError] = useState("");
   const [reviewBusy, setReviewBusy] = useState(false);
+  const [sheetsBusy, setSheetsBusy] = useState(false);
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
   const [activeExport, setActiveExport] = useState<string | null>(null);
@@ -65,7 +67,7 @@ export default function BackupExportPage() {
   const operationLock = useRef(false);
   const sequence = useRef(0);
   const [loading, setLoading] = useState(false);
-  const operationPending = busy || reviewBusy || activeExport !== null;
+  const operationPending = busy || reviewBusy || sheetsBusy || activeExport !== null;
   const { blocker, allowLeave } = useUnsavedChanges(null, operationPending);
   const selected = status?.backups.find((item) => item.filename === selectedBackup);
 
@@ -281,7 +283,7 @@ export default function BackupExportPage() {
         blocker={blocker}
         pending={operationPending}
         pendingTitle="Finishing the operation"
-        pendingDescription="A backup, restore, export, or recovery review is still being processed. Wait for confirmation before leaving; leaving does not cancel the operation."
+        pendingDescription="A backup, restore, export, Google connection, or recovery review is still being processed. Wait for confirmation before leaving; leaving does not cancel the operation."
       />
       <PageHeading
         title="Backup & Export"
@@ -362,6 +364,7 @@ export default function BackupExportPage() {
         <a href="#create-backup">Create backup</a>
         {isAdmin && <a href="#restore-backup">Download &amp; restore</a>}
         <a href="#directory-exports">Directory exports</a>
+        {isAdmin && <a href="#google-reporting">Google Sheets report</a>}
       </nav>
       <section className="maintenance-counts" aria-label="Record counts">
         <div>
@@ -519,6 +522,12 @@ export default function BackupExportPage() {
             reload={load}
             onPendingChange={setReviewBusy}
             disabled={operationPending || loading}
+          />
+        )}
+        {isAdmin && (
+          <GoogleSheetsPanel
+            disabled={busy || reviewBusy || activeExport !== null || loading}
+            onPendingChange={setSheetsBusy}
           />
         )}
       </section>

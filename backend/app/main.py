@@ -14,6 +14,7 @@ import app.activity_audit
 from app.api.activity import router as activity_router
 from app.api.auth import router as auth_router
 from app.api.fsdp import router as fsdp_router
+from app.api.google_sheets import router as google_sheets_router
 from app.api.maintenance import router as maintenance_router
 from app.api.office_logs import router as office_logs_router
 from app.auth import require_signed_in
@@ -120,6 +121,7 @@ for router in (
     maintenance_router,
     activity_router,
     office_logs_router,
+    google_sheets_router,
 ):
     app.include_router(router, prefix="/api/v1", dependencies=[Depends(require_signed_in)])
 

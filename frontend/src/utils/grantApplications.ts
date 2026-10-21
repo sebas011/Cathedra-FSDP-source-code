@@ -58,14 +58,28 @@ export function newProgramApplication(
   );
   const next = end ? end + 1 : start ? start + 1 : 0;
   const duration = start && end >= start ? end - start : 0;
-  const year = (value: number) => (value > 0 && value < 9999 ? `${value}-${value + 1}` : "");
+  const year = (value: number, template: string) => {
+    if (value < 1000 || value > 9999) return "";
+    if (/^\d{4}$/.test(template.trim())) return String(value);
+    const range = template.trim().match(/^(\d{4})\s*[-–/]\s*(\d{4})$/);
+    if (!range) return "";
+    const width = Number(range[2]) - Number(range[1]);
+    return width >= 0 && value + width <= 9999 ? `${value}-${value + width}` : "";
+  };
   return {
     ...copy,
     application_key: crypto.randomUUID(),
+    start_date: null,
     start_term: first.start_term,
     end_term: last.end_term,
-    start_academic_year: year(next),
-    end_academic_year: year(next ? next + duration : 0),
+    start_academic_year: year(next, first.start_academic_year),
+    end_academic_year: year(
+      next ? next + duration : 0,
+      last.end_academic_year || last.start_academic_year,
+    ),
+    allowed_duration_years: null,
+    completion_due_on: null,
+    payback_payment_status: null,
     remarks: "",
   };
 }

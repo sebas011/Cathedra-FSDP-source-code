@@ -154,8 +154,9 @@ export default function PaybackFollowUp() {
                   <th scope="col">Scholar</th>
                   <th scope="col">Program / year</th>
                   <th scope="col">Recorded status</th>
-                  <th scope="col">Contract completed</th>
+                  <th scope="col">Completion deadline</th>
                   <th scope="col">Grace ends</th>
+                  <th scope="col">Payment progress</th>
                   <th scope="col">Follow-up</th>
                   <th scope="col" className="no-print">
                     Action
@@ -165,7 +166,7 @@ export default function PaybackFollowUp() {
               <tbody>
                 {!rows.length ? (
                   <tr>
-                    <td colSpan={7} className="empty-table">
+                    <td colSpan={8} className="empty-table">
                       No records in this category. Check “Completion date missing” for records that
                       cannot yet be assessed.
                     </td>
@@ -184,8 +185,13 @@ export default function PaybackFollowUp() {
                         <small>{item.academic_year || "Year not recorded"}</small>
                       </td>
                       <td>{displayGrantStatus(item.recorded_status)}</td>
-                      <td>{item.contract_completed_on || "Not recorded"}</td>
+                      <td>
+                        {item.completion_deadline_on ||
+                          item.contract_completed_on ||
+                          "Not recorded"}
+                      </td>
                       <td>{item.grace_ends_on || "Not calculated"}</td>
+                      <td>{item.payback_payment_status || "Not recorded"}</td>
                       <td>
                         <span
                           className={

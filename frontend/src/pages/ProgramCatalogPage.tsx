@@ -11,6 +11,7 @@ import {
   type ProgramInput,
 } from "../api/programs";
 import { recordText } from "../utils/recordText";
+import { RecordInput, RecordTextarea } from "../components/RecordTextInput";
 import PageHeading from "../components/PageHeading";
 import TableRegion from "../components/TableRegion";
 import FormError from "../components/FormError";
@@ -197,33 +198,29 @@ export default function ProgramCatalogPage() {
         <fieldset className="entry-grid" disabled={pending}>
           <label className="entry-wide">
             Program name *
-            <input
+            <RecordInput
               required
               value={draft.name}
-              onChange={(event) =>
-                setDraft((current) => ({ ...current, name: recordText(event.target.value) }))
-              }
+              onValueChange={(value) => setDraft((current) => ({ ...current, name: value }))}
             />
           </label>
           <label className="entry-wide">
             Default delivering HEI
-            <input
+            <RecordInput
               value={draft.delivering_hei || ""}
-              onChange={(event) =>
+              onValueChange={(value) =>
                 setDraft((current) => ({
                   ...current,
-                  delivering_hei: recordText(event.target.value),
+                  delivering_hei: value,
                 }))
               }
             />
           </label>
           <label className="entry-wide">
             Description
-            <textarea
+            <RecordTextarea
               value={draft.description || ""}
-              onChange={(event) =>
-                setDraft((current) => ({ ...current, description: recordText(event.target.value) }))
-              }
+              onValueChange={(value) => setDraft((current) => ({ ...current, description: value }))}
             />
           </label>
         </fieldset>

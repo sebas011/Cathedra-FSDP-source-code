@@ -25,6 +25,7 @@ export function ReportPrintResults({ report, view }: { report: FsdpReport; view:
               <th>Scholars</th>
               <th>On Going</th>
               <th>Completed</th>
+              <th>Incomplete</th>
               <th>Payback</th>
               <th>Pending contract</th>
               <th>Requirements follow-up</th>
@@ -37,6 +38,7 @@ export function ReportPrintResults({ report, view }: { report: FsdpReport; view:
                 <td>{item.scholars}</td>
                 <td>{item.ongoing}</td>
                 <td>{item.graduated}</td>
+                <td>{item.incomplete || 0}</td>
                 <td>{item.payback}</td>
                 <td>{item.payback_pending_contract || 0}</td>
                 <td>{item.requirements_follow_up}</td>
@@ -112,8 +114,9 @@ export function PaybackPrintResults({ data, group }: { data: PaybackData; group:
             <th>Scholar</th>
             <th>Program / year</th>
             <th>Recorded status</th>
-            <th>Contract completed</th>
+            <th>Completion deadline</th>
             <th>Grace ends</th>
+            <th>Payment progress</th>
             <th>Follow-up</th>
           </tr>
         </thead>
@@ -129,8 +132,9 @@ export function PaybackPrintResults({ data, group }: { data: PaybackData; group:
                 <small>{item.academic_year || "Year not recorded"}</small>
               </td>
               <td>{displayGrantStatus(item.recorded_status)}</td>
-              <td>{item.contract_completed_on || "Not recorded"}</td>
+              <td>{item.completion_deadline_on || item.contract_completed_on || "Not recorded"}</td>
               <td>{item.grace_ends_on || "Not calculated"}</td>
+              <td>{item.payback_payment_status || "Not recorded"}</td>
               <td>
                 {displayGrantStatus(item.attention)}
                 {item.days_remaining != null && <small>{item.days_remaining} days remaining</small>}

@@ -1,3 +1,15 @@
+# Cathedra FSDP 0.5.23
+
+Google Sheets has a dedicated fifteen-column report: No., Name, Age, Tenure, Department, Rank/position, Previous degree, Program, Delivering HEI, Grant type, Date started, Date ended, Extension, Status, Remarks. Grants remain grouped beneath each scholar. Saved dates take priority over recorded academic periods, education entries remain readable, and profile/grant remarks share one labeled cell. CSV exports and schema16 are unchanged. Adds a detailed Google setup/troubleshooting guide and fixes its in-app link. See [validation](VALIDATION_0.5.23.md), the [plan](plans/2026-10-21-google-reporting.md) and [Google setup](GOOGLE_SHEETS_SETUP.md).
+
+# Cathedra FSDP 0.5.22
+
+Calendar years stay literal and record text editing preserves the cursor. Grants add Incomplete, optional program completion deadlines/allowed years and separate payback payment progress. Annual copies retain recorded completion rules in the same application; later applications clear them. Schema16 adds three nullable facts without rewriting records. Administrators can manually replace a separate Google reporting tab after one-time Desktop OAuth setup; no hosting is needed. See [validation](VALIDATION_0.5.22.md), the [plan](plans/2026-10-17-completion-and-cloud-reporting.md) and [Google setup](GOOGLE_SHEETS_SETUP.md).
+
+# Cathedra FSDP 0.5.21
+
+Adds verified pre-delete recovery and bounded daily snapshots, private error references, server-enforced inactivity protection, UTF-8 CSV signatures and frozen historical migration helpers. Schema15 adds nullable session activity time. See [validation](VALIDATION_0.5.21.md).
+
 # Cathedra FSDP 0.5.20
 
 Office Log entries close after confirmed saving and stack in compact disclosures. Scholar profiles track hard-copy and soft-copy availability independently. Grants support separate repeat applications with annual entries and application-specific completion/payback, plus optional Degree, Certification and Enhancement categories. The directory sorts names consistently before pagination. Schema14 is additive; existing records remain authoritative. See [validation](VALIDATION_0.5.20.md) and [current documentation](current/README.md).

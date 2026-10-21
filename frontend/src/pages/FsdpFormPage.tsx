@@ -14,10 +14,11 @@ import {
 } from "../utils/grantApplications";
 import { DocumentCopyFields } from "../components/DocumentCopies";
 import GrantEntry from "../components/GrantEntry";
+import { RecordInput, RecordTextarea } from "../components/RecordTextInput";
 import NumberInput from "../components/NumberInput";
 import IconAction from "../components/IconAction";
 import { CopyIcon, EditIcon, PlusIcon, TrashIcon } from "../components/Icons";
-import { recordText, uppercaseScholar, uppercaseGrant } from "../utils/recordText";
+import { uppercaseScholar, uppercaseGrant } from "../utils/recordText";
 import { formatAcademicYear } from "../utils/dates";
 import { displayGrantStatus } from "../utils/statuses";
 import { canonicalTerm, validateGrant } from "../utils/grantValidation";
@@ -46,6 +47,9 @@ const newGrant = (): ParticipationInput => ({
   start_date: null,
   end_date: null,
   contract_completed_on: null,
+  allowed_duration_years: null,
+  completion_due_on: null,
+  payback_payment_status: null,
   graduation_date: null,
   case_status: "Open",
   start_term: "",
@@ -183,6 +187,9 @@ export default function FsdpFormPage() {
               start_date,
               end_date,
               contract_completed_on,
+              allowed_duration_years,
+              completion_due_on,
+              payback_payment_status,
               graduation_date,
               case_status,
               start_term,
@@ -204,6 +211,9 @@ export default function FsdpFormPage() {
               start_date,
               end_date,
               contract_completed_on: contract_completed_on ?? null,
+              allowed_duration_years: allowed_duration_years ?? null,
+              completion_due_on: completion_due_on ?? null,
+              payback_payment_status: payback_payment_status ?? null,
               graduation_date: graduation_date ?? null,
               case_status: case_status || "Open",
               start_term: start_term || "",
@@ -309,8 +319,8 @@ export default function FsdpFormPage() {
       ...(draft.id ? draft : uppercaseGrant(draft)),
       start_term: canonicalTerm(draft.start_term),
       end_term: canonicalTerm(draft.end_term),
-      start_academic_year: formatAcademicYear(draft.start_academic_year, true).trim(),
-      end_academic_year: formatAcademicYear(draft.end_academic_year, true).trim(),
+      start_academic_year: formatAcademicYear(draft.start_academic_year).trim(),
+      end_academic_year: formatAcademicYear(draft.end_academic_year).trim(),
     };
     setForm((current) => ({
       ...current,
@@ -489,11 +499,11 @@ export default function FsdpFormPage() {
               <div className="entry-grid">
                 <label className="entry-wide">
                   Name *
-                  <input
+                  <RecordInput
                     required
                     autoComplete="off"
                     value={form.name}
-                    onChange={(event) => setForm({ ...form, name: recordText(event.target.value) })}
+                    onValueChange={(name) => setForm({ ...form, name })}
                   />
                 </label>
                 <label>
@@ -519,9 +529,9 @@ export default function FsdpFormPage() {
                 </label>
                 <label className="entry-wide">
                   Rank / position
-                  <input
+                  <RecordInput
                     value={form.rank}
-                    onChange={(event) => setForm({ ...form, rank: recordText(event.target.value) })}
+                    onValueChange={(rank) => setForm({ ...form, rank })}
                   />
                 </label>
                 <label>
@@ -553,12 +563,10 @@ export default function FsdpFormPage() {
                 </label>
                 <label className="entry-wide">
                   Profile remarks
-                  <textarea
+                  <RecordTextarea
                     rows={5}
                     value={form.profile_remarks || ""}
-                    onChange={(event) =>
-                      setForm({ ...form, profile_remarks: recordText(event.target.value) })
-                    }
+                    onValueChange={(profile_remarks) => setForm({ ...form, profile_remarks })}
                   />
                 </label>
               </div>
@@ -808,13 +816,11 @@ export default function FsdpFormPage() {
                     <div className="entry-grid">
                       <label>
                         Requirement name
-                        <input
+                        <RecordInput
                           aria-label={`Requirement ${index + 1} name`}
                           value={item.requirement_name}
-                          onChange={(event) =>
-                            updateRequirement(index, {
-                              requirement_name: recordText(event.target.value),
-                            })
+                          onValueChange={(requirement_name) =>
+                            updateRequirement(index, { requirement_name })
                           }
                         />
                       </label>
@@ -831,13 +837,11 @@ export default function FsdpFormPage() {
                       </label>
                       <label className="entry-wide">
                         Remarks
-                        <textarea
+                        <RecordTextarea
                           rows={2}
                           aria-label={`Requirement ${index + 1} remarks`}
                           value={item.remarks}
-                          onChange={(event) =>
-                            updateRequirement(index, { remarks: recordText(event.target.value) })
-                          }
+                          onValueChange={(remarks) => updateRequirement(index, { remarks })}
                         />
                       </label>
                     </div>

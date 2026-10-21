@@ -179,7 +179,7 @@ test("custom new term is accepted and saved with the scholar", async () => {
     target: { value: "Example" },
   });
   fireEvent.change(screen.getByLabelText("Start Term"), { target: { value: "3rd" } });
-  fireEvent.change(screen.getByRole("textbox", { name: "Start Academic Year" }), {
+  fireEvent.change(screen.getByRole("textbox", { name: "Start year / academic year" }), {
     target: { value: "2026-2027" },
   });
   fireEvent.click(screen.getByRole("button", { name: "Save Grant" }));

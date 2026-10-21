@@ -1,6 +1,6 @@
-# Current export schemas — 0.5.21
+# Current export schemas — 0.5.23
 
-All five CSV downloads include a UTF-8 signature so Excel can recognize accented names. Headers, grouped scholar/grant rows and spreadsheet formula protection remain unchanged by this encoding update.
+All five CSV downloads include a UTF-8 signature so Excel can recognize accented names. Grouped scholar/grant rows and spreadsheet formula protection are retained. Version 0.5.22 appends five optional completion/payment columns to directory, report detail and payback exports, and adds Incomplete to department totals.
 
 Current rules take precedence over the historical notes retained below. [Machine-readable header contracts](current/EXPORT_CONTRACTS.json) are checked against actual API output in the regression suite. CSV access requires sign-in; staff and admin can export. Backups remain privileged.
 
@@ -10,7 +10,7 @@ Current rules take precedence over the historical notes retained below. [Machine
 - Dashboard report: title row, scholar/follow-up metadata row, blank separator, department totals, blank separator, actions, blank separator, scholar/grant detail. Section lengths vary. Locate headers rather than assuming a fixed detail-row offset. Department outcomes count scholars by latest status; detail counts annual grants. In the detail section, the first row contains eight scholar/profile fields and the first matching grant; continuation rows leave those eight cells blank and contain one matching grant each. Other sections retain their existing row format.
 - Office Log: header first; one row per operational entry, ordered by event date and ID descending. Search/type/scholar filters apply to the complete export rather than the displayed page. Snapshot author/scholar names are distinct from editable document/note text.
 
-Affiliation is one of eight colleges, Staff or Unknown. Personnel is Faculty for a college, Staff for another known affiliation, or Unknown when missing. Summer is retained. Completed replaces the former Graduated outcome; Transferred and Payback pending contract remain supported recorded outcomes, while calculated Payback review is separate. Open/Closed case state is independent. Dates/years remain optional. New editable business text is uppercase; unchanged historical values and actor credentials can retain their recorded case.
+Affiliation is one of eight colleges, Staff or Unknown. Personnel is Faculty for a college, Staff for another known affiliation, or Unknown when missing. Summer is retained. Completed replaces the former Graduated outcome; Incomplete, Transferred and Payback pending contract remain supported recorded outcomes, while calculated Payback review is separate. Open/Closed case state is independent. Dates/years remain optional. New editable business text is uppercase; unchanged historical values and actor credentials can retain their recorded case.
 
 ## Reading grouped scholar rows
 
@@ -37,7 +37,7 @@ Endpoint: `/api/v1/maintenance/exports/fsdp.csv`
 Records:
 
 ```csv
-Scholar ID,Name,Age,Education Background,Missing Requirements,Department,Rank / position,Personnel Type,Current Scholar Status,Tenure (years),Created At,Updated At,Profile Remarks,Program,Delivering HEI,Start Term,Start Academic Year,End Term,End Academic Year,Contract Completion Date,Grant Type,Grant Other,Recorded Grant Status,Extension,Remarks,Graduation Date,Case Status
+Scholar ID,Name,Age,Education Background,Missing Requirements,Department,Rank / position,Personnel Type,Current Scholar Status,Tenure (years),Created At,Updated At,Profile Remarks,Program,Delivering HEI,Start Term,Start Academic Year,End Term,End Academic Year,Contract Completion Date,Grant Type,Grant Other,Recorded Grant Status,Extension,Remarks,Graduation Date,Case Status,Program Start Date,Allowed Duration (years),Allowed Completion Deadline,Effective Completion Deadline,Payback Payment Status
 ```
 
 ### Education
@@ -57,7 +57,7 @@ Endpoint: `/api/v1/fsdp/payback.csv`
 Records:
 
 ```csv
-Scholar,Scholar ID,Department,Program,Grant ID,Academic year,Recorded status,Contract completed,Grace ends,Follow-up
+Scholar,Scholar ID,Department,Program,Grant ID,Academic year,Recorded status,Contract completed,Grace ends,Follow-up,Program Start Date,Allowed Duration (years),Allowed Completion Deadline,Effective Completion Deadline,Payback Payment Status
 ```
 
 ### Report
@@ -67,7 +67,7 @@ Endpoint: `/api/v1/fsdp/report.csv`
 Department Totals:
 
 ```csv
-Department,Scholars,On-going,Completed,Payback,Withdrawn,Did Not Avail,Transferred,Payback pending contract,Requirements follow-up (scholars)
+Department,Scholars,On-going,Completed,Payback,Withdrawn,Did Not Avail,Transferred,Payback pending contract,Requirements follow-up (scholars),Incomplete
 ```
 
 Actions:
@@ -79,7 +79,7 @@ Needs action,Scholar,Department,Detail,Follow-up
 Records:
 
 ```csv
-Name,Rank / position,Department,Age,Tenure (years),Education background,Current scholar status,Profile Remarks,Program applied,Delivering HEI,Type of grant,Start Term,Start Academic Year,End Term,End Academic Year,Contract Completion Date,Extension,Remarks,Recorded grant status,Graduation Date,Case Status
+Name,Rank / position,Department,Age,Tenure (years),Education background,Current scholar status,Profile Remarks,Program applied,Delivering HEI,Type of grant,Start Term,Start Academic Year,End Term,End Academic Year,Contract Completion Date,Extension,Remarks,Recorded grant status,Graduation Date,Case Status,Program Start Date,Allowed Duration (years),Allowed Completion Deadline,Effective Completion Deadline,Payback Payment Status
 ```
 
 ### Office Log
@@ -114,3 +114,7 @@ Profile Remarks is an optional whole-scholar text field, separate from grant Rem
 College / Staff uses CIT, CAS, COED, COE, CCJ, COF, CBMA, CCS and Staff. Other affiliations become Staff and personnel type Staff; original affiliation labels are retained in Profile Remarks. College personnel types remain as recorded. The first startup makes a protected recovery snapshot before migration 10, preserves scholar/grant identities and grant remarks, and updates only affected profile revisions. Keep Office data when installing an update.
 
 Dashboard explanations are available in the searchable Office Guide. The overview compares colleges and Staff with vertical bars, shows scholar status proportions in a doughnut, and shows grant-type proportions in a pie. Counts and percentages remain visible beside the composition charts. Recent scholars and follow-up have separate sections; chart scrolling stays within the chart region.
+
+## Google reporting tab (0.5.23)
+
+The manual Google update has a separate fifteen-column report; CSV contracts above remain unchanged. Its exact columns and grouping rules are recorded in [GOOGLE_REPORT_CONTRACT.json](current/GOOGLE_REPORT_CONTRACT.json). See [Google setup](GOOGLE_SHEETS_SETUP.md) for connection steps and how the spreadsheet is updated.

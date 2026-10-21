@@ -27,7 +27,10 @@ def academic_year(value: str | None) -> str | None:
 
 
 def outcome(value: str) -> str:
-    return "Completed" if value.strip().casefold() in {"graduated", "completed"} else value.strip()
+    key = value.strip().casefold()
+    if key in {"graduated", "completed"}:
+        return "Completed"
+    return "Incomplete" if key == "incomplete" else value.strip()
 
 
 def is_completed(value: str) -> bool:

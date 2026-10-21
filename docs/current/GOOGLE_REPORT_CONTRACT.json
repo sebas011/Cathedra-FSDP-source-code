@@ -1,0 +1,30 @@
+{
+  "release": "0.5.23",
+  "method": "POST",
+  "path": "/api/v1/google-sheets/sync",
+  "worksheet": "CATHEDRA REPORT",
+  "columns": [
+    "No.",
+    "Name",
+    "Age",
+    "Tenure",
+    "Department",
+    "Rank/position",
+    "Previous degree",
+    "Program",
+    "Delivering HEI",
+    "Grant type",
+    "Date started",
+    "Date ended",
+    "Extension",
+    "Status",
+    "Remarks"
+  ],
+  "rows": "One row per grant; scholar number and profile facts appear on the first row only. A scholar without grants has one profile row.",
+  "ordering": "Scholar name using the existing Unicode case-insensitive sort key, then scholar ID; grants use the existing chronological grant ordering.",
+  "dates": "Recorded start/end dates where present, otherwise recorded term and year; blank if neither is recorded. No inferred dates or completion deadlines.",
+  "education": "All recorded education entries in the Previous degree cell; retain the previous-degree fallback when no entries exist.",
+  "remarks": "Profile and grant remarks share the Remarks cell with explicit labels where needed. Profile remarks appear only on the first row.",
+  "write_behavior": "Literal values replace the dedicated reporting tab's existing values, including obsolete extra columns. Other tabs are preserved.",
+  "csv_exports": "Unchanged; their fuller contracts remain in EXPORT_CONTRACTS.json."
+}

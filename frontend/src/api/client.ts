@@ -71,7 +71,7 @@ export async function requestResponse<T>(
     : controller.signal;
   const timer = window.setTimeout(
     () => controller.abort(),
-    path === "/maintenance/restore" ? 180000 : 30000,
+    path === "/maintenance/restore" ? 180000 : path === "/google-sheets/sync" ? 120000 : 30000,
   );
   let fetched = false;
   let abort!: () => void;

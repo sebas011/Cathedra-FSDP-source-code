@@ -1,13 +1,13 @@
 # Backend schema and data dictionary
 
 **Product:** Cathedra FSDP  
-**Documented:** 16 October 2026, Asia/Manila<br>
-**Baseline:** release 0.5.21; database schema 15<br>
+**Documented:** 22 October 2026, Asia/Manila<br>
+**Baseline:** release 0.5.23; database schema 16<br>
 **Status:** implementation-derived documentation; see [baseline and evidence](README.md).
 
 ## Database baseline
 
-Persistence is SQLite through SQLAlchemy 2. The dictionary describes models and migrations through version 15, not a production dump. The current models define 15 application/infrastructure tables and 117 columns, one more than schema 14. No live database is inspected for documentation. SQLite may additionally maintain `sqlite_sequence` in compatible historical files; that internal table is permitted by the product guard.
+Persistence is SQLite through SQLAlchemy 2. The dictionary describes models and migrations through version 16, not a production dump. The current models define 15 application/infrastructure tables and 120 columns, three more than schema 15. No live database is inspected for documentation. SQLite may additionally maintain `sqlite_sequence` in compatible historical files; that internal table is permitted by the product guard.
 
 The default backend path is the project's `data/cathedra.db` unless `CATHEDRA_DATA_DIR` is set. The packaged launcher selects the data directory adjacent to its executable or the explicit `--data-dir`. Software release version and applied schema version are separate facts.
 
@@ -94,6 +94,9 @@ Individual annual grant/participation. Several rows may share scholar/program. S
 | `start_date` | `DATE` | Yes | 0 | — |
 | `end_date` | `DATE` | Yes | 0 | — |
 | `contract_completed_on` | `DATE` | Yes | 0 | — |
+| `allowed_duration_years` | `INTEGER` | Yes | 0 | — |
+| `completion_due_on` | `DATE` | Yes | 0 | — |
+| `payback_payment_status` | `VARCHAR(30)` | Yes | 0 | — |
 | `graduation_date` | `DATE` | Yes | 0 | — |
 | `case_status` | `VARCHAR(20)` | No | 0 | 'Open' |
 | `start_term` | `VARCHAR(50)` | Yes | 0 | — |
@@ -376,3 +379,19 @@ No workload/projection/Needs Verification tables are part of the current allowli
 Files outside the database, including protected snapshot pins, restore/update receipts, runtime archives, diagnostics and the maintenance JSONL journal, are not missing relational tables. Keep them with their documented recovery procedures.
 
 Sources: [models](../../backend/app/models.py), [database connection](../../backend/app/db.py), [API schemas](../../backend/app/schemas.py), [migrations](../../backend/app/migrations.py), [product guard](../../backend/app/product.py), [upgrade wrapper](../../backend/app/upgrade.py), [identity allocation](../../backend/app/scholar_identity.py), [FSDP mutations](../../backend/app/api/fsdp.py).
+
+## Completion deadlines and Google reporting (0.5.22)
+
+Migration 16 only adds the three nullable grant facts above. It does not rewrite existing dates, outcomes, records or payment progress. An explicit `completion_due_on` takes priority over the actual `start_date` plus optional whole `allowed_duration_years`; `contract_completed_on` remains a compatibility fallback. Exact optional deadlines support programs shorter than one year. Three calendar years of grace follow the effective deadline, inclusive of its anniversary; review begins the next day. Read-only `completion_deadline_on` and `completion_deadline_source` explain the calculation. Payment progress is Unpaid, Partially paid, Fully paid, or null (Not recorded), independently of outcome, case status and review eligibility.
+
+Google reporting introduces no database tables. Desktop OAuth client details and the refresh token are kept in `data/google-connection.bin`, encrypted for the current Windows user with DPAPI. They are excluded from database snapshots and releases. Only explicit administrator actions connect or replace the dedicated CATHEDRA REPORT tab; other spreadsheet tabs are preserved.
+
+## Completion and reporting update (0.5.22)
+
+Calendar years stay literal: 2021 remains 2021; 2021-2022 remains an explicit academic-year range. Uppercase record controls preserve cursor/selection and multiline composition. Incomplete is an additional known grant outcome. The optional program start date and whole allowed duration produce a completion deadline; an explicit optional deadline takes priority, including for shorter programs. Previous completion dates remain a fallback. Grace runs three calendar years from the effective deadline, including its final day. Repayment progress (Not recorded, Unpaid, Partially paid, Fully paid) is separate from outcome and case status.
+
+The administrator can configure and connect Google reporting from Backup & Export, then explicitly confirm a one-way replacement of the CATHEDRA REPORT tab. Other tabs are preserved. Connection credentials are Windows-user encrypted outside SQLite. Internet and OAuth setup are needed for cloud delivery; offline records work independently. See [setup](../GOOGLE_SHEETS_SETUP.md) and [validation](../VALIDATION_0.5.22.md).
+
+## Google report update (0.5.23)
+
+Google reporting uses a dedicated [fifteen-column contract](GOOGLE_REPORT_CONTRACT.json) rather than the full CSV table. Each scholar is numbered once and their grants remain on consecutive rows. The report retains recorded education, tenure in years, exact dates or recorded academic periods, each grant's outcome and clearly labeled profile/grant remarks. Existing CSV exports and schema16 are unchanged. Setup, approved test accounts, spreadsheet editing access and per-PC sign-in are described in the [detailed guide](../GOOGLE_SHEETS_SETUP.md). See [0.5.23 validation](../VALIDATION_0.5.23.md) for observed delivery status.
