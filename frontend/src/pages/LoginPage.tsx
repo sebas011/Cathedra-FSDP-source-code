@@ -69,7 +69,7 @@ export default function LoginPage() {
           </div>
           <div>
             <h1>{productName}</h1>
-            <p>Faculty & staff development records</p>
+            <p>Scholar office</p>
           </div>
         </div>
         <div className="login-copy">
@@ -144,18 +144,20 @@ export default function LoginPage() {
           <div className="brand-mark large">
             <BrandMark />
           </div>
+          <span className="eyebrow">THE SCHOLAR OFFICE</span>
           <h2>
-            Scholar records,
+            Every scholar.
             <br />
-            clearly organized.
+            Every step.
           </h2>
           <p>
-            Manage scholar profiles, grants and follow-up in one local workspace. Keep exported
-            office records private.
+            A clear view of scholar profiles, academic backgrounds and multi-year grants. Keep the
+            work moving, from the first application to the final follow-up.
           </p>
           <div className="visual-modules">
-            <span>{"Scholars & grants"}</span>
-            <span>Reports & backups</span>
+            <span>01 / Scholar records</span>
+            <span>02 / Program history</span>
+            <span>03 / Office insights</span>
           </div>
         </div>
       </div>

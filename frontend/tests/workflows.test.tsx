@@ -1,3 +1,4 @@
+import { scholarStep, saveScholarForm } from "./scholarSteps";
 import { beforeEach, expect, test, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { createMemoryRouter, RouterProvider } from "react-router-dom";
@@ -40,7 +41,7 @@ test("edited scholars return to their own profile after successful save", async 
   render(<RouterProvider router={router} />);
   const name = await screen.findByRole("textbox", { name: "Name *" });
   fireEvent.change(name, { target: { value: "Updated Demonstration Scholar" } });
-  fireEvent.click(screen.getByRole("button", { name: "Save Scholar" }));
+  saveScholarForm();
   await screen.findByRole("heading", { name: "Saved scholar profile" });
   expect(router.state.location.pathname).toBe("/fsdp/1");
   expect(api.updateFsdpRecord).toHaveBeenCalledWith(
@@ -63,6 +64,7 @@ test("failed scholar load cannot submit a blank edit", async () => {
 
 test("grant cancellation preserves input until discard is confirmed", async () => {
   openPage(<FsdpFormPage />, "/fsdp/new");
+  scholarStep(3);
   fireEvent.click(screen.getByRole("button", { name: "Add Grant" }));
   const program = screen.getByRole("textbox", { name: "Program Applied *" });
   fireEvent.change(program, { target: { value: "Demonstration program" } });
@@ -87,6 +89,7 @@ test("invalid scholar address never fetches or exposes an editable form", async 
 
 test("requirement removal is confirmed and preserves the remaining entry", async () => {
   openPage(<FsdpFormPage />, "/fsdp/new");
+  scholarStep(4);
   fireEvent.click(screen.getByRole("button", { name: "Add Requirement" }));
   fireEvent.click(screen.getByRole("button", { name: "Add Requirement" }));
   fireEvent.change(screen.getByRole("textbox", { name: "Requirement 2 name" }), {
@@ -113,7 +116,8 @@ test("saving an unchanged record still protects pending work from navigation", a
     { initialEntries: ["/fsdp/1/edit"] },
   );
   render(<RouterProvider router={router} />);
-  fireEvent.click(await screen.findByRole("button", { name: "Save Scholar" }));
+  await screen.findByRole("textbox", { name: "Name *" });
+  saveScholarForm();
   fireEvent.click(screen.getByRole("link", { name: "Back" }));
   await screen.findByRole("button", { name: "Stay here" });
   expect(
@@ -122,12 +126,11 @@ test("saving an unchanged record still protects pending work from navigation", a
   expect(router.state.location.pathname).toBe("/fsdp/1/edit");
 });
 
-test("section navigation scrolls without adding unmanaged browser history", () => {
+test("step navigation focuses the current panel without adding unmanaged browser history", () => {
   const router = openPage(<FsdpFormPage />, "/fsdp/new");
-  const section = document.getElementById("scholar-grants")!;
-  section.scrollIntoView = vi.fn();
-  fireEvent.click(screen.getByRole("button", { name: "02 FSDP grants 0" }));
-  expect(section.scrollIntoView).toHaveBeenCalledWith({ block: "start" });
+  scholarStep(3);
+  expect(document.activeElement).toBe(document.getElementById("scholar-step-3"));
+  expect(screen.getByRole("heading", { name: "FSDP Grants" })).toBeTruthy();
   expect(router.state.location.hash).toBe("");
 });
 
@@ -140,7 +143,7 @@ test("identical-name warnings require an explicit separate-person decision", asy
   fireEvent.change(screen.getByRole("textbox", { name: "Name *" }), {
     target: { value: "Maria Santos" },
   });
-  fireEvent.click(screen.getByRole("button", { name: "Save Scholar" }));
+  saveScholarForm();
   await screen.findByRole("dialog", { name: "Check similar scholar names" });
   expect(api.createFsdpRecord).not.toHaveBeenCalled();
   fireEvent.click(screen.getByRole("button", { name: "Return to form" }));
@@ -149,10 +152,11 @@ test("identical-name warnings require an explicit separate-person decision", asy
       false,
     ),
   );
+  scholarStep(1);
   expect((screen.getByRole("textbox", { name: "Name *" }) as HTMLInputElement).value).toBe(
     "MARIA SANTOS",
   );
-  fireEvent.click(screen.getByRole("button", { name: "Save Scholar" }));
+  saveScholarForm();
   await screen.findByRole("dialog", { name: "Check similar scholar names" });
   fireEvent.click(screen.getByRole("button", { name: "Keep separate and save" }));
   await waitFor(() => expect(api.createFsdpRecord).toHaveBeenCalledTimes(1));
@@ -164,9 +168,10 @@ test("failed name check retains the scholar draft and performs no write", async 
   fireEvent.change(screen.getByRole("textbox", { name: "Name *" }), {
     target: { value: "Retain this draft" },
   });
-  fireEvent.click(screen.getByRole("button", { name: "Save Scholar" }));
+  saveScholarForm();
   await screen.findByText("Name check unavailable");
   expect(api.createFsdpRecord).not.toHaveBeenCalled();
+  scholarStep(1);
   expect((screen.getByRole("textbox", { name: "Name *" }) as HTMLInputElement).value).toBe(
     "RETAIN THIS DRAFT",
   );
@@ -174,6 +179,7 @@ test("failed name check retains the scholar draft and performs no write", async 
 
 test("custom new term is accepted and saved with the scholar", async () => {
   openPage(<FsdpFormPage />, "/fsdp/new");
+  scholarStep(3);
   fireEvent.click(screen.getByRole("button", { name: "Add Grant" }));
   fireEvent.change(screen.getByRole("textbox", { name: "Program Applied *" }), {
     target: { value: "Example" },
@@ -184,10 +190,11 @@ test("custom new term is accepted and saved with the scholar", async () => {
   });
   fireEvent.click(screen.getByRole("button", { name: "Save Grant" }));
   await screen.findByRole("button", { name: "Add Grant" });
+  scholarStep(1);
   fireEvent.change(screen.getByRole("textbox", { name: "Name *" }), {
     target: { value: "Custom term scholar" },
   });
-  fireEvent.click(screen.getByRole("button", { name: "Save Scholar" }));
+  saveScholarForm();
   await waitFor(() => expect(api.createFsdpRecord).toHaveBeenCalled());
   expect(api.createFsdpRecord.mock.calls[0][0].participations[0].start_term).toBe("3rd");
 });
@@ -220,6 +227,8 @@ test("grant editor preserves and updates custom imported terms", async () => {
     initialEntries: ["/fsdp/1/edit"],
   });
   render(<RouterProvider router={router} />);
+  await screen.findByRole("textbox", { name: "Name *" });
+  scholarStep(3);
   fireEvent.click(await screen.findByRole("button", { name: /^Edit grant / }));
   fireEvent.click(screen.getByRole("button", { name: "Update Grant" }));
   await screen.findByRole("button", { name: "Add Grant" });
@@ -227,7 +236,7 @@ test("grant editor preserves and updates custom imported terms", async () => {
   fireEvent.change(screen.getByLabelText("Start Term"), { target: { value: "2nd" } });
   fireEvent.click(screen.getByRole("button", { name: "Update Grant" }));
   await screen.findByRole("button", { name: "Add Grant" });
-  fireEvent.click(screen.getByRole("button", { name: "Save Scholar" }));
+  saveScholarForm();
   await waitFor(() => expect(api.updateFsdpRecord).toHaveBeenCalled());
   expect(api.updateFsdpRecord.mock.calls[0][1].participations[0].start_term).toBe("2nd");
 });
@@ -237,8 +246,9 @@ test("long names and unnamed optional requirements save without hidden lookup co
   const name = "N".repeat(250);
   fireEvent.change(screen.getByRole("textbox", { name: "Name *" }), { target: { value: name } });
   fireEvent.change(screen.getByLabelText("Age"), { target: { value: "17" } });
+  scholarStep(4);
   fireEvent.click(screen.getByRole("button", { name: "Add Requirement" }));
-  fireEvent.click(screen.getByRole("button", { name: "Save Scholar" }));
+  saveScholarForm();
   await waitFor(() => expect(api.createFsdpRecord).toHaveBeenCalled());
   expect(names.getScholarNameMatches).not.toHaveBeenCalled();
   expect(api.createFsdpRecord.mock.calls[0][0]).toMatchObject({
@@ -276,13 +286,15 @@ test("editing displays recorded custom grant types and statuses without changing
     initialEntries: ["/fsdp/1/edit"],
   });
   render(<RouterProvider router={router} />);
+  await screen.findByRole("textbox", { name: "Name *" });
+  scholarStep(3);
   fireEvent.click(await screen.findByRole("button", { name: /^Edit grant / }));
   expect((screen.getByLabelText("Type of Grant") as HTMLSelectElement).value).toBe(
     "Historical grant",
   );
   expect((screen.getByLabelText("Status") as HTMLSelectElement).value).toBe("Historical status");
   fireEvent.click(screen.getByRole("button", { name: "Update Grant" }));
-  fireEvent.click(screen.getByRole("button", { name: "Save Scholar" }));
+  saveScholarForm();
   await waitFor(() => expect(api.updateFsdpRecord).toHaveBeenCalled());
   expect(api.updateFsdpRecord.mock.calls[0][1].participations[0]).toMatchObject({
     grant_type: "Historical grant",
@@ -298,10 +310,10 @@ test("uncertain creation retry uses the original request and freezes edits", asy
   openPage(<FsdpFormPage />, "/fsdp/new");
   const name = screen.getByRole("textbox", { name: "Name *" });
   fireEvent.change(name, { target: { value: "Original draft" } });
-  fireEvent.click(screen.getByRole("button", { name: "Save Scholar" }));
+  saveScholarForm();
   await screen.findByText(/This save has not been confirmed/);
   expect((name.closest("fieldset") as HTMLFieldSetElement).disabled).toBe(true);
-  fireEvent.click(screen.getByRole("button", { name: "Save Scholar" }));
+  saveScholarForm();
   await waitFor(() => expect(api.createFsdpRecord).toHaveBeenCalledTimes(2));
   expect(api.createFsdpRecord.mock.calls[1]).toEqual(api.createFsdpRecord.mock.calls[0]);
   expect(api.createFsdpRecord.mock.calls[0][1]).toMatch(/^[a-f0-9-]{36}$/);

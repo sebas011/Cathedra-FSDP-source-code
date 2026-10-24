@@ -1,9 +1,12 @@
 import { Link, useParams } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
 import { useRecord } from "../hooks/useRecord";
 import { localToday } from "../utils/dates";
 import { getFsdpRecord } from "../api";
 import { getCurrentUser } from "../api/client";
 import "../profile.css";
+import "../scholar-office.css";
+import { applicationIdentity } from "../utils/grantApplications";
 import { copyAvailability } from "../components/DocumentCopies";
 import ProgramGrantHistory from "../components/ProgramGrantHistory";
 import OfficeLogPanel from "../components/OfficeLogPanel";
@@ -16,7 +19,30 @@ const value = (item: string | null | undefined) => item || "Not recorded";
 
 export default function FsdpDetailPage() {
   const { id } = useParams();
+  const [profileTab, setProfileTab] = useState("overview");
   const { record: scholar, error, retry } = useRecord(id, getFsdpRecord, "Unable to load scholar.");
+  const educationHistory = useRef<HTMLUListElement>(null);
+  useEffect(() => {
+    let saved: Array<[HTMLDetailsElement, boolean]> = [];
+    const expand = () => {
+      if (saved.length) return;
+      saved = Array.from(educationHistory.current?.querySelectorAll("details") || []).map(
+        (entry) => [entry, entry.open],
+      );
+      for (const [entry] of saved) entry.open = true;
+    };
+    const restore = () => {
+      for (const [entry, open] of saved) entry.open = open;
+      saved = [];
+    };
+    window.addEventListener("beforeprint", expand);
+    window.addEventListener("afterprint", restore);
+    return () => {
+      restore();
+      window.removeEventListener("beforeprint", expand);
+      window.removeEventListener("afterprint", restore);
+    };
+  }, [id]);
   if (error)
     return (
       <div className="notice error" role="alert">
@@ -40,12 +66,22 @@ export default function FsdpDetailPage() {
     .map((part) => part[0])
     .join("");
   const ongoing = scholar.participations.filter((item) => item.status === "On Going").length;
+  const applications = new Set(scholar.participations.map(applicationIdentity)).size;
+  const tabs = [
+    { value: "overview", label: "Overview" },
+    { value: "education", label: "Education" },
+    { value: "grants", label: "Programs & grants" },
+  ];
   const manual =
     scholar.manual_requirements_follow_up ??
     (scholar.missing_requirements && complete === requirements.length);
 
   return (
     <div className="stack-md fsdp-person-profile">
+      <div className="office-profile-return no-print">
+        <Link to="/fsdp">← Scholar directory</Link>
+        <span>Scholar profile</span>
+      </div>
       <section className="profile-identity" aria-label="Scholar identity">
         <div className="profile-avatar" aria-hidden="true">
           {initials}
@@ -65,20 +101,75 @@ export default function FsdpDetailPage() {
           </div>
         </div>
         <Link
-          className="btn primary icon-action no-print"
+          className="btn primary no-print"
           aria-label="Edit profile"
           title="Edit profile"
           to={`/fsdp/${scholar.id}/edit`}
         >
           <EditIcon />
+          Edit profile
         </Link>
       </section>
-      <nav className="profile-section-nav no-print" aria-label="Scholar sections">
-        <a href="#scholar-remarks">Profile remarks</a>
-        <a href="#scholar-education">Education background</a>
-        <a href="#scholar-grants">Grant history</a>
-        <a href="#scholar-requirements">Requirements</a>
-        <a href="#scholar-office-log">Office log</a>
+      <dl className="office-profile-metrics">
+        <div>
+          <dt>Age</dt>
+          <dd>{scholar.age ?? "—"}</dd>
+        </div>
+        <div>
+          <dt>Tenure in years</dt>
+          <dd>
+            {scholar.tenure_years == null
+              ? "—"
+              : scholar.tenure_years.toLocaleString(undefined, { maximumFractionDigits: 6 })}
+          </dd>
+        </div>
+        <div>
+          <dt>Applications</dt>
+          <dd>{applications}</dd>
+        </div>
+        <div>
+          <dt>Annual grants</dt>
+          <dd>{scholar.participations.length}</dd>
+        </div>
+      </dl>
+      <nav
+        className="profile-section-nav office-profile-tabs no-print"
+        role="tablist"
+        aria-label="Scholar sections"
+      >
+        {tabs.map((tab, index) => (
+          <button
+            type="button"
+            key={tab.value}
+            id={`profile-tab-${tab.value}`}
+            role="tab"
+            aria-controls={`profile-panel-${tab.value}`}
+            aria-selected={profileTab === tab.value}
+            tabIndex={profileTab === tab.value ? 0 : -1}
+            onClick={() => setProfileTab(tab.value)}
+            onKeyDown={(event) => {
+              const next =
+                event.key === "ArrowRight"
+                  ? (index + 1) % tabs.length
+                  : event.key === "ArrowLeft"
+                    ? (index + tabs.length - 1) % tabs.length
+                    : event.key === "Home"
+                      ? 0
+                      : event.key === "End"
+                        ? tabs.length - 1
+                        : null;
+              if (next !== null) {
+                event.preventDefault();
+                setProfileTab(tabs[next].value);
+                document.getElementById(`profile-tab-${tabs[next].value}`)?.focus();
+              }
+            }}
+          >
+            {tab.label}
+            {tab.value === "education" && <span>{scholar.education?.length || 0}</span>}
+            {tab.value === "grants" && <span>{applications}</span>}
+          </button>
+        ))}
       </nav>
       <div className="profile-layout">
         <aside className="profile-sidebar">
@@ -162,86 +253,154 @@ export default function FsdpDetailPage() {
           </section>
         </aside>
         <div className="profile-main">
-          <section className="profile-panel" id="scholar-education">
-            <header className="profile-section-title">
-              <h2>Education background</h2>
-              <span className="profile-record-count">
-                {(scholar.education || []).length} entries
-              </span>
-            </header>
-            {!scholar.education?.length ? (
-              <p>No education entries recorded.</p>
-            ) : (
-              <ul className="profile-requirements">
-                {scholar.education.map((item) => (
-                  <li key={item.id || item.client_key}>
-                    <div>
-                      <strong className="record-value">
-                        {item.degree || "Degree not recorded"}
-                      </strong>
-                      <span className="record-value">
-                        {[item.level, item.institution, item.graduation_year]
-                          .filter(Boolean)
-                          .join(" · ")}
-                      </span>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
-          <section className="profile-panel" id="scholar-grants">
-            {!scholar.participations.length ? (
-              <div className="profile-empty">
-                <h2>Grant history</h2>
-                <FsdpIcon />
-                <h3>No grants yet</h3>
-                <Link className="btn secondary no-print" to={`/fsdp/${scholar.id}/edit`}>
-                  Add the first grant
-                </Link>
-              </div>
-            ) : (
-              <ProgramGrantHistory grants={scholar.participations} />
-            )}
-          </section>
-          <section className="profile-panel" id="scholar-requirements">
-            <header className="profile-section-title">
-              <div>
-                <h2>Requirements</h2>
-              </div>
-              <span className="profile-record-count">{requirements.length} items</span>
-            </header>
-            {manual && (
-              <p className="profile-manual-note">
-                Additional missing requirements are marked for follow-up.
-              </p>
-            )}
-            {!requirements.length ? (
-              <p className="profile-empty-copy">No requirement items recorded.</p>
-            ) : (
-              <ul className="profile-requirements">
-                {requirements.map((item) => {
-                  const overdue = !item.is_complete && !!item.due_date && item.due_date < today;
-                  return (
-                    <li key={item.id}>
-                      <div>
-                        <strong className="record-value">{item.requirement_name}</strong>
-                        <span>{item.due_date ? `Due ${item.due_date}` : "No due date"}</span>
-                        {item.remarks && <p className="record-value">{item.remarks}</p>}
-                      </div>
-                      <span
-                        className={`profile-outcome ${overdue ? "overdue" : item.is_complete ? "ongoing" : ""}`}
-                      >
-                        {item.is_complete ? "Complete" : overdue ? "Overdue" : "Pending"}
-                      </span>
+          <div
+            className="office-profile-tabpanel"
+            id="profile-panel-education"
+            role="tabpanel"
+            aria-labelledby="profile-tab-education"
+            tabIndex={0}
+            hidden={profileTab !== "education"}
+          >
+            <section className="profile-panel" id="scholar-education">
+              <header className="profile-section-title">
+                <h2>Education background</h2>
+                <span className="profile-record-count">
+                  {(scholar.education || []).length} entries
+                </span>
+              </header>
+              {!scholar.education?.length ? (
+                <p>No education entries recorded.</p>
+              ) : (
+                <ul ref={educationHistory} className="profile-requirements office-education-list">
+                  {scholar.education.map((item) => (
+                    <li key={item.id || item.client_key}>
+                      <details>
+                        <summary>
+                          <strong className="record-value">
+                            {item.degree || "Degree not recorded"}
+                          </strong>
+                          <span>{item.level || "Level not recorded"}</span>
+                        </summary>
+                        <span className="record-value">
+                          {[item.level, item.institution, item.graduation_year]
+                            .filter(Boolean)
+                            .join(" · ")}
+                        </span>
+                      </details>
                     </li>
-                  );
-                })}
-              </ul>
-            )}
-          </section>
-          <OfficeLogPanel scholarId={scholar.id} />
-          {getCurrentUser()?.role === "admin" && <ScholarHistory scholarId={scholar.id} />}
+                  ))}
+                </ul>
+              )}
+            </section>
+          </div>
+          <div
+            className="office-profile-tabpanel"
+            id="profile-panel-grants"
+            role="tabpanel"
+            aria-labelledby="profile-tab-grants"
+            tabIndex={0}
+            hidden={profileTab !== "grants"}
+          >
+            <section className="profile-panel" id="scholar-grants">
+              {!scholar.participations.length ? (
+                <div className="profile-empty">
+                  <h2>Grant history</h2>
+                  <FsdpIcon />
+                  <h3>No grants yet</h3>
+                  <Link className="btn secondary no-print" to={`/fsdp/${scholar.id}/edit`}>
+                    Add the first grant
+                  </Link>
+                </div>
+              ) : (
+                <ProgramGrantHistory grants={scholar.participations} />
+              )}
+            </section>
+          </div>
+          <div
+            className="office-profile-tabpanel"
+            id="profile-panel-overview"
+            role="tabpanel"
+            aria-labelledby="profile-tab-overview"
+            tabIndex={0}
+            hidden={profileTab !== "overview"}
+          >
+            <section className="profile-panel office-profile-overview">
+              <header className="profile-section-title">
+                <div>
+                  <span className="eyebrow">Academic record</span>
+                  <h2>Qualifications & applications</h2>
+                </div>
+              </header>
+              <div className="office-profile-overview-grid">
+                <div>
+                  <strong>{scholar.education?.length || 0}</strong>
+                  <span>Education entries</span>
+                  <button
+                    type="button"
+                    className="btn secondary"
+                    onClick={() => {
+                      setProfileTab("education");
+                      document.getElementById("profile-tab-education")?.focus();
+                    }}
+                  >
+                    View education
+                  </button>
+                </div>
+                <div>
+                  <strong>{applications}</strong>
+                  <span>Program applications</span>
+                  <button
+                    type="button"
+                    className="btn secondary"
+                    onClick={() => {
+                      setProfileTab("grants");
+                      document.getElementById("profile-tab-grants")?.focus();
+                    }}
+                  >
+                    View programs & grants
+                  </button>
+                </div>
+              </div>
+            </section>
+            <section className="profile-panel" id="scholar-requirements">
+              <header className="profile-section-title">
+                <div>
+                  <h2>Requirements</h2>
+                </div>
+                <span className="profile-record-count">{requirements.length} items</span>
+              </header>
+              {manual && (
+                <p className="profile-manual-note">
+                  Additional missing requirements are marked for follow-up.
+                </p>
+              )}
+              {!requirements.length ? (
+                <p className="profile-empty-copy">No requirement items recorded.</p>
+              ) : (
+                <ul className="profile-requirements">
+                  {requirements.map((item) => {
+                    const overdue = !item.is_complete && !!item.due_date && item.due_date < today;
+                    return (
+                      <li key={item.id}>
+                        <div>
+                          <strong className="record-value">{item.requirement_name}</strong>
+                          <span>{item.due_date ? `Due ${item.due_date}` : "No due date"}</span>
+                          {item.remarks && <p className="record-value">{item.remarks}</p>}
+                        </div>
+                        <span
+                          className={`profile-outcome ${overdue ? "overdue" : item.is_complete ? "ongoing" : ""}`}
+                        >
+                          {item.is_complete ? "Complete" : overdue ? "Overdue" : "Pending"}
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </section>
+            <OfficeLogPanel scholarId={scholar.id} />
+            {getCurrentUser()?.role === "admin" && <ScholarHistory scholarId={scholar.id} />}
+          </div>
         </div>
       </div>
     </div>

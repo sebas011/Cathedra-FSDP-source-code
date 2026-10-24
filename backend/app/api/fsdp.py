@@ -29,6 +29,7 @@ from app.fsdp_reporting import (
     fsdp_report_data,
     options,
     read_scholar,
+    registration_series,
 )
 from app.graduated_education import sync_graduated_education
 from app.grant_applications import has_completed_application_expression
@@ -704,6 +705,7 @@ def analytics(
         "payback_summary": payback_data(db, department, start_academic_year, include_items=False)[
             "scholar_counts"
         ],
+        "registration_series": registration_series(db, selected_ids),
         "recent_scholars": [read_scholar(item).model_dump(mode="json") for item in recent],
         "scholars": db.scalar(select(func.count()).select_from(scholar_ids)) or 0,
         "grants": db.scalar(select(func.count()).select_from(FsdpParticipation).where(*grant_scope))

@@ -59,7 +59,7 @@ export default function AnalyticsChart({
   const plotLeft = 48,
     plotTop = 28,
     plotHeight = 240;
-  const slotWidth = 94,
+  const slotWidth = 66,
     plotWidth = Math.max(376, sorted.length * slotWidth);
   const width = plotLeft + plotWidth + 20;
   const slot = plotWidth / Math.max(1, sorted.length);

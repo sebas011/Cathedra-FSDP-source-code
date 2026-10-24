@@ -7,17 +7,21 @@ import PageHeading from "../components/PageHeading";
 import ConfirmationDialog from "../components/ConfirmationDialog";
 import { useDirectoryValue, useDirectoryScroll } from "../hooks/useDirectoryMemory";
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { SkeletonTableRows } from "../components/PageSkeleton";
 
 import { deleteFsdpRecord, getCurrentUser, getFsdpRecords, getFsdpSummary } from "../api";
 import { useDebouncedValue } from "../hooks/useDebouncedValue";
 import type { FsdpSummary, Scholar } from "../types";
+import "../scholar-office.css";
+import { applicationIdentity } from "../utils/grantApplications";
 
 const statuses = grantStatuses;
 const scholarStatus = (scholar: Scholar) => displayGrantStatus(scholar.current_status);
 
 export default function FsdpListPage() {
+  const location = useLocation();
+  const searchField = useRef<HTMLInputElement>(null);
   const canDelete = getCurrentUser()?.role === "admin";
   const [items, setItems] = useState<Scholar[]>([]);
   const [summary, setSummary] = useState<FsdpSummary | null>(null);
@@ -30,6 +34,9 @@ export default function FsdpListPage() {
   const debouncedSearch = useDebouncedValue(search);
 
   const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    if (location.hash === "#directory-search") searchField.current?.focus();
+  }, [location.hash, location.key]);
   useDirectoryScroll("fsdp", !loading && !error);
   const [revision, setRevision] = useState(0);
   const [deleting, setDeleting] = useState<number | null>(null);
@@ -167,7 +174,7 @@ export default function FsdpListPage() {
 
   const pages = Math.max(1, Math.ceil(total / 50));
   return (
-    <div className="stack-md">
+    <div className="stack-md office-scholar-directory">
       <ConfirmationDialog
         open={deleteCandidate !== null}
         title="Delete scholar?"
@@ -183,8 +190,8 @@ export default function FsdpListPage() {
         onCancel={() => setDeleteCandidate(null)}
       />
       <PageHeading
-        title="FSDP Scholars"
-        description="Find scholars, inspect their grant histories, and keep office records up to date."
+        title="Scholars"
+        description="The people, qualifications and applications in your office."
         actions={
           <Link className="btn primary" to="/fsdp/new">
             Add Scholar
@@ -226,13 +233,15 @@ export default function FsdpListPage() {
           <label>
             Search scholars
             <input
+              id="directory-search"
+              ref={searchField}
               aria-label="Search scholars"
               value={search}
               onChange={(event) => {
                 setSearch(event.target.value);
                 setPage(1);
               }}
-              placeholder="Name word prefix, department, position, or program"
+              placeholder="Find a scholar by name, affiliation or program…"
             />
           </label>
           <label>
@@ -296,8 +305,9 @@ export default function FsdpListPage() {
                   Scholar
                 </th>
                 <th scope="col">Department</th>
-                <th scope="col">Rank / position</th>
+                <th scope="col">Applications / grants</th>
                 <th scope="col">Status</th>
+                <th scope="col">Documents</th>
                 <th scope="col" className="right">
                   Actions
                 </th>
@@ -305,16 +315,16 @@ export default function FsdpListPage() {
             </thead>
             <tbody>
               {loading ? (
-                <SkeletonTableRows columns={5} />
+                <SkeletonTableRows columns={6} />
               ) : error ? (
                 <tr>
-                  <td colSpan={5} className="empty-table">
+                  <td colSpan={6} className="empty-table">
                     Unable to load records. Use Refresh records to retry.
                   </td>
                 </tr>
               ) : items.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="empty-table">
+                  <td colSpan={6} className="empty-table">
                     <strong>No scholar records found.</strong>
                     <span>Try changing or clearing the filters.</span>
                   </td>
@@ -336,16 +346,22 @@ export default function FsdpListPage() {
                           <Link to={`/fsdp/${item.id}`}>
                             <strong className="record-value">{item.name}</strong>
                           </Link>
-                          <small>Scholar #{item.id}</small>
-                          <small>
-                            Hard copy: {copyAvailability(item.has_hard_copy)} · Soft copy:{" "}
-                            {copyAvailability(item.has_soft_copy)}
+                          <small className="record-value">
+                            {item.rank ? `${item.rank} · #${item.id}` : `Scholar #${item.id}`}
                           </small>
                         </div>
                       </div>
                     </td>
-                    <td>{item.department || "—"}</td>
-                    <td className="record-value">{item.rank || "—"}</td>
+                    <td>
+                      <strong>{item.department || "Unknown"}</strong>
+                      <small>{item.personnel_type}</small>
+                    </td>
+                    <td>
+                      <strong>
+                        {new Set(item.participations.map(applicationIdentity)).size} applications
+                      </strong>
+                      <small>{item.participations.length} grant records</small>
+                    </td>
                     <td>
                       <span
                         className={
@@ -354,6 +370,10 @@ export default function FsdpListPage() {
                       >
                         {scholarStatus(item)}
                       </span>
+                    </td>
+                    <td className="office-copy-cell">
+                      <span>Hard: {copyAvailability(item.has_hard_copy)}</span>
+                      <span>Soft: {copyAvailability(item.has_soft_copy)}</span>
                     </td>
                     <td className="right">
                       <Link

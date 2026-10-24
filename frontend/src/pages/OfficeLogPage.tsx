@@ -3,8 +3,8 @@ import OfficeLogPanel from "../components/OfficeLogPanel";
 
 export default function OfficeLogPage() {
   return (
-    <div className="stack-md">
-      <PageHeading title="Office log" />
+    <div className="stack-md management-page office-log-page">
+      <PageHeading title="Office log" eyebrow="OFFICE OPERATIONS" />
       <OfficeLogPanel />
     </div>
   );

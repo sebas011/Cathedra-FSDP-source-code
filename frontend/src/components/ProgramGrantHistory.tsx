@@ -48,15 +48,15 @@ export default function ProgramGrantHistory({ grants }: { grants: ParticipationR
   }, []);
   return (
     <div ref={history}>
-      <details className="grant-history-disclosure">
-        <summary>
+      <div className="grant-history-disclosure">
+        <header className="profile-section-title">
           <h2>Grant history</h2>
           <span className="profile-record-count">
             {grants.length} {grants.length === 1 ? "record" : "records"}
           </span>
-        </summary>
+        </header>
         <div className="profile-grant-history">
-          {groupAnnualGrants(grants).map((group) => (
+          {groupAnnualGrants(grants).map((group, applicationIndex) => (
             <details
               className="program-history"
               key={applicationIdentity(group[0])}
@@ -64,6 +64,9 @@ export default function ProgramGrantHistory({ grants }: { grants: ParticipationR
             >
               <summary>
                 <span>
+                  <span className="eyebrow">
+                    Application {String(applicationIndex + 1).padStart(2, "0")}
+                  </span>
                   <strong className="record-value">{group[0].name}</strong>
                   <span className="program-history-meta">
                     {applicationPeriod(group)} · {group.length}{" "}
@@ -166,7 +169,7 @@ export default function ProgramGrantHistory({ grants }: { grants: ParticipationR
             </details>
           ))}
         </div>
-      </details>
+      </div>
     </div>
   );
 }

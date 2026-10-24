@@ -14,6 +14,25 @@ const categories = [
 ] as const;
 const articles = [
   {
+    title: "The Scholar Office workspace",
+    category: "Scholars & grants",
+    paragraphs: [
+      "Use Overview for the dashboard, Scholars for the alphabetical directory and Office log for document handovers and notes. Programs, reporting and account tools remain available according to your account permissions. Find scholar, or Ctrl+K, opens the directory search. The menu button opens navigation on a small window; Escape closes it.",
+      "Add or edit a scholar in four steps: Scholar identity, Education, Programs & grants, then Review & save. Name is enough for a profile. Add other details when available. Each education or annual grant is staged in the same scholar draft; Save scholar is the final action that writes the whole profile. Continue and Back do not save partial records. Leave the draft only after choosing whether to keep editing or discard it.",
+      "A program application contains its annual grants. Use Copy for next year within that application and New application for a separate enrollment. Profile remarks, grant remarks, hard-copy availability and soft-copy availability retain their separate meanings. An empty availability field means Not recorded, rather than Not available.",
+    ],
+    links: [{ to: "/fsdp", label: "Open scholars" }],
+  },
+  {
+    title: "Registration activity chart",
+    category: "Reports",
+    paragraphs: [
+      "The registration chart shows the rolling twelve calendar months ending with the current month, using Philippine time. Monthly additions come from profile creation dates; the cumulative line also includes dated profiles created before the displayed interval. It describes record entry activity, not graduation or academic performance.",
+      "The selected affiliation and reporting scope apply to the series. Months with no additions show zero. Profiles with no usable creation date and profiles dated after today are excluded from the plotted series and identified separately. Expand View chart data for exact values. Scholar totals, annual grant totals and overlapping follow-up categories are different measures; a calculated review is not a confirmed debt.",
+    ],
+    links: [{ to: "/", label: "Open overview" }],
+  },
+  {
     title: "Google Sheets reporting",
     category: "Reports",
     paragraphs: [
@@ -326,7 +345,13 @@ export default function ProductGuidePage() {
             <details
               className="guide-article"
               key={article.title}
-              id={article.title === "Google Sheets reporting" ? "cloud-reporting" : undefined}
+              id={
+                article.title === "Google Sheets reporting"
+                  ? "cloud-reporting"
+                  : article.title === "Contract and payback counts"
+                    ? "contract-payback"
+                    : undefined
+              }
               open={
                 !!search ||
                 (location.hash === "#cloud-reporting" &&

@@ -1,0 +1,21 @@
+{
+  "status": "verified",
+  "version": "0.5.24",
+  "checked_local_date": "2026-10-24",
+  "npm_audit": {
+    "reported_advisories": 0,
+    "full_tree_checked": true
+  },
+  "python_osv_audit": {
+    "checked_at": "2026-10-24T06:00:57.953062+00:00",
+    "source": "https://api.osv.dev",
+    "packages_checked": 36,
+    "findings": [],
+    "limitation": "No reported advisory is not proof of vulnerability absence."
+  },
+  "setuptools": "84.1.0",
+  "advisory_patched": "https://github.com/pypa/setuptools/security/advisories/GHSA-xmj3-9gf7-h52w",
+  "constraints_sha256": "db70faa3dd1b2b6c5d29033746875e99233aa27c3efd6586875d20353eb0a5d3",
+  "lockfile_sha256": "ba5d669d704531d116612d0bb09e3e4baef0803fdb2f29bfe53e88d2cad6ce53",
+  "limitation": "Point-in-time advisory result, not proof of vulnerability absence."
+}

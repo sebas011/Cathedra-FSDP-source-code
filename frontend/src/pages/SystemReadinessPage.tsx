@@ -44,7 +44,7 @@ export default function SystemReadinessPage() {
   const recentBackup = status?.backup_due === false;
 
   return (
-    <div className="stack-md">
+    <div className="stack-md management-page readiness-page">
       <PageHeading
         title="Office Pre-flight Check"
         description="Check the local database, backup age and recovery readiness before making major changes."

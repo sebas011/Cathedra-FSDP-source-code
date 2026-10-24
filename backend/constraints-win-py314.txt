@@ -26,7 +26,7 @@ python-dotenv==1.2.3
 pywin32-ctypes==0.2.3
 PyYAML==6.0.3
 ruff==0.16.8
-setuptools==84.0.0
+setuptools==84.1.0
 SQLAlchemy==2.0.54
 starlette==1.6.0
 typing-inspection==0.4.4

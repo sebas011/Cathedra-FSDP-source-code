@@ -132,6 +132,14 @@ export interface AnalyticsRow {
   count: number;
 }
 export interface FsdpAnalytics {
+  registration_series?: {
+    timezone: string;
+    starts_on: string;
+    ends_on: string;
+    before_period: number;
+    plotted: number;
+    rows: { month: string; count: number; cumulative: number }[];
+  };
   payback_summary?: Record<string, number>;
   recent_scholars?: Scholar[];
   scholars: number;

@@ -58,8 +58,13 @@ export default function EducationSection({
     <section className="entry-section" tabIndex={-1} id="scholar-education">
       {discardDialog}
       <header>
+        <span className="entry-number">02</span>
         <div>
           <h2>Education background</h2>
+          <p>
+            {entries.length} {entries.length === 1 ? "qualification" : "qualifications"} in this
+            record
+          </p>
         </div>
       </header>
       <TableRegion label="Scholar education">

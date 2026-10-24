@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 
 export default function SettingsPage() {
   return (
-    <div className="stack-md">
+    <div className="stack-md management-page settings-page">
       <PageHeading
         title="Office settings"
         eyebrow="SETTINGS"

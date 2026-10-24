@@ -161,10 +161,10 @@ test("changing pages clears the failed boundary and returning loads the recovere
   vi.spyOn(console, "error").mockImplementation(() => {});
   openShell(<Page />);
   await screen.findByRole("heading", { name: "This page could not be displayed" });
-  fireEvent.click(screen.getByRole("link", { name: "FSDP" }));
+  fireEvent.click(screen.getByRole("link", { name: "Scholars" }));
   await screen.findByRole("heading", { name: "Scholar directory destination" });
   broken = false;
-  fireEvent.click(screen.getByRole("link", { name: "Dashboard" }));
+  fireEvent.click(screen.getByRole("link", { name: "Overview" }));
   await screen.findByRole("heading", { name: "Dashboard recovered after navigation" });
 });
 

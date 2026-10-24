@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 
 from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session, selectinload
@@ -11,6 +11,51 @@ from app.grant_applications import application_group_key, completed_application_
 from app.models import FsdpParticipation, Scholar, ScholarRequirement
 from app.record_text import outcome
 from app.schemas import EducationRead, ParticipationRead, RequirementRead, ScholarRead
+
+
+def registration_series(db: Session, selected_ids, *, now: datetime | None = None) -> dict:
+    """Monthly registration history from actual profile timestamps, never grant years.
+
+    SQLite CURRENT_TIMESTAMP stores UTC without a timezone suffix. Explicit offsets
+    are also understood by strftime; +8 hours maps both to the office's Manila day.
+    Invalid and future timestamps remain in the scope total but outside the plot.
+    """
+    manila = timezone(timedelta(hours=8))
+    instant = now or datetime.now(timezone.utc)
+    if instant.tzinfo is None:
+        instant = instant.replace(tzinfo=timezone.utc)
+    today = instant.astimezone(manila).date()
+    end_month = today.year * 12 + today.month - 1
+    months = [
+        f"{index // 12:04d}-{index % 12 + 1:02d}" for index in range(end_month - 11, end_month + 1)
+    ]
+    month = func.strftime("%Y-%m", Scholar.created_at, "+8 hours")
+    # A single aggregate query includes the entire selected history, not recent 10.
+    groups = dict(
+        db.execute(
+            select(month, func.count())
+            .where(
+                Scholar.id.in_(selected_ids),
+                func.julianday(Scholar.created_at) <= func.julianday(instant.isoformat()),
+            )
+            .group_by(month)
+        ).all()
+    )
+    before = sum(count for key, count in groups.items() if key and key < months[0])
+    cumulative = before
+    rows = []
+    for key in months:
+        count = groups.get(key, 0)
+        cumulative += count
+        rows.append({"month": key, "count": count, "cumulative": cumulative})
+    return {
+        "timezone": "Asia/Manila",
+        "starts_on": months[0] + "-01",
+        "ends_on": today.isoformat(),
+        "before_period": before,
+        "rows": rows,
+        "plotted": cumulative,
+    }
 
 
 def options():

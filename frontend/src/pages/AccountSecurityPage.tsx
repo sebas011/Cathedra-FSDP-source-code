@@ -132,7 +132,7 @@ export default function AccountSecurityPage() {
   };
 
   return (
-    <div className="stack-md">
+    <div className="stack-md management-page accounts-page">
       <UnsavedChangesDialog blocker={blocker} pending={busy} />
       <PageHeading
         title="Accounts & Access"

@@ -4,6 +4,7 @@ import { createMemoryRouter, RouterProvider } from "react-router-dom";
 import FsdpFormPage from "../src/pages/FsdpFormPage";
 import { scholar } from "./fixtures";
 import type { ParticipationRead } from "../src/types";
+import { scholarStep } from "./scholarSteps";
 
 const api = vi.hoisted(() => ({
   getFsdpRecord: vi.fn(),
@@ -32,18 +33,20 @@ function grant(id: number): ParticipationRead {
   };
 }
 
-function openForm() {
+async function openForm() {
   api.getFsdpRecord.mockResolvedValue({ ...scholar, participations: [grant(1), grant(2)] });
   const router = createMemoryRouter([{ path: "/fsdp/:id/edit", element: <FsdpFormPage /> }], {
     initialEntries: ["/fsdp/1/edit"],
   });
   render(<RouterProvider router={router} />);
+  await screen.findByRole("button", { name: /^Step 3:/ });
+  scholarStep(3);
 }
 
 beforeEach(() => vi.resetAllMocks());
 
 test("removing an earlier grant preserves the active grant identity and draft", async () => {
-  openForm();
+  await openForm();
   const secondRow = await screen.findByRole("row", { name: /Program 2/ });
   fireEvent.click(within(secondRow).getByRole("button", { name: /^Edit grant / }));
   const editor = await screen.findByRole("textbox", { name: "Program Applied *" });
@@ -60,7 +63,7 @@ test("removing an earlier grant preserves the active grant identity and draft", 
 });
 
 test("switching edited grants requires explicit discard", async () => {
-  openForm();
+  await openForm();
   const firstRow = await screen.findByRole("row", { name: /Program 1/ });
   fireEvent.click(within(firstRow).getByRole("button", { name: /^Edit grant / }));
   const editor = await screen.findByRole("textbox", { name: "Program Applied *" });

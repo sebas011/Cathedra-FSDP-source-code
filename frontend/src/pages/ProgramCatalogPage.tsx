@@ -157,7 +157,7 @@ export default function ProgramCatalogPage() {
       </div>
     );
   return (
-    <div className="stack-md">
+    <div className="stack-md management-page catalog-page">
       <UnsavedChangesDialog
         blocker={blocker}
         pending={pending}
@@ -182,6 +182,7 @@ export default function ProgramCatalogPage() {
       />
       <PageHeading
         title="Program catalog"
+        eyebrow="PROGRAM MANAGEMENT"
         actions={
           <Link className="text-button" to="/office-guide">
             Office Guide
@@ -190,121 +191,125 @@ export default function ProgramCatalogPage() {
       />
       <FormError message={error} />
       {loading && <p role="status">Loading programs…</p>}
-      <form
-        className="data-card stack-md no-print record-editor"
-        onSubmit={(event) => void save(event)}
-      >
-        <h2>{editing ? `Edit program #${editing.id}` : "Add program"}</h2>
-        <fieldset className="entry-grid" disabled={pending}>
-          <label className="entry-wide">
-            Program name *
-            <RecordInput
-              required
-              value={draft.name}
-              onValueChange={(value) => setDraft((current) => ({ ...current, name: value }))}
-            />
-          </label>
-          <label className="entry-wide">
-            Default delivering HEI
-            <RecordInput
-              value={draft.delivering_hei || ""}
-              onValueChange={(value) =>
-                setDraft((current) => ({
-                  ...current,
-                  delivering_hei: value,
-                }))
-              }
-            />
-          </label>
-          <label className="entry-wide">
-            Description
-            <RecordTextarea
-              value={draft.description || ""}
-              onValueChange={(value) => setDraft((current) => ({ ...current, description: value }))}
-            />
-          </label>
-        </fieldset>
-        <div className="action-group">
-          <button type="submit" className="btn primary" disabled={pending}>
-            {pending ? "Processing…" : editing ? "Save program" : "Add program"}
-          </button>
-          <button
-            type="button"
-            className="btn secondary"
-            disabled={pending}
-            onClick={() => void changeEditor(null)}
-          >
-            Clear editor
-          </button>
-          <button
-            type="button"
-            className="btn secondary"
-            disabled={pending}
-            onClick={() => setRevision((value) => value + 1)}
-          >
-            Refresh catalog
-          </button>
-        </div>
-      </form>
-      <section className="data-card">
-        <h2>Existing programs</h2>
-        <p>{programs.length} programs</p>
-        <TableRegion label="Program catalog">
-          <table>
-            <thead>
-              <tr>
-                <th>Program</th>
-                <th>Default HEI</th>
-                <th>Description</th>
-                <th className="no-print">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {programs.map((program) => (
-                <tr key={program.id}>
-                  <td>
-                    <strong className="record-value">{program.name}</strong>
-                    <small>Program #{program.id}</small>
-                    {program.identity_conflict && (
-                      <span className="warning-chip">Identity review</span>
-                    )}
-                  </td>
-                  <td className="record-value">{program.delivering_hei || "—"}</td>
-                  <td className="record-value">{program.description || "—"}</td>
-                  <td className="no-print">
-                    <div className="action-group">
-                      <button
-                        type="button"
-                        className="btn secondary"
-                        disabled={pending}
-                        onClick={() => void changeEditor(program)}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        type="button"
-                        className="btn secondary"
-                        disabled={pending}
-                        onClick={() => void duplicate(program)}
-                      >
-                        Duplicate
-                      </button>
-                      <button
-                        type="button"
-                        className="btn secondary danger"
-                        disabled={pending}
-                        onClick={() => setDeleteCandidate(program)}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </td>
+      <div className="catalog-workspace">
+        <form
+          className="data-card stack-md no-print record-editor"
+          onSubmit={(event) => void save(event)}
+        >
+          <h2>{editing ? `Edit program #${editing.id}` : "Add program"}</h2>
+          <fieldset className="entry-grid" disabled={pending}>
+            <label className="entry-wide">
+              Program name *
+              <RecordInput
+                required
+                value={draft.name}
+                onValueChange={(value) => setDraft((current) => ({ ...current, name: value }))}
+              />
+            </label>
+            <label className="entry-wide">
+              Default delivering HEI
+              <RecordInput
+                value={draft.delivering_hei || ""}
+                onValueChange={(value) =>
+                  setDraft((current) => ({
+                    ...current,
+                    delivering_hei: value,
+                  }))
+                }
+              />
+            </label>
+            <label className="entry-wide">
+              Description
+              <RecordTextarea
+                value={draft.description || ""}
+                onValueChange={(value) =>
+                  setDraft((current) => ({ ...current, description: value }))
+                }
+              />
+            </label>
+          </fieldset>
+          <div className="action-group">
+            <button type="submit" className="btn primary" disabled={pending}>
+              {pending ? "Processing…" : editing ? "Save program" : "Add program"}
+            </button>
+            <button
+              type="button"
+              className="btn secondary"
+              disabled={pending}
+              onClick={() => void changeEditor(null)}
+            >
+              Clear editor
+            </button>
+            <button
+              type="button"
+              className="btn secondary"
+              disabled={pending}
+              onClick={() => setRevision((value) => value + 1)}
+            >
+              Refresh catalog
+            </button>
+          </div>
+        </form>
+        <section className="data-card">
+          <h2>Existing programs</h2>
+          <p>{programs.length} programs</p>
+          <TableRegion label="Program catalog">
+            <table>
+              <thead>
+                <tr>
+                  <th>Program</th>
+                  <th>Default HEI</th>
+                  <th>Description</th>
+                  <th className="no-print">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </TableRegion>
-      </section>
+              </thead>
+              <tbody>
+                {programs.map((program) => (
+                  <tr key={program.id}>
+                    <td>
+                      <strong className="record-value">{program.name}</strong>
+                      <small>Program #{program.id}</small>
+                      {program.identity_conflict && (
+                        <span className="warning-chip">Identity review</span>
+                      )}
+                    </td>
+                    <td className="record-value">{program.delivering_hei || "—"}</td>
+                    <td className="record-value">{program.description || "—"}</td>
+                    <td className="no-print">
+                      <div className="action-group">
+                        <button
+                          type="button"
+                          className="btn secondary"
+                          disabled={pending}
+                          onClick={() => void changeEditor(program)}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          className="btn secondary"
+                          disabled={pending}
+                          onClick={() => void duplicate(program)}
+                        >
+                          Duplicate
+                        </button>
+                        <button
+                          type="button"
+                          className="btn secondary danger"
+                          disabled={pending}
+                          onClick={() => setDeleteCandidate(program)}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </TableRegion>
+        </section>
+      </div>
     </div>
   );
 }

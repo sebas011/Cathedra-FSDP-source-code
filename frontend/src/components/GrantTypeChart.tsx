@@ -2,7 +2,7 @@ import { useId } from "react";
 import type { AnalyticsRow } from "../types";
 import { orderRows, type ChartOrder } from "./AnalyticsChart";
 
-const colors = ["var(--brand)", "#428c79", "#b48435", "#597f94", "#758178", "#816b91"];
+const colors = ["var(--brand)", "#087365", "#916012", "#52778e", "#667486", "#78618d"];
 
 export default function GrantTypeChart({
   rows,

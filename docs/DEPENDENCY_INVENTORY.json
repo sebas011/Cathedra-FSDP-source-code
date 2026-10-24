@@ -1,8 +1,8 @@
 {
   "format": "Cathedra dependency inventory 1",
   "formal_sbom_validated": false,
-  "constraints_sha256": "d9a9fd58e5fa84a672e9ace1ace6ea94f128a411765c588f47bad6840155a2af",
-  "lockfile_sha256": "e7c36b5d0b38eb9dd789fe025a9f7b5215123fd51acae75bc081183c8bd31d69",
+  "constraints_sha256": "db70faa3dd1b2b6c5d29033746875e99233aa27c3efd6586875d20353eb0a5d3",
+  "lockfile_sha256": "ba5d669d704531d116612d0bb09e3e4baef0803fdb2f29bfe53e88d2cad6ce53",
   "python": [
     {
       "name": "altgraph",
@@ -146,7 +146,7 @@
     },
     {
       "name": "setuptools",
-      "version": "84.0.0",
+      "version": "84.1.0",
       "licence": "MIT"
     },
     {

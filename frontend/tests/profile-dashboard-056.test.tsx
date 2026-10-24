@@ -1,3 +1,4 @@
+import { scholarStep, saveScholarForm } from "./scholarSteps";
 import { beforeEach, expect, test, vi } from "vitest";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { createMemoryRouter, RouterProvider } from "react-router-dom";
@@ -87,6 +88,8 @@ beforeEach(() => {
 
 test("education rows and fractional years save with independent copied annual grants", async () => {
   open(<FsdpFormPage />);
+  await screen.findByRole("textbox", { name: "Name *" });
+  scholarStep(2);
   await screen.findByRole("button", { name: "Edit education 1" });
   fireEvent.click(screen.getByRole("button", { name: "Add education" }));
   fireEvent.change(screen.getByRole("textbox", { name: "Degree" }), {
@@ -96,6 +99,7 @@ test("education rows and fractional years save with independent copied annual gr
     target: { value: "Master’s" },
   });
   fireEvent.click(screen.getByRole("button", { name: "Save education" }));
+  scholarStep(3);
   fireEvent.click(
     within(screen.getByRole("row", { name: /Annual program/ })).getByRole("button", {
       name: /^Copy for next year /,
@@ -114,7 +118,7 @@ test("education rows and fractional years save with independent copied annual gr
     target: { value: "2026-2027" },
   });
   fireEvent.click(screen.getByRole("button", { name: "Save Grant" }));
-  fireEvent.click(screen.getByRole("button", { name: "Save Scholar" }));
+  saveScholarForm();
   await waitFor(() => expect(api.updateFsdpRecord).toHaveBeenCalled());
   const payload = api.updateFsdpRecord.mock.calls[0][1];
   expect(payload.education).toHaveLength(2);
@@ -128,6 +132,8 @@ test("education rows and fractional years save with independent copied annual gr
 
 test("new application retains the program without creating a catalog copy", async () => {
   open(<FsdpFormPage />);
+  await screen.findByRole("textbox", { name: "Name *" });
+  scholarStep(3);
   fireEvent.click(await screen.findByRole("button", { name: "New application" }));
   expect((screen.getByLabelText("Program Applied *") as HTMLInputElement).value).toBe(
     "Annual program",
@@ -136,7 +142,7 @@ test("new application retains the program without creating a catalog copy", asyn
     "2026-2027",
   );
   fireEvent.click(screen.getByRole("button", { name: "Save Grant" }));
-  fireEvent.click(screen.getByRole("button", { name: "Save Scholar" }));
+  saveScholarForm();
   await waitFor(() => expect(api.updateFsdpRecord).toHaveBeenCalled());
   const grants = api.updateFsdpRecord.mock.calls[0][1].participations;
   expect(grants).toHaveLength(2);
@@ -154,6 +160,7 @@ test("profile remarks are displayed separately and edits preserve grant remarks"
   open(<FsdpDetailPage />, "/fsdp/1");
   await screen.findByRole("heading", { name: "Profile remarks" });
   expect(screen.getByText(/Whole profile note/)).toBeTruthy();
+  fireEvent.click(screen.getByRole("tab", { name: /^Programs & grants/ }));
   expect(screen.getByText("Annual grant note")).toBeTruthy();
   expect(screen.getByText("Grant remarks")).toBeTruthy();
 });
@@ -185,7 +192,7 @@ test("editor saves whole-profile remarks and restricts affiliations to eight col
   expect((screen.getByRole("textbox", { name: "Personnel type" }) as HTMLInputElement).value).toBe(
     "Staff",
   );
-  fireEvent.click(screen.getByRole("button", { name: "Save Scholar" }));
+  saveScholarForm();
   await waitFor(() => expect(api.updateFsdpRecord).toHaveBeenCalled());
   const payload = api.updateFsdpRecord.mock.calls[0][1];
   expect(payload.profile_remarks).toBe("UPDATED WHOLE PROFILE NOTE");
@@ -219,6 +226,7 @@ test("profile displays multiple qualifications and tenure in years", async () =>
       `${(5.5).toLocaleString(undefined, { maximumFractionDigits: 6 })} years`,
     ),
   ).toBeTruthy();
+  fireEvent.click(screen.getByRole("tab", { name: /^Education/ }));
   expect(screen.getByText("BS")).toBeTruthy();
   expect(screen.getByText("MS")).toBeTruthy();
 });
@@ -283,6 +291,8 @@ test("contract date persists while annual copy starts with no completion or outc
     participations: [{ ...grant, status: "Payback", contract_completed_on: "2020-01-01" }],
   });
   open(<FsdpFormPage />);
+  await screen.findByRole("textbox", { name: "Name *" });
+  scholarStep(3);
   const row = await screen.findByRole("row", { name: /Annual program/ });
   fireEvent.click(within(row).getByRole("button", { name: /^Copy for next year / }));
   expect(
@@ -297,7 +307,7 @@ test("contract date persists while annual copy starts with no completion or outc
     target: { value: "2025-06-30" },
   });
   fireEvent.click(screen.getByRole("button", { name: "Save Grant" }));
-  fireEvent.click(screen.getByRole("button", { name: "Save Scholar" }));
+  saveScholarForm();
   await waitFor(() => expect(api.updateFsdpRecord).toHaveBeenCalled());
   const payload = api.updateFsdpRecord.mock.calls[0][1];
   expect(payload.participations[0].contract_completed_on).toBe("2020-01-01");

@@ -1,8 +1,8 @@
 # Product requirements
 
 **Product:** Cathedra FSDP  
-**Documented:** 22 October 2026, Asia/Manila<br>
-**Baseline:** release 0.5.23; database schema 16<br>
+**Documented:** 24 October 2026, Asia/Manila<br>
+**Baseline:** release 0.5.24; database schema 16<br>
 **Status:** implementation-derived documentation; see [baseline and evidence](README.md).
 
 ## Purpose and users
@@ -139,3 +139,7 @@ Annual copies in the same application retain an explicitly recorded program star
 ## Google report update (0.5.23)
 
 Google reporting uses a dedicated [fifteen-column contract](GOOGLE_REPORT_CONTRACT.json) rather than the full CSV table. Each scholar is numbered once and their grants remain on consecutive rows. The report retains recorded education, tenure in years, exact dates or recorded academic periods, each grant's outcome and clearly labeled profile/grant remarks. Existing CSV exports and schema16 are unchanged. Setup, approved test accounts, spreadsheet editing access and per-PC sign-in are described in the [detailed guide](../GOOGLE_SHEETS_SETUP.md). See [0.5.23 validation](../VALIDATION_0.5.23.md) for observed delivery status.
+
+## Paper & Ink integration (0.5.24)
+
+The production UI uses the new Scholar Office shell and visual system. Scholar entry is organized into identity, education, programs/grants and review steps over the existing atomic aggregate save. Reports remain on the dashboard, with an additive real registration-history series and accessible chart data. Role, session, revision, idempotency, business and recovery contracts remain in force. Schema16 and existing CSV/Google report formats are retained. See the [implementation plan](../plans/2026-10-24-paper-office.md), [current design brief](DESIGN_BRIEF.md) and [versioned validation](../VALIDATION_0.5.24.md) for implementation and observed gates.

@@ -14,6 +14,8 @@ import {
   SidebarCollapseIcon,
   ReadinessIcon,
   SettingsIcon,
+  UserIcon,
+  SearchIcon,
 } from "./Icons";
 import { Suspense, useEffect, useRef, useState } from "react";
 import {
@@ -33,9 +35,10 @@ import SectionErrorBoundary from "./SectionErrorBoundary";
 import { useDiscardConfirmation } from "../hooks/useDiscardConfirmation";
 
 const navigation = [
-  { to: "/", label: "Dashboard", icon: DashboardIcon },
-  { to: "/fsdp", label: "FSDP", icon: FsdpIcon },
-  { to: "/settings", label: "Settings", icon: SettingsIcon },
+  { to: "/", label: "Overview", icon: DashboardIcon },
+  { to: "/fsdp", label: "Scholars", icon: FsdpIcon },
+  { to: "/settings/programs", label: "Programs", icon: FsdpIcon, adminOnly: true },
+  { to: "/settings/accounts", label: "Accounts", icon: UserIcon },
   { to: "/backup-export", label: "Backup & Export", icon: BackupIcon },
   { to: "/system-readiness", label: "System Readiness", icon: ReadinessIcon },
   { to: "/office-guide", label: "Office Guide", icon: HelpIcon },
@@ -44,12 +47,12 @@ const navigation = [
 ];
 
 const navigationGroups = [
-  { label: "Daily workspace", paths: ["/", "/fsdp"] },
+  { label: "Workspace", paths: ["/", "/fsdp", "/office-log"] },
   {
-    label: "Office tools",
-    paths: ["/office-log", "/backup-export", "/system-readiness", "/activity", "/settings"],
+    label: "Management",
+    paths: ["/settings/programs", "/backup-export", "/activity", "/settings/accounts"],
   },
-  { label: "Help", paths: ["/office-guide"] },
+  { label: "Support", paths: ["/office-guide", "/system-readiness"] },
 ];
 
 function AppShellContent() {
@@ -82,6 +85,22 @@ function AppShellContent() {
   const navigate = useNavigate();
   const location = useLocation();
   const user = getCurrentUser();
+  useEffect(() => {
+    const findScholar = (event: KeyboardEvent) => {
+      if (
+        (event.ctrlKey || event.metaKey) &&
+        !event.altKey &&
+        event.key.toLowerCase() === "k" &&
+        getCurrentUser() &&
+        !document.querySelector("dialog[open]")
+      ) {
+        event.preventDefault();
+        navigate("/fsdp#directory-search");
+      }
+    };
+    window.addEventListener("keydown", findScholar);
+    return () => window.removeEventListener("keydown", findScholar);
+  }, [navigate]);
   useEffect(() => {
     let active = true;
     void getServiceHealth()
@@ -234,7 +253,7 @@ function AppShellContent() {
               </div>
               <div className="brand-copy">
                 <strong>{productName}</strong>
-                <span>Office records</span>
+                <span>Scholar office</span>
               </div>
             </>
           )}
@@ -253,14 +272,20 @@ function AppShellContent() {
                   <NavLink
                     key={to}
                     to={to}
-                    title={label}
-                    aria-label={label}
+                    title={
+                      to === "/settings/accounts" && user?.role !== "admin" ? "My account" : label
+                    }
+                    aria-label={
+                      to === "/settings/accounts" && user?.role !== "admin" ? "My account" : label
+                    }
                     end={to === "/"}
                     onClick={closeMenu}
                     className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}
                   >
                     <NavIcon className="nav-icon" />
-                    <span>{label}</span>
+                    <span>
+                      {to === "/settings/accounts" && user?.role !== "admin" ? "My account" : label}
+                    </span>
                   </NavLink>
                 ))}
             </div>
@@ -287,7 +312,21 @@ function AppShellContent() {
               <MenuIcon />
             </button>
           )}
-          <div className="topbar-title" aria-hidden="true" />
+          <div className="topbar-title">
+            <strong>Scholar office</strong>
+            <span>Faculty & staff development</span>
+          </div>
+          <button
+            className="workspace-search no-print"
+            type="button"
+            aria-label="Find a scholar"
+            aria-keyshortcuts="Control+K Meta+K"
+            onClick={() => navigate("/fsdp#directory-search")}
+          >
+            <SearchIcon />
+            <span>Find a scholar</span>
+            <kbd>Ctrl K</kbd>
+          </button>
           <div className="account-box">
             {
               <button
@@ -306,6 +345,14 @@ function AppShellContent() {
               <strong>{user?.username || "Administrator"}</strong>
               <span>{user?.role === "admin" ? "Administrator" : "Staff"}</span>
             </div>
+            <NavLink
+              className="logout-button"
+              to="/settings"
+              aria-label="Office settings"
+              title="Office settings"
+            >
+              <SettingsIcon />
+            </NavLink>
             <button
               className="logout-button"
               aria-label="Logout"

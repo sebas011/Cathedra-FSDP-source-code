@@ -1,3 +1,4 @@
+import { scholarStep, saveScholarForm } from "./scholarSteps";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, expect, test, vi } from "vitest";
 import { useState } from "react";
@@ -174,9 +175,12 @@ test("editing a scholar preserves hidden program and application identity and sa
     { initialEntries: ["/fsdp/1/edit"] },
   );
   render(<RouterProvider router={router} />);
+  await screen.findByRole("textbox", { name: "Name *" });
+  scholarStep(3);
   await screen.findByRole("button", { name: "Edit grant MASTER OF SCIENCE" });
+  scholarStep(1);
   expect((screen.getByLabelText("Hard copy") as HTMLSelectElement).value).toBe("false");
-  fireEvent.click(screen.getByRole("button", { name: "Save Scholar" }));
+  saveScholarForm();
   await waitFor(() => expect(api.updateFsdpRecord).toHaveBeenCalled());
   expect(api.updateFsdpRecord.mock.calls[0][1]).toMatchObject({
     has_hard_copy: false,

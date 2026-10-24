@@ -1,8 +1,8 @@
 # Backend schema and data dictionary
 
 **Product:** Cathedra FSDP  
-**Documented:** 22 October 2026, Asia/Manila<br>
-**Baseline:** release 0.5.23; database schema 16<br>
+**Documented:** 24 October 2026, Asia/Manila<br>
+**Baseline:** release 0.5.24; database schema 16<br>
 **Status:** implementation-derived documentation; see [baseline and evidence](README.md).
 
 ## Database baseline

@@ -1,127 +1,38 @@
 # Design brief
 
 **Product:** Cathedra FSDP  
-**Documented:** 22 October 2026, Asia/Manila<br>
-**Baseline:** release 0.5.23; database schema 16<br>
-**Status:** implementation-derived documentation; see [baseline and evidence](README.md).
+**Documented:** 24 October 2026, Asia/Manila<br>
+**Baseline:** release 0.5.24; database schema 16<br>
+**Status:** production integration; see [validation](../VALIDATION_0.5.24.md) for measured completion gates.
 
-## Objective
+## Visual identity
 
-Present scholar records and follow-up clearly in a calm office workspace. Preserve the institutional green, familiar local workflows and data meaning. Release 0.5.17 retains the established visual direction while improving grant entry, compact profile actions and general document logging. Definitions and operating guidance remain in the Guide.
+Paper & Ink supersedes the previous green interface. The design uses a dark ink navigation rail (#172A3A), warm canvas (#F6F5F1), white working surfaces, cobalt actions (#3156D8) and local Georgia display headings with Segoe UI/system body text. Teal (#087365), amber (#916012) and red (#B54343) distinguish positive, attention and critical states with visible text. Control borders (#8794A3) are stronger than decorative rules (#D9DEE5). Fonts, icons, styles and charts work without a CDN or external font request.
 
-Primary users are Office staff performing daily data entry and administrators overseeing programs, access and recovery. Priorities are readable hierarchy, comfortable spacing, quick navigation, clear save boundaries and faithful representation of recorded information.
+Reusable spacing, radii, type sizes and semantic colors live in design-tokens.css. Shared controls, navigation, dialogs, errors and tables use design-system.css and design-workspace.css; local dashboard, scholar and management styles own their page compositions. Use restrained rules and whitespace, readable values and compact actions. Preserve visible focus, reduced motion, labels, zoom and keyboard access.
 
-## Visual foundation
+## Shell and navigation
 
-The application uses React components, plain CSS and shared tokens. It does not depend on a purchased theme or third-party chart package. Dashboard charts are locally rendered SVG with text equivalents.
+Workspace links lead to Overview, Scholars and Office log. Management contains the permitted program, reporting, activity and account tools. Staff retain their own account security controls. Office Guide and System Readiness remain reachable. A utility Find scholar action focuses the real directory search; Ctrl/Cmd+K uses the same route. Mobile navigation retains focus management and Escape handling. Health/identity checks, session recovery, sign out, print and desktop Exit Cathedra remain functional.
 
-| Token / element | Current value | Use |
-|---|---|---|
-| Primary green | `#176247` | Primary actions, active navigation, key chart comparison |
-| Hover green | `#104b35` | Hover/pressed primary actions |
-| Soft green | `#e8f2ec` | Supporting surfaces and scholar initials |
-| Deep green | `#163e2e` | Brand emphasis |
-| Canvas | `#f5f7f4` | Workspace background |
-| Surface | `#ffffff` | Cards, dialogs and controls |
-| Ink | `#1b3028` | Main text |
-| Muted | `#586860` | Supporting labels |
-| Border | `#dce5de` | Surface boundaries |
-| Control border | `#81958a` | Input boundaries |
-| Warning / danger / info | `#86510c` / `#a52e40` / `#315d89` | Outcome and action states with text labels |
-| Font | Segoe UI, system UI fallbacks | Familiar Windows reading experience |
-| Base text | 16px | Body scale; individual table/control styles may differ |
-| Common text scales | 12, 14, 16, 18, 24, 30px | Labels through headings |
-| Spacing tokens | 8, 16, 24, 32, 40, 48, 64px | Consistent layout rhythm |
-| Sidebar / content maximum | 256px / 1440px | Navigation and wide-screen workspace |
-| Control / card / dialog radii | 8px / 10px / 14px | Rounded, restrained boundaries |
-| Motion | 140ms ease | Short transitions; reduced-motion alternatives |
+## Dashboard and reporting
 
-Page-specific cards may use different radii/padding; Dashboard analytics cards use a 14px radius and 28px padding on wide screens. Tokens are the source of truth rather than a claim that every rule uses exactly one token.
+Use a summary strip for people, annual grants, current outcomes and follow-up measures, each with its own unit. The registration line shows a real rolling twelve-month calendar series in Philippine time, including a documented prior-period cumulative baseline. Missing/future dates are not invented. Affiliation columns compare the eight colleges plus Staff/Unknown; outcome composition represents people using their current grant outcome. The ten most recently added scholars provide direct profile access. Tables accompany charts.
 
-## Information hierarchy
+Reporting and contract assessment remain integrated into the dashboard rather than separate routes. Scope stays visible and exports/printing query the complete authorized scope. Follow-up categories may overlap and calculated review is distinct from recorded Payback and repayment progress. Business explanations remain in the searchable Office Guide; do not restore the old About these counts block.
 
-Use one page heading, a clear primary action and a small set of context controls. Group related work into labelled sections. Identify scholar and grant counts by unit. Keep explanations in the searchable Office Guide; leave concise labels, errors, empty states and necessary field help close to the action they explain.
+## Scholar workspaces
 
-Do not add decorative growth statistics, forecast lines, maps, social controls, photos, billing/settings tabs or functionality unsupported by the application. Initials identify scholars without inventing portraits. A trend line requires a real time-indexed series; categorical totals alone do not justify one.
+The directory emphasizes identity, affiliation, current outcome, application/grant counts and hard/soft-copy facts. Keep alphabetical order, name-word prefix search, filters, pagination and clear profile actions. Wide tables scroll within labelled focusable regions rather than making the entire page scroll sideways.
 
-## Page composition
+Profiles use an identity band, compact facts and clear education/application sections. Multiple applications to the same program remain distinct; each application groups its annual grants. Profile remarks, grant remarks, requirements, document-copy availability and permitted history remain individually accessible. Collapsed entries retain summaries and keyboard operation. Printing expands relevant content without losing the previous disclosure state.
 
-### Navigation and shell
+The editor presents identity, education, programs/grants and final review as four steps over one owned draft. Step navigation is not a partial save. Nested education and grant editors stage their entries; only final Save scholar writes the complete aggregate. Preserve optimistic revision conflicts, stable keys, idempotent uncertain retries, unknown optional values, caret/selection/IME handling, session recovery and explicit discard decisions. Name and each included grant's Program Applied remain the essential fields; do not introduce a completeness barrier.
 
-A left sidebar groups Dashboard/FSDP, Office tools and Help. Active links are labelled and highlighted in green. The shell contains printing, current account and logout controls; collapsible/mobile navigation keeps the content accessible. Do not restore workload, projection, Needs Verification, standalone Reports or Calendar links.
+## Supporting workflows
 
-### Dashboard
+Office Log retains append-only entries, confirmed save/close behavior and compact disclosures. Program catalog uses a distinct editor and readable catalog surface while preserving revisions and duplicate semantics. Backup, restore, recovery review and Google synchronization retain explicit destinations, confirmations and progress/error handling. Account pages retain credentials and role enforcement. Guide search and essential recovery instructions remain available; system readiness reports observed states without invented guarantees.
 
-1. Page heading and Guide/report/add-scholar actions.
-2. Scope filters for College / Staff, start academic year and chart order.
-3. Four summary cards: Scholars, Grant records, Scholars on going and Requirements follow-up.
-4. Full-width college/Staff comparison.
-5. Status and grant-type composition cards.
-6. Full-width ten-recent-scholars table.
-7. Separate requirement follow-up and contract-assessment sections.
-8. Expandable contract details and embedded reporting/export work.
+## Acceptance and limits
 
-The chart choice follows the question being answered:
-
-| Data | Visualization | Reason | Text counterpart |
-|---|---|---|---|
-| Scholars by college / Staff | Vertical bars with zero baseline | Compare category magnitudes clearly | Named chart region and count list |
-| Latest scholar statuses | Doughnut | Show each status's share of selected scholars | Label, count, percentage; total in ring |
-| Grant types | Pie | Show composition of selected grant records | Label, count, percentage |
-
-Zero/unknown categories remain represented as recorded rather than guessed. The pie handles one positive category as a full circle and an empty scope as an empty state. Grant-type colors remain stable when changing chart order. Small shares remain readable in the legend even if hard to distinguish visually. No chart relies on color alone.
-
-### Directory and reports
-
-Place search, filters, counts and actions consistently above results. Provide stable identity/profile links, readable status labels, pagination and clear no-results feedback. Preserve complete filtered printing/export. On smaller screens, tables scroll inside their own labelled region rather than widening the whole page.
-
-Directory rows use stable case-insensitive alphabetical order of the full recorded name, with ID as a tie-breaker. This does not invent a surname field or reinterpret names. Show hard-copy and soft-copy availability separately using Available, Not available and Not recorded text rather than color alone.
-
-### Scholar profile
-
-Use an identity header and compact facts, followed by whole-profile remarks, education and annual grant history. Keep “Profile remarks” and “Grant remarks” visibly different. The full grant history has its own disclosure, in addition to individual program/year groups, so it need not dominate the page. Profile, education and grant actions use icons with accessible labels and tooltips; icons never rely on shape alone. Staff should not appear twice as redundant identity pills. COE/COED remain separate. Requirements and privileged change history support the profile without dominating its core information.
-
-### Scholar editor
-
-Use clear sections for Scholar Information, Education, Grants and Requirements. Distinguish finishing a subentry from persisting the scholar. Keep open drafts, errors and uncertain-save notices visible. Confirm discards/removals where implemented. Preserve explicit recorded unknowns and optional fields; do not turn completeness guidance into mandatory fields. Place grant outcome and case state after the remarks near Save Grant. Optional graduation and contract-completion dates have distinct labels. Display new record text in uppercase, format recognized consecutive academic-year ranges with a dash, retain a single four-digit year on blur/save and protect age/tenure from mouse-wheel changes while keeping normal keyboard editing available.
-
-Use a single Program Applied input in grants and a separate optional Degree/Certification/Enhancement category. Keep funding in Type of Grant. Stack annual records by application, including repeat enrollments in the same program, with each application's overall period visible in its summary. Keep Copy for next year and New application distinct. Existing unassigned program history stays together until explicitly reviewed and reassigned.
-
-### Office Log
-
-Use a compact new-entry form and a paginated, filterable document register. Receipt/transfer information includes the document, optional scholar, date, from/to department and notes without introducing file-upload behavior. Author and scholar snapshots explain who recorded an entry and which scholar was linked at that time. Keep Office Log separate from administrator Activity History. Append-only entries have no misleading edit/delete controls.
-
-Close the editor only after confirmed saving and return focus to Add log entry. Keep failed/uncertain drafts open. Stack saved entries as native keyboard-operable disclosures with date/type/document/scholar summaries; expand for full notes, movement and author. Profile printing temporarily expands the loaded log entries and restores their prior state, just as grant history does.
-
-### Guide, settings and recovery
-
-Guide has local search, topic filters and expandable articles; essential restore guidance remains visible. Settings use aligned labelled controls and separate privileged/destructive actions. Backup/readiness pages distinguish local snapshots, off-device review, protected backups and external device checks.
-
-## Responsive and accessibility requirements
-
-Current Dashboard composition cards share a row above 1400px and stack below it. Summary cards become two columns at 640px; composition charts and legends stack at that breakpoint. The college chart may scroll locally. Profile/table/dialog behavior follows their own CSS breakpoints; do not assume one breakpoint controls the entire app.
-
-Maintain semantic headings, explicit control labels, keyboard focus visibility, modal focus behavior, labelled scroll regions, chart text equivalents and appropriate status/error announcements. Honor reduced motion. Verify both keyboard operation and text/zoom layouts. Existing automated accessibility checks are evidence of tested structure, not complete WCAG or screen-reader certification.
-
-## Review acceptance
-
-- Green remains `#176247`; meanings do not change during visual work.
-- At desktop and 390px widths, no global horizontal overflow is introduced.
-- Counts reconcile to their documented units and current filters.
-- Subentry and whole-scholar save boundaries are unambiguous.
-- Empty/loading/error/session-expired states remain usable.
-- Guide explanations stay searchable; Dashboard does not regain “About these counts.”
-- Privileged controls match backend enforcement.
-- Printing hides navigation/actions while preserving relevant report/profile information.
-
-Sources: [design tokens](../../frontend/src/design-tokens.css), [design system](../../frontend/src/design-system.css), [Dashboard CSS](../../frontend/src/dashboard.css), [profile CSS](../../frontend/src/profile.css), [Dashboard page](../../frontend/src/pages/FsdpDashboardPage.tsx), [Guide page](../../frontend/src/pages/ProductGuidePage.tsx). Mixed charts remain in 0.5.14.
-
-## Completion and reporting update (0.5.22)
-
-Calendar years stay literal: 2021 remains 2021; 2021-2022 remains an explicit academic-year range. Uppercase record controls preserve cursor/selection and multiline composition. Incomplete is an additional known grant outcome. The optional program start date and whole allowed duration produce a completion deadline; an explicit optional deadline takes priority, including for shorter programs. Previous completion dates remain a fallback. Grace runs three calendar years from the effective deadline, including its final day. Repayment progress (Not recorded, Unpaid, Partially paid, Fully paid) is separate from outcome and case status.
-
-The administrator can configure and connect Google reporting from Backup & Export, then explicitly confirm a one-way replacement of the CATHEDRA REPORT tab. Other tabs are preserved. Connection credentials are Windows-user encrypted outside SQLite. Internet and OAuth setup are needed for cloud delivery; offline records work independently. See [setup](../GOOGLE_SHEETS_SETUP.md) and [validation](../VALIDATION_0.5.22.md).
-
-## Google report update (0.5.23)
-
-Google reporting uses a dedicated [fifteen-column contract](GOOGLE_REPORT_CONTRACT.json) rather than the full CSV table. Each scholar is numbered once and their grants remain on consecutive rows. The report retains recorded education, tenure in years, exact dates or recorded academic periods, each grant's outcome and clearly labeled profile/grant remarks. Existing CSV exports and schema16 are unchanged. Setup, approved test accounts, spreadsheet editing access and per-PC sign-in are described in the [detailed guide](../GOOGLE_SHEETS_SETUP.md). See [0.5.23 validation](../VALIDATION_0.5.23.md) for observed delivery status.
+Check actual desktop/mobile layouts, no page-level horizontal overflow, readable input boundaries, keyboard focus, chart alternatives, draft retention and all sensitive workflow confirmations. Automated structural checks do not certify complete WCAG, screen-reader or intended Office-PC acceptance. See the [integration plan](../plans/2026-10-24-paper-office.md) and [release validation](../VALIDATION_0.5.24.md). The original interactive design kit (local historical evidence; excluded from this source snapshot) remains fictional and independent from production data. This release keeps React/FastAPI; it does not install the proposed HTML/HTMX adapter.

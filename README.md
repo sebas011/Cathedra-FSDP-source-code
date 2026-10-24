@@ -1,8 +1,12 @@
-# Cathedra FSDP 0.5.23
+# Cathedra FSDP 0.5.24
 
 Source code for the local Windows FSDP scholar administration application. Database schema: 16.
 
 This repository contains backend, frontend, desktop launcher/updater, tests, build tools and technical documentation. Working scholar records, accounts, backups, OAuth credentials, Google connection tokens, executables and private installation history are excluded.
+
+## Paper & Ink Scholar Office
+
+The working React application now uses ink navigation, a warm canvas and cobalt controls; redesigned profiles, a four-step atomic editor and real registration analytics retain the existing business rules and recovery behavior. The database remains schema16. See the [implementation plan](docs/plans/2026-10-24-paper-office.md).
 
 ## Google Sheets reporting
 
@@ -29,7 +33,7 @@ The build checks regressions and packages a clean Windows app in `desktop/releas
 - [Product requirements](docs/current/PRODUCT_REQUIREMENTS.md)
 - [Office guide](docs/OFFICE_GUIDE.md)
 - [Export schemas](docs/EXPORT_SCHEMAS.md)
-- [0.5.23 validation](docs/VALIDATION_0.5.23.md)
+- [0.5.24 validation](docs/VALIDATION_0.5.24.md)
 
 ## Office application downloads
 

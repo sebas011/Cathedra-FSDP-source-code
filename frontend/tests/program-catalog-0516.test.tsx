@@ -219,6 +219,7 @@ test("new application draft guards scholar navigation without an immediate catal
     { initialEntries: ["/fsdp/1/edit"] },
   );
   render(<RouterProvider router={router} />);
+  fireEvent.click(await screen.findByRole("button", { name: /^Step 3:/ }));
   fireEvent.click(await screen.findByRole("button", { name: "New application" }));
   fireEvent.click(screen.getByRole("link", { name: "Back" }));
   await screen.findByRole("button", { name: "Leave without saving" });

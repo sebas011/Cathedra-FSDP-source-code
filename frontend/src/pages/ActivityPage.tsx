@@ -28,7 +28,7 @@ export default function ActivityPage() {
     void load();
   }, []);
   return (
-    <div className="stack-md">
+    <div className="stack-md management-page activity-page">
       <PageHeading
         title="Activity History"
         eyebrow="ADMINISTRATION"

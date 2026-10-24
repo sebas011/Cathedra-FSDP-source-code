@@ -1,3 +1,4 @@
+import { scholarStep, saveScholarForm } from "./scholarSteps";
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, expect, test, vi } from "vitest";
 import { useState } from "react";
@@ -113,7 +114,7 @@ test("saving another profile field preserves loaded completion and repayment fac
   render(<RouterProvider router={router} />);
   const remarks = await screen.findByRole("textbox", { name: "Profile remarks" });
   fireEvent.change(remarks, { target: { value: "checked file" } });
-  fireEvent.click(screen.getByRole("button", { name: "Save Scholar" }));
+  saveScholarForm();
   await waitFor(() => expect(api.updateFsdpRecord).toHaveBeenCalled());
   expect(api.updateFsdpRecord.mock.calls[0][1].participations[0]).toMatchObject({
     allowed_duration_years: 3,
@@ -132,6 +133,8 @@ test("opening a new scholar clears previous education-restoration controls", asy
     { initialEntries: ["/fsdp/1/edit"] },
   );
   render(<RouterProvider router={router} />);
+  await screen.findByRole("textbox", { name: "Name *" });
+  scholarStep(2);
   await screen.findByRole("checkbox", { name: "Restore program #7 when saving" });
   await act(async () => {
     await router.navigate("/fsdp/new");
@@ -291,7 +294,7 @@ test("uppercase education level has one equivalent option and an unrelated edit 
   });
 });
 
-test("whole history collapse and nested states expand for print then restore exactly", () => {
+test("application and annual disclosure states expand for print then restore exactly", () => {
   const { container } = render(
     <ProgramGrantHistory
       grants={[
@@ -312,7 +315,7 @@ test("whole history collapse and nested states expand for print then restore exa
     />,
   );
   const details = [...container.querySelectorAll<HTMLDetailsElement>("details")];
-  expect(details[0].open).toBe(false);
+  details[0].open = false;
   const before = details.map((item) => item.open);
   act(() => {
     window.dispatchEvent(new Event("beforeprint"));
@@ -353,6 +356,11 @@ test("scholar save uppercases edited text and preserves historical details with 
     { initialEntries: ["/fsdp/1/edit"] },
   );
   render(<RouterProvider router={router} />);
+  await screen.findByRole("textbox", { name: "Name *" });
+  fireEvent.change(screen.getByRole("textbox", { name: "Profile remarks" }), {
+    target: { value: "updated profile note" },
+  });
+  scholarStep(3);
   const edit = await screen.findByRole("button", { name: "Edit grant Master of Science" });
   expect(
     within(edit.closest("tr")!).getByRole("button", {
@@ -361,16 +369,13 @@ test("scholar save uppercases edited text and preserves historical details with 
   ).toBeTruthy();
   expect(edit.textContent).toBe("");
   expect(edit.getAttribute("title")).toBe("Edit grant Master of Science");
-  fireEvent.change(screen.getByRole("textbox", { name: "Profile remarks" }), {
-    target: { value: "updated profile note" },
-  });
   fireEvent.click(edit);
   fireEvent.change(screen.getByLabelText("Graduation date (optional)"), {
     target: { value: "2026-05-01" },
   });
   fireEvent.change(screen.getByLabelText("Case status"), { target: { value: "Open" } });
   fireEvent.click(screen.getByRole("button", { name: "Update Grant" }));
-  fireEvent.click(screen.getByRole("button", { name: "Save Scholar" }));
+  saveScholarForm();
   await waitFor(() => expect(api.updateFsdpRecord).toHaveBeenCalled());
   const payload = api.updateFsdpRecord.mock.calls[0][1] as ScholarPayload;
   expect(payload).toMatchObject({

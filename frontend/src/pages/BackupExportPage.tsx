@@ -244,7 +244,7 @@ export default function BackupExportPage() {
   if (!status && !statusError)
     return <PageSkeleton label="Loading backup and export status" variant="dashboard" />;
   return (
-    <div className="stack-md maintenance-page">
+    <div className="stack-md management-page maintenance-page">
       <ConfirmationDialog
         open={confirmation !== null}
         title={

@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 
 export default function PageHeading({
   title,
+  eyebrow,
   description,
   actions,
 }: {
@@ -13,6 +14,7 @@ export default function PageHeading({
   return (
     <header className="workspace-heading">
       <div>
+        {eyebrow && <span className="eyebrow">{eyebrow}</span>}
         <h1>{title}</h1>
         {description && <p>{description}</p>}
       </div>

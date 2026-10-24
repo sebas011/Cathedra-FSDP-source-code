@@ -6,9 +6,9 @@ import type { AnalyticsRow } from "../types";
 const outcomeColors: Record<string, string> = {
   "On Going": "var(--brand)",
   Incomplete: "var(--warning)",
-  Completed: "var(--info)",
-  Graduated: "var(--info)",
-  Payback: "var(--warning)",
+  Completed: "var(--success, #087365)",
+  Graduated: "var(--success, #087365)",
+  Payback: "var(--danger)",
   "Payback pending contract": "var(--warning)",
   Transferred: "var(--info)",
   Withdrawn: "var(--danger)",

@@ -1,0 +1,29 @@
+{
+  "status": "verified-synthetic-browser-acceptance",
+  "version": "0.5.24",
+  "browser": "In-app Chromium browser",
+  "data": "Disposable fictional database only",
+  "checks": {
+    "name_word_prefix_search": true,
+    "filter_reload_preserves_focus": true,
+    "review_continue_does_not_submit": true,
+    "explicit_name_only_save": true,
+    "multiline_start_cursor_preserved": true,
+    "profile_distinct_applications_and_grants": true,
+    "desktop_no_global_horizontal_overflow": true,
+    "mobile390_dashboard_profile_editor_no_global_overflow": true,
+    "expanded_registration_table_local_scroll_and_keyboard_region": true,
+    "mobile_menu_focus_inert_and_escape_return": true
+  },
+  "screenshots": [
+    "docs/evidence-0.5.24/dashboard-desktop.jpg",
+    "docs/evidence-0.5.24/dashboard-mobile.jpg",
+    "docs/evidence-0.5.24/editor-mobile.jpg",
+    "docs/evidence-0.5.24/editor-review-desktop.jpg",
+    "docs/evidence-0.5.24/profile-desktop.jpg",
+    "docs/evidence-0.5.24/profile-mobile.jpg"
+  ],
+  "actual_office_pc_tested": false,
+  "live_google_transmission_tested": false,
+  "full_wcag_or_screen_reader_certified": false
+}

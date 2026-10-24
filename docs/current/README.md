@@ -1,8 +1,8 @@
 # Current system documentation
 
 **Product:** Cathedra FSDP  
-**Documented:** 22 October 2026, Asia/Manila<br>
-**Baseline:** release 0.5.23; database schema 16<br>
+**Documented:** 24 October 2026, Asia/Manila<br>
+**Baseline:** release 0.5.24; database schema 16<br>
 **Status:** implementation-derived documentation; see [baseline and evidence](README.md).
 
 ## Start here
@@ -22,9 +22,9 @@ These documents describe the implemented Cathedra FSDP application and the remai
 
 | Item | Observed state | Interpretation |
 |---|---|---|
-| Current source | 0.5.23; schema 16 | Dedicated fifteen-column Google report and detailed setup guide; 586 backend and 245 frontend checks passed. |
-| Development installation | Verified 0.5.23 | Database bytes and the existing encrypted Google connection were preserved. |
-| Office update package | Verified local 0.5.23 package; 149 runtime files | No working records or Google credentials are distributed. |
+| Current source | 0.5.24; schema 16 | Paper & Ink production integration. Measured checks are recorded in [0.5.24 validation](../VALIDATION_0.5.24.md). |
+| Development installation | Verified 0.5.24 | Database bytes and the existing encrypted Google connection were preserved. |
+| Office update package | Verified local 0.5.24 package; 149 runtime files | No working records or Google credentials are distributed. |
 | GitHub delivery | [Versioned release channel](https://github.com/sebas011/Cathedra-FSDP/releases/tag/v0.5.23) | Public delivery and source workflow results are verified separately from local package checks. |
 | Current source schema | Migration 16; 15 tables and 120 model columns | Three nullable grant fields; no historical facts are rewritten. |
 | Actual Office-PC acceptance | Unverified | Local tests do not certify the separate Office PC. |
@@ -68,3 +68,9 @@ The administrator can configure and connect Google reporting from Backup & Expor
 ## Google report update (0.5.23)
 
 Google reporting uses a dedicated [fifteen-column contract](GOOGLE_REPORT_CONTRACT.json) rather than the full CSV table. Each scholar is numbered once and their grants remain on consecutive rows. The report retains recorded education, tenure in years, exact dates or recorded academic periods, each grant's outcome and clearly labeled profile/grant remarks. Existing CSV exports and schema16 are unchanged. Setup, approved test accounts, spreadsheet editing access and per-PC sign-in are described in the [detailed guide](../GOOGLE_SHEETS_SETUP.md). See [0.5.23 validation](../VALIDATION_0.5.23.md) for observed delivery status.
+
+## Paper & Ink release (0.5.24)
+
+The latest source integrates the new interface into the existing application. The historical 0.5.23 installation and delivery rows above describe their recorded verification; they are not a claim that the new release is installed or published. Consult [0.5.24 validation](../VALIDATION_0.5.24.md) and its publication receipt for the current measured state. No working Office database, account or Google connection is a software update asset.
+
+The development runtime is now verified at 0.5.24 with preserved database/Google state. The 588 backend and 261 frontend checks, native build and synthetic Office upgrade are recorded in [0.5.24 validation](../VALIDATION_0.5.24.md); remote publication and intended Office-PC acceptance remain separate evidence.

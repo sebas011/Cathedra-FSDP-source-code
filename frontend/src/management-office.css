@@ -1,0 +1,101 @@
+/* Supporting workspaces use the same Paper & Ink primitives as scholar work. */
+.management-page {
+  gap: 24px;
+}
+.catalog-workspace {
+  display: grid;
+  grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+.catalog-workspace > * {
+  min-width: 0;
+}
+.catalog-workspace .entry-grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+.catalog-workspace .entry-grid > label {
+  grid-column: 1;
+}
+.catalog-workspace .record-editor {
+  border-top: 3px solid var(--brand);
+}
+.catalog-workspace .record-editor h2 {
+  margin-bottom: 8px;
+}
+.catalog-workspace .table-region {
+  border-radius: 0;
+}
+.accounts-page .account-identity {
+  padding-bottom: 22px;
+  margin-bottom: 22px;
+  border-bottom: 1px solid var(--border);
+}
+.accounts-page .account-form {
+  max-width: 760px;
+  gap: 20px;
+}
+.management-page .workspace-card-icon {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--brand);
+  border-radius: 6px;
+}
+.office-log-page > .profile-panel {
+  padding: 26px;
+}
+.office-log-page .office-log-list {
+  gap: 0;
+  border-top: 1px solid var(--border);
+}
+.office-log-page .office-log-entry {
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
+}
+.office-log-page .office-log-entry > summary {
+  padding: 20px 8px;
+}
+.office-log-page .office-log-details {
+  padding: 20px 32px;
+  background: var(--surface-subtle);
+}
+.office-guide .guide-categories,
+.office-guide .guide-article,
+.office-guide .guide-search {
+  box-shadow: none;
+}
+.office-guide .guide-answer {
+  max-width: 86ch;
+}
+@media (max-width: 1100px) {
+  .catalog-workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .catalog-workspace .record-editor .entry-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .catalog-workspace .record-editor .entry-wide {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 640px) {
+  .management-page,
+  .catalog-workspace {
+    gap: 20px;
+  }
+  .office-log-page > .profile-panel {
+    padding: 18px;
+  }
+  .catalog-workspace .record-editor .entry-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media print {
+  .catalog-workspace {
+    display: block;
+  }
+  .office-log-page > .profile-panel {
+    padding: 0;
+  }
+}

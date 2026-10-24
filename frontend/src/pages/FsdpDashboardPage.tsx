@@ -6,7 +6,9 @@ import { reportFilters, reportView, reportScopeLabel } from "../utils/reportScop
 import { getPayback } from "../api/payback";
 import { getFsdpReport, getFsdpAnalytics } from "../api";
 import type { FsdpAnalytics } from "../types";
+import { formatRegistrationDate, registrationTimestamp } from "../utils/dates";
 import AnalyticsChart, { type ChartOrder } from "../components/AnalyticsChart";
+import RegistrationChart from "../components/RegistrationChart";
 import OutcomeChart from "../components/OutcomeChart";
 import GrantTypeChart from "../components/GrantTypeChart";
 import PaybackFollowUp from "../components/PaybackFollowUp";
@@ -105,6 +107,9 @@ export default function FsdpDashboardPage() {
             <strong>{overview.requirements_follow_up}</strong>
           </article>
         </section>
+        {overview.registration_series && (
+          <RegistrationChart series={overview.registration_series} total={overview.scholars} />
+        )}
         <AnalyticsChart
           title="Scholars by college / Staff"
           unit="Scholars"
@@ -130,7 +135,7 @@ export default function FsdpDashboardPage() {
                 <tr key={item.id}>
                   <td>{item.name}</td>
                   <td>{item.department || "Not recorded"}</td>
-                  <td>{new Date(item.created_at).toLocaleDateString()}</td>
+                  <td>{formatRegistrationDate(item.created_at)}</td>
                 </tr>
               ))}
             </tbody>
@@ -168,10 +173,10 @@ export default function FsdpDashboardPage() {
 
   return (
     <div className="fsdp-dashboard dashboard-page">
-      <div className="dashboard-overview">
+      <div className="dashboard-overview" id="dashboard-overview">
         <div className="dashboard-heading">
           <PageHeading
-            title="Scholar development overview"
+            title="Scholar overview"
             actions={
               <>
                 <Link className="text-button" to="/office-guide">
@@ -187,6 +192,11 @@ export default function FsdpDashboardPage() {
             }
           />
         </div>
+        <nav className="dashboard-section-nav" aria-label="Dashboard sections">
+          <a href="#dashboard-overview">Overview</a>
+          <a href="#dashboard-reports">Reports &amp; exports</a>
+          <a href="#contract-assessment">Contract follow-up</a>
+        </nav>
         <section className="dashboard-scope" aria-label="Dashboard filters">
           <div className="dashboard-scope-label">
             <strong>Dashboard scope</strong>
@@ -265,154 +275,157 @@ export default function FsdpDashboardPage() {
                 </article>
               ))}
             </section>
-            <AnalyticsChart
-              title="Scholars by college / Staff"
-              unit="Scholars"
-              rows={analytics.departments}
-              order={order}
-            />
-            <div className="dashboard-chart-row">
-              <OutcomeChart rows={analytics.statuses} order={order} />
-              <GrantTypeChart rows={analytics.grant_types} order={order} />
-            </div>
-            <div className="dashboard-detail-row">
-              <section className="data-card dashboard-recent">
+            <div className="dashboard-primary-row">
+              {analytics.registration_series ? (
+                <RegistrationChart
+                  series={analytics.registration_series}
+                  total={analytics.scholars}
+                />
+              ) : (
+                <section className="analytics-card registration-card">
+                  <header className="dashboard-card-heading">
+                    <h2>Scholar registrations</h2>
+                  </header>
+                  <p className="analytics-empty">
+                    Registration history is unavailable. Try refreshing the dashboard.
+                  </p>
+                </section>
+              )}
+              <section className="analytics-card attention-card" aria-label="Attention queue">
                 <header className="dashboard-card-heading">
                   <div>
-                    <h2>10 most recently added scholars</h2>
+                    <span className="dashboard-kicker">Office priorities</span>
+                    <h2>Requires attention</h2>
                   </div>
-                  <Link className="text-button" to="/fsdp">
-                    View directory
-                  </Link>
+                  <AttentionIcon />
                 </header>
-                <TableRegion label="Recently added scholars">
-                  <table>
-                    <thead>
+                <div className="attention-list">
+                  {[
+                    { label: "Recorded Payback", tone: "critical" },
+                    { label: "Payback review", tone: "warning" },
+                    { label: "Payback pending contract", tone: "warning" },
+                    { label: "In grace period", tone: "neutral" },
+                    { label: "Completion date missing", tone: "neutral" },
+                  ].map(({ label, tone }) => (
+                    <Link
+                      className={"attention-item attention-" + tone}
+                      key={label}
+                      to={`/?${new URLSearchParams({ ...Object.fromEntries(params), contract_attention: label })}#contract-assessment`}
+                    >
+                      <span className="attention-dot" aria-hidden="true" />
+                      <span>{label}</span>
+                      <strong>{(analytics.payback_summary?.[label] || 0).toLocaleString()}</strong>
+                      <ArrowIcon />
+                    </Link>
+                  ))}
+                  <Link
+                    className="attention-item attention-neutral"
+                    to={`/?${new URLSearchParams({ ...Object.fromEntries(params), missing_requirements: "true" })}#dashboard-reports`}
+                  >
+                    <span className="attention-dot" aria-hidden="true" />
+                    <span>Requirements follow-up</span>
+                    <strong>{analytics.requirements_follow_up.toLocaleString()}</strong>
+                    <ArrowIcon />
+                  </Link>
+                </div>
+                <Link className="dashboard-queue-footer" to="/office-guide#contract-payback">
+                  Assessment guide <ArrowIcon />
+                </Link>
+              </section>
+            </div>
+            <div className="dashboard-secondary-row">
+              <AnalyticsChart
+                title="Scholars by college / Staff"
+                unit="Scholars"
+                rows={analytics.departments}
+                order={order}
+              />
+              <OutcomeChart rows={analytics.statuses} order={order} />
+            </div>
+            <section className="data-card dashboard-recent">
+              <header className="dashboard-card-heading">
+                <div>
+                  <span className="dashboard-kicker">Recently registered</span>
+                  <h2>10 most recently added scholars</h2>
+                </div>
+                <Link className="text-button" to="/fsdp">
+                  View directory <ArrowIcon />
+                </Link>
+              </header>
+              <TableRegion label="Recently added scholars">
+                <table>
+                  <thead>
+                    <tr>
+                      <th scope="col">Scholar</th>
+                      <th scope="col">College / Staff</th>
+                      <th scope="col">Current status</th>
+                      <th scope="col">Added</th>
+                      <th scope="col">
+                        <span className="chart-text-values">Profile</span>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {!(analytics.recent_scholars || []).length ? (
                       <tr>
-                        <th scope="col">Scholar</th>
-                        <th scope="col">College / Staff</th>
-                        <th scope="col">Added</th>
-                        <th scope="col">
-                          <span className="chart-text-values">Profile</span>
-                        </th>
+                        <td colSpan={5} className="dashboard-empty">
+                          <strong>No scholars in this scope.</strong>
+                          <span>Choose another department or add a scholar.</span>
+                        </td>
                       </tr>
-                    </thead>
-                    <tbody>
-                      {!(analytics.recent_scholars || []).length ? (
-                        <tr>
-                          <td colSpan={4} className="dashboard-empty">
-                            <strong>No scholars in this scope.</strong>
-                            <span>Choose another department or add a scholar.</span>
+                    ) : (
+                      analytics.recent_scholars?.map((scholar) => (
+                        <tr key={scholar.id}>
+                          <td>
+                            <div className="dashboard-scholar">
+                              <span className="scholar-initials" aria-hidden="true">
+                                {scholar.name
+                                  .split(/\s+/)
+                                  .filter(Boolean)
+                                  .slice(0, 2)
+                                  .map((word) => word[0])
+                                  .join("")
+                                  .toUpperCase()}
+                              </span>
+                              <span>
+                                <Link className="record-value" to={"/fsdp/" + scholar.id}>
+                                  {scholar.name}
+                                </Link>
+                                <small>Scholar #{scholar.id}</small>
+                              </span>
+                            </div>
+                          </td>
+                          <td>{scholar.department || "Unknown"}</td>
+                          <td>
+                            <span className="dashboard-status">
+                              {scholar.current_status || "No grants"}
+                            </span>
+                          </td>
+                          <td>
+                            <time dateTime={registrationTimestamp(scholar.created_at) || undefined}>
+                              {formatRegistrationDate(scholar.created_at)}
+                            </time>
+                          </td>
+                          <td>
+                            <Link
+                              className="dashboard-profile-link"
+                              aria-label={"View profile for " + scholar.name}
+                              to={"/fsdp/" + scholar.id}
+                            >
+                              View profile <ArrowIcon />
+                            </Link>
                           </td>
                         </tr>
-                      ) : (
-                        analytics.recent_scholars?.map((scholar) => (
-                          <tr key={scholar.id}>
-                            <td>
-                              <div className="dashboard-scholar">
-                                <span className="scholar-initials" aria-hidden="true">
-                                  {scholar.name
-                                    .split(/\s+/)
-                                    .filter(Boolean)
-                                    .slice(0, 2)
-                                    .map((word) => word[0])
-                                    .join("")
-                                    .toUpperCase()}
-                                </span>
-                                <span>
-                                  <strong className="record-value">{scholar.name}</strong>
-                                  <small>Scholar #{scholar.id}</small>
-                                </span>
-                              </div>
-                            </td>
-                            <td>{scholar.department || "Not recorded"}</td>
-                            <td>
-                              <time dateTime={scholar.created_at}>
-                                {new Date(scholar.created_at).toLocaleDateString(undefined, {
-                                  day: "numeric",
-                                  month: "short",
-                                  year: "numeric",
-                                })}
-                              </time>
-                            </td>
-                            <td>
-                              <Link
-                                className="dashboard-profile-link"
-                                aria-label={"View profile for " + scholar.name}
-                                to={"/fsdp/" + scholar.id}
-                              >
-                                View profile <ArrowIcon />
-                              </Link>
-                            </td>
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
-                </TableRegion>
-              </section>
-              <aside className="dashboard-side" aria-label="Requirements follow-up">
-                <section className="analytics-card dashboard-follow-up">
-                  <header className="dashboard-card-heading">
-                    <div>
-                      <h2>Requirements follow-up</h2>
-                    </div>
-                    <AttentionIcon />
-                  </header>
-                  <div
-                    className={
-                      "follow-up-summary" +
-                      (analytics.requirements_follow_up ? " has-follow-up" : "")
-                    }
-                  >
-                    <strong>{analytics.requirements_follow_up.toLocaleString()}</strong>
-                    <span>
-                      {analytics.requirements_follow_up === 1
-                        ? "scholar profile flagged"
-                        : "scholar profiles flagged"}
-                    </span>
-                  </div>
-                  <a className="dashboard-action-link" href="#dashboard-reports">
-                    <span>Review dashboard reports</span>
-                    <ArrowIcon />
-                  </a>
-                </section>
-              </aside>
-            </div>
-            {analytics.payback_summary && (
-              <section
-                className="analytics-card dashboard-contracts"
-                aria-label="Contract and payback overview"
-              >
-                <header className="dashboard-card-heading">
-                  <div>
-                    <h2>Contract and payback assessment</h2>
-                  </div>
-                  <Link
-                    className="text-button"
-                    to={`/?${new URLSearchParams({ department, start_academic_year: year })}#contract-assessment`}
-                  >
-                    Review scholars →
-                  </Link>
-                </header>
-                <div className="dashboard-metrics">
-                  {[
-                    "Recorded Payback",
-                    "Payback pending contract",
-                    "Payback review",
-                    "In grace period",
-                    "Completion date missing",
-                  ].map((group) => (
-                    <div key={group}>
-                      <span>{group}</span>
-                      <strong style={{ display: "block", fontSize: 28 }}>
-                        {analytics.payback_summary?.[group] || 0}
-                      </strong>
-                    </div>
-                  ))}
-                </div>
-              </section>
-            )}
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </TableRegion>
+            </section>
+            <details className="dashboard-grant-composition data-card">
+              <summary>Grant type composition</summary>
+              <GrantTypeChart rows={analytics.grant_types} order={order} />
+            </details>
           </>
         )}
       </div>

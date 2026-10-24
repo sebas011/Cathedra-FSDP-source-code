@@ -83,10 +83,31 @@ test("desktop remembers the last sidebar choice", () => {
   expect(screen.getByRole("button", { name: "Expand sidebar" })).toBeTruthy();
 });
 
+test("staff navigation keeps own security and omits administrator management", () => {
+  api.getCurrentUser.mockReturnValue({ ...administrator, role: "staff" });
+  openShell();
+  expect(screen.getByRole("link", { name: "My account" }).getAttribute("href")).toBe(
+    "/settings/accounts",
+  );
+  expect(screen.getByRole("link", { name: "Office settings" }).getAttribute("href")).toBe(
+    "/settings",
+  );
+  expect(screen.queryByRole("link", { name: "Programs" })).toBeNull();
+  expect(screen.queryByRole("link", { name: "Activity History" })).toBeNull();
+  expect(screen.queryByRole("link", { name: "Accounts" })).toBeNull();
+});
+
+test("the utility search and keyboard shortcut open the protected scholar directory", async () => {
+  openShell();
+  fireEvent.keyDown(window, { key: "k", ctrlKey: true });
+  expect(await screen.findByRole("heading", { name: "Scholars test" })).toBeTruthy();
+  expect(screen.getByRole("button", { name: "Find a scholar" })).toBeTruthy();
+});
+
 test("removed workspace breadcrumbs stay absent during navigation", async () => {
   openShell();
   expect(screen.queryByLabelText("Current workspace")).toBeNull();
-  fireEvent.click(screen.getByRole("link", { name: "FSDP" }));
+  fireEvent.click(screen.getByRole("link", { name: "Scholars" }));
   await waitFor(() => expect(screen.queryByLabelText("Current workspace")).toBeNull());
 });
 
@@ -119,12 +140,12 @@ test("mobile keyboard navigation stays in the drawer and close button works", ()
   openShell();
   fireEvent.click(screen.getByRole("button", { name: "Open menu" }));
   const closer = screen.getByRole("button", { name: "Close menu" });
-  const guide = screen.getByRole("link", { name: "Office Guide" });
-  guide.focus();
+  const lastLink = screen.getByRole("link", { name: "System Readiness" });
+  lastLink.focus();
   fireEvent.keyDown(document, { key: "Tab" });
   expect(document.activeElement).toBe(closer);
   fireEvent.keyDown(document, { key: "Tab", shiftKey: true });
-  expect(document.activeElement).toBe(guide);
+  expect(document.activeElement).toBe(lastLink);
   fireEvent.click(closer);
   expect(screen.queryByRole("dialog")).toBeNull();
 });
@@ -136,7 +157,7 @@ test("backdrop closes the drawer and navigation opens the selected page", async 
   fireEvent.click(document.querySelector(".sidebar-scrim")!);
   expect(screen.queryByRole("dialog")).toBeNull();
   fireEvent.click(screen.getByRole("button", { name: "Open menu" }));
-  fireEvent.click(screen.getByRole("link", { name: "FSDP" }));
+  fireEvent.click(screen.getByRole("link", { name: "Scholars" }));
   expect(await screen.findByRole("heading", { name: "Scholars test" })).toBeTruthy();
   expect(screen.queryByRole("dialog")).toBeNull();
   expect(document.activeElement?.id).toBe("main-content");
