@@ -1,0 +1,44 @@
+{
+  "status": "verified",
+  "version": "0.5.25",
+  "schema": 16,
+  "frontend_tests": 262,
+  "frontend_test_files": 40,
+  "frontend_coverage": {
+    "statements": 82.45,
+    "branches": 74.93,
+    "functions": 77.8,
+    "lines": 85.82
+  },
+  "frontend_format_and_typechecks_passed": true,
+  "production_build_passed": true,
+  "backend_runtime_sources_unchanged_from_0524": 45,
+  "backend_full_suite_rerun": false,
+  "backend_regression_reference": "REGRESSION_VALIDATION_0.5.24.json",
+  "runtime_source_sha256": {
+    "frontend/src/dashboard.css": "fec3c8e2aa212418dacabd0295a17be2c0a1ba9b0beacb11e7e3531e7ff251c1",
+    "frontend/src/scholar-office.css": "b2caa1a683abf924deaf85be8895e04467c0c15ae18c3cf7d41e1625ff7c3ace",
+    "frontend/src/main.tsx": "d308365b47c9bf5bea8350c247eb8974035dcb20e6f90a636b8328167d5962d8",
+    "frontend/src/pages/FsdpDetailPage.tsx": "6e163a2100670dfb03b6807d05646a5d44d6611f218e6e4784aa9904f81a32de",
+    "frontend/src/pages/FsdpFormPage.tsx": "f3108d539a687a5bbbf4075cbd661bd8c937d0130fc5f63c17bb0b3713b0ad8f",
+    "frontend/src/pages/FsdpListPage.tsx": "4b337fafba23966ed3452f877532b10f48d741971fcdce01c66466e03d94253c",
+    "frontend/src/components/ProgramGrantHistory.tsx": "8c9d9ac1cf0383005d8e064f8c5d1fa13caeeacb4f07e016f21f3ba57f4effcc"
+  },
+  "browser_checks": {
+    "desktop_profile_full_width": true,
+    "directory_profile_and_direct_reload": true,
+    "education_visible_by_default": true,
+    "latest_application_visible_by_default": true,
+    "expand_and_collapse_all_grants": true,
+    "mobile_390_no_horizontal_overflow": true,
+    "status_donut_desktop_pixels": 250,
+    "status_donut_mobile_pixels": 240
+  },
+  "github_publication_performed": false,
+  "actual_office_pc_tested": false,
+  "limitations": [
+    "Synthetic browser records only",
+    "Physical printing and full screen-reader certification not performed"
+  ],
+  "scope": "Local validation recorded before publication; remote CI and release download have separate receipts."
+}

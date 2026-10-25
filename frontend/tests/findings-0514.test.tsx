@@ -39,13 +39,13 @@ test("annual history groups by program identity and retains independently expand
   const { container } = render(<ProgramGrantHistory grants={grants} />);
   const programs = container.querySelectorAll<HTMLDetailsElement>(".program-history");
   expect(programs.length).toBe(2);
-  expect(programs[0].open).toBe(false);
+  expect(programs[0].open).toBe(true);
   // Browser-native details controls support keyboard and pointer activation.
   programs[0].open = true;
   fireEvent(programs[0], new Event("toggle"));
   expect(screen.getByText("2023-2024")).toBeTruthy();
   expect(screen.getByText(/Partial Scholarship/)).toBeTruthy();
-  const annual = programs[0].querySelector<HTMLDetailsElement>(".annual-grant")!;
+  const annual = programs[0].querySelectorAll<HTMLDetailsElement>(".annual-grant")[1];
   expect(annual.open).toBe(false);
   annual.open = true;
   fireEvent(annual, new Event("toggle"));

@@ -1,8 +1,8 @@
 # Application flow
 
 **Product:** Cathedra FSDP  
-**Documented:** 24 October 2026, Asia/Manila<br>
-**Baseline:** release 0.5.24; database schema 16<br>
+**Documented:** 25 October 2026, Asia/Manila<br>
+**Baseline:** release 0.5.25; database schema 16<br>
 **Status:** implementation-derived documentation; see [baseline and evidence](README.md).
 
 ## Navigation map
@@ -163,3 +163,9 @@ Google reporting uses a dedicated [fifteen-column contract](GOOGLE_REPORT_CONTRA
 ## Paper & Ink integration (0.5.24)
 
 The production UI uses the new Scholar Office shell and visual system. Scholar entry is organized into identity, education, programs/grants and review steps over the existing atomic aggregate save. Reports remain on the dashboard, with an additive real registration-history series and accessible chart data. Role, session, revision, idempotency, business and recovery contracts remain in force. Schema16 and existing CSV/Google report formats are retained. See the [implementation plan](../plans/2026-10-24-paper-office.md), [current design brief](DESIGN_BRIEF.md) and [versioned validation](../VALIDATION_0.5.24.md) for implementation and observed gates.
+
+## Profile reading refinement (0.5.25)
+
+From a scholar profile, choose Education or Programs & grants to read those records at the full content width. Education opens with its qualification details visible; each entry still supports keyboard disclosure. Program applications continue to group their annual grants, and the existing status, deadline, repayment and remarks fields remain available. Supporting profile information remains reachable, and printing continues to include the record sections. Editing and saving still use the same complete scholar draft and final Save Scholar action.
+
+The Overview status chart also has a larger plot and clearer legend. These layout changes follow the [readability plan](../plans/2026-10-25-profile-readability.md); see [0.5.25 validation](../VALIDATION_0.5.25.md) for current verification progress.

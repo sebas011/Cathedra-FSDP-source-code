@@ -210,6 +210,18 @@
   grid-row: 1;
   gap: 24px;
 }
+.fsdp-person-profile .profile-layout-records {
+  grid-template-columns: minmax(0, 1fr);
+}
+.fsdp-person-profile .profile-layout-records .profile-sidebar {
+  grid-column: 1;
+  grid-row: 2;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+}
+.fsdp-person-profile .profile-layout-records .profile-notes-panel {
+  grid-column: auto;
+}
 .office-profile-tabpanel {
   display: grid;
   gap: 24px;
@@ -265,68 +277,141 @@
   margin-bottom: 8px;
 }
 .office-education-list {
-  gap: 12px;
+  display: grid;
+  gap: 20px;
 }
 .office-education-list > li {
   display: block;
   padding: 0;
   border: 1px solid var(--office-rule);
-  border-radius: 6px;
+  border-radius: 8px;
+  overflow: hidden;
 }
 .office-education-list details {
   width: 100%;
 }
 .office-education-list summary {
   cursor: pointer;
-  padding: 18px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 22px 24px;
+  list-style: none;
+  background: var(--canvas);
 }
-.office-education-list summary strong {
-  margin-left: 6px;
+.office-education-list summary::-webkit-details-marker {
+  display: none;
 }
-.office-education-list summary span {
-  display: block;
-  margin: 6px 0 0 20px;
+.office-education-list summary::after {
+  content: "›";
+  font-size: 24px;
+  color: var(--office-cobalt);
+  margin-left: auto;
+}
+.office-education-list details[open] > summary::after {
+  transform: rotate(90deg);
+}
+.office-education-list summary:focus-visible {
+  outline: 3px solid var(--office-cobalt);
+  outline-offset: -3px;
+}
+.office-education-heading {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+.office-education-heading strong {
+  font-size: 18px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.office-education-level {
   color: var(--office-muted);
-  font-size: 12px;
-}
-.office-education-list details > span {
-  display: block;
-  padding: 0 18px 18px 38px;
   font-size: 13px;
 }
+.office-education-facts {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 24px;
+  padding: 22px 24px;
+  margin: 0;
+  border-top: 1px solid var(--office-rule);
+}
+.office-education-facts dt,
+.fsdp-person-profile .profile-grant-facts dt {
+  font-size: 13px;
+  color: var(--office-muted);
+  white-space: normal;
+  line-height: 1.5;
+}
+.office-education-facts dd,
+.fsdp-person-profile .profile-grant-facts dd {
+  margin: 7px 0 0;
+  font-size: 15px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
 .fsdp-person-profile .profile-grant-history {
-  gap: 16px;
+  gap: 24px;
+}
+.grant-history-title,
+.grant-history-controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.grant-history-heading > .grant-history-controls {
+  margin-left: auto;
+}
+.fsdp-person-profile .grant-history-heading h2,
+.fsdp-person-profile #scholar-education > header h2 {
+  font-size: 22px;
 }
 .fsdp-person-profile .program-history {
-  border-radius: 6px;
+  border-radius: 8px;
 }
 .fsdp-person-profile .program-history > summary {
-  padding: 18px;
-  background: #fafaf8;
+  padding: 24px;
+  background: var(--canvas);
+  flex-wrap: wrap;
+}
+.fsdp-person-profile .program-history > summary strong {
+  font-size: 18px;
+  line-height: 1.5;
+}
+.fsdp-person-profile .program-history-meta {
+  line-height: 1.6;
+  font-size: 14px;
 }
 .fsdp-person-profile .program-history > summary .eyebrow {
   display: block;
   margin-bottom: 6px;
 }
 .fsdp-person-profile .program-history-records {
-  padding: 0 18px 18px;
-  gap: 0;
+  padding: 24px;
+  gap: 20px;
 }
 .fsdp-person-profile .profile-grant {
-  border: 0;
-  border-bottom: 1px solid var(--office-rule);
-  border-radius: 0;
-  padding: 18px 0;
+  border: 1px solid var(--office-rule);
+  border-radius: 8px;
+  padding: 24px;
   background: #fff;
 }
 .fsdp-person-profile .profile-grant:last-child {
-  border-bottom: 0;
-  padding-bottom: 0;
+  padding-bottom: 24px;
+}
+.fsdp-person-profile .annual-grant > summary {
+  flex-wrap: wrap;
+}
+.fsdp-person-profile .annual-grant > summary strong {
+  font-size: 16px;
 }
 .fsdp-person-profile .profile-grant-facts {
-  padding-top: 18px;
-  gap: 20px;
-  margin-top: 18px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr));
+  padding-top: 24px;
+  gap: 24px 32px;
+  margin-top: 24px;
 }
 .fsdp-person-profile .profile-remarks {
   background: #fafaf8;
@@ -637,8 +722,31 @@
   .fsdp-person-profile .profile-sidebar {
     grid-template-columns: minmax(0, 1fr);
   }
+  .fsdp-person-profile .profile-layout-records .profile-sidebar {
+    grid-template-columns: minmax(0, 1fr);
+  }
   .fsdp-person-profile .profile-panel {
     padding: 20px;
+  }
+  .office-education-list summary,
+  .office-education-facts,
+  .fsdp-person-profile .program-history > summary {
+    padding: 18px;
+  }
+  .office-education-facts {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+  .fsdp-person-profile .program-history-records {
+    padding: 14px;
+    gap: 14px;
+  }
+  .fsdp-person-profile .profile-grant,
+  .fsdp-person-profile .profile-grant:last-child {
+    padding: 16px;
+  }
+  .grant-history-heading > .grant-history-controls {
+    margin-left: 0;
   }
   .fsdp-person-profile .profile-section-nav {
     gap: 18px;

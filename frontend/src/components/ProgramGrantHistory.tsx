@@ -24,6 +24,9 @@ export function groupAnnualGrants(grants: ParticipationRead[]) {
 }
 export default function ProgramGrantHistory({ grants }: { grants: ParticipationRead[] }) {
   const history = useRef<HTMLDivElement>(null);
+  const setExpanded = (open: boolean) => {
+    for (const entry of history.current?.querySelectorAll("details") || []) entry.open = open;
+  };
   useEffect(() => {
     let saved: Array<[HTMLDetailsElement, boolean]> = [];
     const expand = () => {
@@ -49,18 +52,28 @@ export default function ProgramGrantHistory({ grants }: { grants: ParticipationR
   return (
     <div ref={history}>
       <div className="grant-history-disclosure">
-        <header className="profile-section-title">
-          <h2>Grant history</h2>
-          <span className="profile-record-count">
-            {grants.length} {grants.length === 1 ? "record" : "records"}
-          </span>
+        <header className="profile-section-title grant-history-heading">
+          <div className="grant-history-title">
+            <h2>Grant history</h2>
+            <span className="profile-record-count">
+              {grants.length} {grants.length === 1 ? "record" : "records"}
+            </span>
+          </div>
+          <div className="grant-history-controls no-print">
+            <button className="btn secondary" type="button" onClick={() => setExpanded(true)}>
+              Expand all grants
+            </button>
+            <button className="btn secondary" type="button" onClick={() => setExpanded(false)}>
+              Collapse all grants
+            </button>
+          </div>
         </header>
         <div className="profile-grant-history">
           {groupAnnualGrants(grants).map((group, applicationIndex) => (
             <details
               className="program-history"
               key={applicationIdentity(group[0])}
-              open={grants.length === 1}
+              open={applicationIndex === 0}
             >
               <summary>
                 <span>
@@ -76,11 +89,11 @@ export default function ProgramGrantHistory({ grants }: { grants: ParticipationR
                 <span className="status-chip">{displayGrantStatus(group[0].status)}</span>
               </summary>
               <div className="program-history-records">
-                {group.map((grant) => (
+                {group.map((grant, grantIndex) => (
                   <details
                     className="profile-grant annual-grant"
                     key={grant.id}
-                    open={group.length === 1}
+                    open={grantIndex === 0}
                   >
                     <summary>
                       <span>

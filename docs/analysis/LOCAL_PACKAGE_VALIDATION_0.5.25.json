@@ -1,0 +1,20 @@
+{
+  "status": "verified",
+  "version": "0.5.25",
+  "schema": 16,
+  "runtime_files": 147,
+  "production_native_build_verified": true,
+  "installed_runtime_hashes_verified": true,
+  "powershell_51_and_7_packaged_workflow_checks_passed": true,
+  "packaged_startup_save_backup_restore_shutdown_verified": true,
+  "bundled_python_inventory_verifier_passed_without_database_access": true,
+  "development_installation_verified": true,
+  "working_database_bytes_preserved": true,
+  "google_connection_bytes_preserved": true,
+  "private_snapshot_and_rehearsal_verified": true,
+  "first_party_source_files_preserved_during_runtime_replacement": true,
+  "github_publication_performed": false,
+  "actual_office_pc_tested": false,
+  "private_installation_receipt_included": false,
+  "scope": "Local validation recorded before publication; remote CI and release download have separate receipts."
+}

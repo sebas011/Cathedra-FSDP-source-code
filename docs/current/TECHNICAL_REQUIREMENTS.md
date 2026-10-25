@@ -1,8 +1,8 @@
 # Technical requirements
 
 **Product:** Cathedra FSDP  
-**Documented:** 24 October 2026, Asia/Manila<br>
-**Baseline:** release 0.5.24; database schema 16<br>
+**Documented:** 25 October 2026, Asia/Manila<br>
+**Baseline:** release 0.5.25; database schema 16<br>
 **Status:** implementation-derived documentation; see [baseline and evidence](README.md).
 
 ## Architecture and deployment

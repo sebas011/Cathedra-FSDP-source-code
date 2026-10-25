@@ -1,9 +1,9 @@
 # Design brief
 
 **Product:** Cathedra FSDP  
-**Documented:** 24 October 2026, Asia/Manila<br>
-**Baseline:** release 0.5.24; database schema 16<br>
-**Status:** production integration; see [validation](../VALIDATION_0.5.24.md) for measured completion gates.
+**Documented:** 25 October 2026, Asia/Manila<br>
+**Baseline:** release 0.5.25; database schema 16<br>
+**Status:** 0.5.25 readability refinement; current gates are tracked in [validation](../VALIDATION_0.5.25.md). The completed 0.5.24 integration remains historical evidence.
 
 ## Visual identity
 
@@ -36,3 +36,9 @@ Office Log retains append-only entries, confirmed save/close behavior and compac
 ## Acceptance and limits
 
 Check actual desktop/mobile layouts, no page-level horizontal overflow, readable input boundaries, keyboard focus, chart alternatives, draft retention and all sensitive workflow confirmations. Automated structural checks do not certify complete WCAG, screen-reader or intended Office-PC acceptance. See the [integration plan](../plans/2026-10-24-paper-office.md) and [release validation](../VALIDATION_0.5.24.md). The original interactive design kit (local historical evidence; excluded from this source snapshot) remains fictional and independent from production data. This release keeps React/FastAPI; it does not install the proposed HTML/HTMX adapter.
+
+## Readability refinement (0.5.25)
+
+The current-status donut uses more of its dashboard card, with a larger chart and a readable legend arranged for the available width. Education and Programs & grants receive the full profile content width; supporting scholar information remains reachable without squeezing these records. Education details are visible on entry, with degree, institution and graduation year given a clearer hierarchy. Grant application summaries and annual records retain their grouping, disclosures and print behavior with more reading space. These are presentation changes, not changes to stored records, status calculations or reporting contracts.
+
+See the [readability plan](../plans/2026-10-25-profile-readability.md) and [0.5.25 validation](../VALIDATION_0.5.25.md). Packaging, installation and publication must be reported from their own measured results; the 0.5.24 results do not certify this patch.

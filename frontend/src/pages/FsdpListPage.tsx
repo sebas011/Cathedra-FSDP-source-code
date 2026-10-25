@@ -13,7 +13,6 @@ import { SkeletonTableRows } from "../components/PageSkeleton";
 import { deleteFsdpRecord, getCurrentUser, getFsdpRecords, getFsdpSummary } from "../api";
 import { useDebouncedValue } from "../hooks/useDebouncedValue";
 import type { FsdpSummary, Scholar } from "../types";
-import "../scholar-office.css";
 import { applicationIdentity } from "../utils/grantApplications";
 
 const statuses = grantStatuses;

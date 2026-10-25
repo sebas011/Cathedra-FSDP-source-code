@@ -379,26 +379,49 @@ svg.composition-pie {
   margin: 0;
   list-style: none;
 }
+.dashboard-page .outcome-card {
+  display: flex;
+  flex-direction: column;
+}
+.outcome-card .composition-chart-body {
+  flex: 1;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: center;
+  gap: 16px;
+}
+.outcome-card svg.outcome-donut {
+  width: min(100%, 250px);
+}
 .dashboard-page .outcome-legend {
-  gap: 13px;
+  display: grid;
+  gap: 0;
+  width: 100%;
 }
 .dashboard-page .outcome-legend li {
   display: grid;
-  grid-template-columns: 8px 1fr auto 40px;
-  gap: 8px;
-  font-size: 12px;
+  grid-template-columns: 10px minmax(0, 1fr) auto 48px;
+  align-items: center;
+  gap: 12px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+  line-height: 1.5;
   margin: 0;
+}
+.dashboard-page .outcome-legend li:last-child {
+  border-bottom: 0;
 }
 .dashboard-page .outcome-legend li > span {
   overflow-wrap: anywhere;
 }
 .dashboard-page .outcome-legend strong {
   margin: 0;
-  font-size: 12px;
+  font-size: 14px;
 }
 .dashboard-page .outcome-legend small {
   text-align: right;
-  font-size: 11px;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
 }
 .dashboard-recent {
   padding: 22px 0 0;
@@ -548,6 +571,10 @@ svg.composition-pie {
   .dashboard-secondary-row .composition-chart-body {
     grid-template-columns: 170px minmax(0, 1fr);
   }
+  .dashboard-secondary-row .outcome-card .composition-chart-body {
+    grid-template-columns: minmax(200px, 0.85fr) minmax(0, 1fr);
+    gap: 32px;
+  }
   .dashboard-page .analytics-card {
     padding: 20px;
   }
@@ -619,9 +646,16 @@ svg.composition-pie {
   .dashboard-grant-composition .composition-chart-body {
     grid-template-columns: minmax(0, 1fr);
   }
+  .dashboard-secondary-row .outcome-card .composition-chart-body {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
   svg.outcome-donut,
   svg.composition-pie {
     width: min(100%, 180px);
+  }
+  .outcome-card svg.outcome-donut {
+    width: min(100%, 240px);
   }
   .attention-list {
     grid-template-columns: minmax(0, 1fr);

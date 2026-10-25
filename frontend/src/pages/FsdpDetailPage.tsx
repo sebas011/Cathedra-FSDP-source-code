@@ -4,8 +4,6 @@ import { useRecord } from "../hooks/useRecord";
 import { localToday } from "../utils/dates";
 import { getFsdpRecord } from "../api";
 import { getCurrentUser } from "../api/client";
-import "../profile.css";
-import "../scholar-office.css";
 import { applicationIdentity } from "../utils/grantApplications";
 import { copyAvailability } from "../components/DocumentCopies";
 import ProgramGrantHistory from "../components/ProgramGrantHistory";
@@ -171,7 +169,9 @@ export default function FsdpDetailPage() {
           </button>
         ))}
       </nav>
-      <div className="profile-layout">
+      <div
+        className={`profile-layout${profileTab !== "overview" ? " profile-layout-records" : ""}`}
+      >
         <aside className="profile-sidebar">
           <section className="profile-panel">
             <h2>Scholar information</h2>
@@ -274,18 +274,27 @@ export default function FsdpDetailPage() {
                 <ul ref={educationHistory} className="profile-requirements office-education-list">
                   {scholar.education.map((item) => (
                     <li key={item.id || item.client_key}>
-                      <details>
+                      <details open>
                         <summary>
-                          <strong className="record-value">
-                            {item.degree || "Degree not recorded"}
-                          </strong>
-                          <span>{item.level || "Level not recorded"}</span>
+                          <span className="office-education-heading">
+                            <span className="office-education-level">
+                              {item.level || "Level not recorded"}
+                            </span>
+                            <strong className="record-value">
+                              {item.degree || "Degree not recorded"}
+                            </strong>
+                          </span>
                         </summary>
-                        <span className="record-value">
-                          {[item.level, item.institution, item.graduation_year]
-                            .filter(Boolean)
-                            .join(" · ")}
-                        </span>
+                        <dl className="office-education-facts">
+                          <div>
+                            <dt>Institution</dt>
+                            <dd className="record-value">{value(item.institution)}</dd>
+                          </div>
+                          <div>
+                            <dt>Graduation year</dt>
+                            <dd>{value(item.graduation_year)}</dd>
+                          </div>
+                        </dl>
                       </details>
                     </li>
                   ))}

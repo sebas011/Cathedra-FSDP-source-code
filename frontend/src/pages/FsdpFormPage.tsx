@@ -1,6 +1,4 @@
 import { UnconfirmedOperationError, getCurrentUser } from "../api/client";
-import "../profile.css";
-import "../scholar-office.css";
 import PageHeading from "../components/PageHeading";
 import ConfirmationDialog from "../components/ConfirmationDialog";
 import { getScholarNameMatches, type NameMatch } from "../api/fsdp";

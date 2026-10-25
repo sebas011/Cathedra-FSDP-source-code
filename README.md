@@ -1,8 +1,12 @@
-# Cathedra FSDP 0.5.24
+# Cathedra FSDP 0.5.25
 
 Source code for the local Windows FSDP scholar administration application. Database schema: 16.
 
 This repository contains backend, frontend, desktop launcher/updater, tests, build tools and technical documentation. Working scholar records, accounts, backups, OAuth credentials, Google connection tokens, executables and private installation history are excluded.
+
+## Dashboard and profile readability
+
+Version 0.5.25 enlarges the current-status chart and legend, fixes profile stylesheet ordering, and gives education and program/grant history the full reading width. Education details and the latest application open initially; all grant disclosures can expand or collapse together. Schema 16, records, calculations and reporting contracts remain unchanged. See the [readability plan](docs/plans/2026-10-25-profile-readability.md).
 
 ## Paper & Ink Scholar Office
 
@@ -33,7 +37,7 @@ The build checks regressions and packages a clean Windows app in `desktop/releas
 - [Product requirements](docs/current/PRODUCT_REQUIREMENTS.md)
 - [Office guide](docs/OFFICE_GUIDE.md)
 - [Export schemas](docs/EXPORT_SCHEMAS.md)
-- [0.5.24 validation](docs/VALIDATION_0.5.24.md)
+- [0.5.25 validation](docs/VALIDATION_0.5.25.md)
 
 ## Office application downloads
 

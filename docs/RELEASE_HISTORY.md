@@ -1,3 +1,7 @@
+# Cathedra FSDP 0.5.25 — verified local patch
+
+Enlarges the current-status chart and legend; fixes route-dependent profile stylesheet order; expands Education and Programs & grants to the full reading width; shows education details by default; and adds expand/collapse-all grant controls. Schema 16 and all record/reporting contracts remain unchanged. See [validation](VALIDATION_0.5.25.md). GitHub publication and exact-revision CI are recorded separately from local validation.
+
 # Cathedra FSDP 0.5.23
 
 Google Sheets has a dedicated fifteen-column report: No., Name, Age, Tenure, Department, Rank/position, Previous degree, Program, Delivering HEI, Grant type, Date started, Date ended, Extension, Status, Remarks. Grants remain grouped beneath each scholar. Saved dates take priority over recorded academic periods, education entries remain readable, and profile/grant remarks share one labeled cell. CSV exports and schema16 are unchanged. Adds a detailed Google setup/troubleshooting guide and fixes its in-app link. See [validation](VALIDATION_0.5.23.md), the [plan](plans/2026-10-21-google-reporting.md) and [Google setup](GOOGLE_SHEETS_SETUP.md).

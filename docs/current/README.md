@@ -1,8 +1,8 @@
 # Current system documentation
 
 **Product:** Cathedra FSDP  
-**Documented:** 24 October 2026, Asia/Manila<br>
-**Baseline:** release 0.5.24; database schema 16<br>
+**Documented:** 25 October 2026, Asia/Manila<br>
+**Baseline:** release 0.5.25; database schema 16<br>
 **Status:** implementation-derived documentation; see [baseline and evidence](README.md).
 
 ## Start here
@@ -22,10 +22,10 @@ These documents describe the implemented Cathedra FSDP application and the remai
 
 | Item | Observed state | Interpretation |
 |---|---|---|
-| Current source | 0.5.24; schema 16 | Paper & Ink production integration. Measured checks are recorded in [0.5.24 validation](../VALIDATION_0.5.24.md). |
-| Development installation | Verified 0.5.24 | Database bytes and the existing encrypted Google connection were preserved. |
-| Office update package | Verified local 0.5.24 package; 149 runtime files | No working records or Google credentials are distributed. |
-| GitHub delivery | [Versioned release channel](https://github.com/sebas011/Cathedra-FSDP/releases/tag/v0.5.23) | Public delivery and source workflow results are verified separately from local package checks. |
+| Current source | 0.5.25; schema 16 | Dashboard/profile readability refinement. Current gates are tracked in [0.5.25 validation](../VALIDATION_0.5.25.md); the completed 0.5.24 integration is historical evidence. |
+| Development installation | Verified local 0.5.25 | Working database and encrypted Google connection bytes were preserved; see [local validation](../VALIDATION_0.5.25.md). |
+| Office update package | Verified local 0.5.25; 147 runtime files | Empty seed, packaged workflows and both inventory verifiers passed. No working records or Google credentials are distributed. |
+| GitHub delivery | Last verified: [0.5.24 release](https://github.com/sebas011/Cathedra-FSDP/releases/tag/v0.5.24) | The [0.5.24 publication receipt](../analysis/GITHUB_PUBLICATION_VALIDATION_0.5.24.json) records that release. It does not claim 0.5.25 is published. |
 | Current source schema | Migration 16; 15 tables and 120 model columns | Three nullable grant fields; no historical facts are rewritten. |
 | Actual Office-PC acceptance | Unverified | Local tests do not certify the separate Office PC. |
 
@@ -37,7 +37,7 @@ See [0.5.21 validation](../VALIDATION_0.5.21.md) for observed regression/package
 
 The development installation was verified at 0.5.23; see [0.5.23 validation](../VALIDATION_0.5.23.md) for this update. GitHub publications and actual Office-PC installations remain separate observed states; the local working database migrates protectively at its next normal startup.
 
-The published 0.5.21 source workflow passed. A green run for that release does not certify 0.5.23; this publication needs its own remote result. Separate Office-PC acceptance, clean-PC testing, device encryption confirmation, signing and assistive-technology acceptance remain external verification tasks.
+Historical source workflow results, including the separately recorded 0.5.24 success, do not certify 0.5.25. Publication requires its own exact-revision remote result. Separate Office-PC acceptance, clean-PC testing, device encryption confirmation, signing and assistive-technology acceptance remain external verification tasks.
 
 ## Approved terms and optional dates
 
@@ -57,7 +57,7 @@ This set takes precedence over older narrative release notes for its stated base
 
 See the existing [Office Guide](../OFFICE_GUIDE.md), [developer guide](../DEVELOPER_GUIDE.md), [export schemas](../EXPORT_SCHEMAS.md) and [release history](../RELEASE_HISTORY.md) for supporting procedures and historical changes.
 
-See [0.5.22 validation](../VALIDATION_0.5.22.md) for the current implementation checks. Google delivery requires one-time configuration and account consent. The user confirmed a successful live update on 21 October 2026. That private connection and its records are excluded from publication; the new layout is checked with synthetic data.
+See [0.5.22 validation](../VALIDATION_0.5.22.md) for the historical completion and reporting implementation checks. Google delivery requires one-time configuration and account consent. The user confirmed a successful live update on 21 October 2026. That private connection and its records are excluded from publication; the new layout is checked with synthetic data.
 
 ## Completion and reporting update (0.5.22)
 
@@ -71,6 +71,12 @@ Google reporting uses a dedicated [fifteen-column contract](GOOGLE_REPORT_CONTRA
 
 ## Paper & Ink release (0.5.24)
 
-The latest source integrates the new interface into the existing application. The historical 0.5.23 installation and delivery rows above describe their recorded verification; they are not a claim that the new release is installed or published. Consult [0.5.24 validation](../VALIDATION_0.5.24.md) and its publication receipt for the current measured state. No working Office database, account or Google connection is a software update asset.
+Version 0.5.24 integrated the new interface into the existing application. Its publication remains historical evidence. Consult [0.5.25 validation](../VALIDATION_0.5.25.md) for the current local runtime and use the separately recorded 0.5.24 receipt for that published release. No working Office database, account or Google connection is a software update asset.
 
 The development runtime is now verified at 0.5.24 with preserved database/Google state. The 588 backend and 261 frontend checks, native build and synthetic Office upgrade are recorded in [0.5.24 validation](../VALIDATION_0.5.24.md); remote publication and intended Office-PC acceptance remain separate evidence.
+
+## Dashboard and profile readability patch (0.5.25)
+
+The current source enlarges the status chart and gives education and grant history more reading space, with visible education details and clearer record hierarchy. The [readability plan](../plans/2026-10-25-profile-readability.md) defines this presentation-only patch. Schema 16, records, account permissions, calculations and export/Google contracts are unchanged.
+
+The frontend, browser, native-package and guarded development-installation checks passed; see [0.5.25 validation](../VALIDATION_0.5.25.md). Remote publication is checked separately through the [0.5.25 release channel](https://github.com/sebas011/Cathedra-FSDP/releases/tag/v0.5.25) and source workflow. The separate Office PC has not been updated by local validation.

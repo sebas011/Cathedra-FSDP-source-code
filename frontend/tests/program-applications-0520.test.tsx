@@ -1,11 +1,11 @@
 import { scholarStep, saveScholarForm } from "./scholarSteps";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, expect, test, vi } from "vitest";
 import { useState } from "react";
 import { createMemoryRouter, RouterProvider } from "react-router-dom";
 import FsdpFormPage from "../src/pages/FsdpFormPage";
 import GrantEntry from "../src/components/GrantEntry";
-import { groupAnnualGrants } from "../src/components/ProgramGrantHistory";
+import ProgramGrantHistory, { groupAnnualGrants } from "../src/components/ProgramGrantHistory";
 import { copyAnnualGrant } from "../src/utils/annualGrant";
 import { applicationPeriod, newProgramApplication } from "../src/utils/grantApplications";
 import { DocumentCopyFields } from "../src/components/DocumentCopies";
@@ -78,6 +78,33 @@ test("same program retains distinct applications and legacy grouping without los
   expect(groups).toHaveLength(3);
   expect(groups.map((group) => group.length).sort()).toEqual([1, 2, 2]);
   expect(applicationPeriod([readGrant])).toBe("1st 2021-2022 — 2nd 2022-2023");
+});
+
+test("latest application is readable immediately and all grant disclosures can expand, collapse and print", () => {
+  const { container } = render(
+    <ProgramGrantHistory
+      grants={[
+        readGrant,
+        { ...readGrant, id: 9, application_key: "second", start_academic_year: "2023-2024" },
+        { ...readGrant, id: 10, application_key: "second", start_academic_year: "2024-2025" },
+      ]}
+    />,
+  );
+  const applications = container.querySelectorAll<HTMLDetailsElement>(".program-history");
+  const entries = [...container.querySelectorAll<HTMLDetailsElement>("details")];
+  expect(applications).toHaveLength(2);
+  expect(applications[0].open).toBe(true);
+  expect(applications[1].open).toBe(false);
+  expect(applications[0].querySelector<HTMLDetailsElement>(".annual-grant")?.open).toBe(true);
+  expect(applications[0].textContent).toContain("2024-2025");
+  fireEvent.click(screen.getByRole("button", { name: "Expand all grants" }));
+  expect(entries.every((entry) => entry.open)).toBe(true);
+  fireEvent.click(screen.getByRole("button", { name: "Collapse all grants" }));
+  expect(entries.every((entry) => !entry.open)).toBe(true);
+  act(() => window.dispatchEvent(new Event("beforeprint")));
+  expect(entries.every((entry) => entry.open)).toBe(true);
+  act(() => window.dispatchEvent(new Event("afterprint")));
+  expect(entries.every((entry) => !entry.open)).toBe(true);
 });
 
 test("renewing a multi-row application uses the whole application's span", () => {

@@ -183,6 +183,8 @@ test("profile tabs support arrows and retain independent copy availability", asy
   expect(document.activeElement).toBe(screen.getByRole("tab", { name: /^Education/ }));
   expect(screen.getByRole("heading", { name: "Education background" })).toBeTruthy();
   expect(screen.getByText("BACHELOR OF SCIENCE")).toBeTruthy();
+  expect(screen.getByText("UNIVERSITY")).toBeTruthy();
+  expect(screen.getByText("2010")).toBeTruthy();
   fireEvent.keyDown(document.activeElement!, { key: "End" });
   expect(
     screen.getByRole("tab", { name: /^Programs & grants/ }).getAttribute("aria-selected"),
@@ -247,7 +249,8 @@ test("profile printing expands qualifications from a hidden tab and restores eac
     ...container.querySelectorAll<HTMLDetailsElement>(".office-education-list details"),
   ];
   expect(qualifications).toHaveLength(2);
-  qualifications[0].open = true;
+  expect(qualifications.every((entry) => entry.open)).toBe(true);
+  qualifications[0].open = false;
   const original = qualifications.map((entry) => entry.open);
   expect(container.querySelector<HTMLDivElement>("#profile-panel-education")?.hidden).toBe(true);
   act(() => {
