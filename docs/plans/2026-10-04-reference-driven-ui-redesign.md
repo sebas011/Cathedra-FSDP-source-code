@@ -10,7 +10,7 @@ Give the entire application a cohesive, modern office interface while preserving
 
 Use the supplied demos as references for layout and interaction patterns. Build original components in the existing React/TypeScript application. No template purchase, copied proprietary assets, Vue migration, Bootstrap migration, or new backend capability is required by this plan. Fonts and icons must work without an internet connection.
 
-Applied skill: [frontend-design](C:/Users/rodia/Desktop/AI/.claude/skills/frontend-design/SKILL.md). Its design approach informs the palette, layout alternatives, shared components, and visual review.
+Applied skill: frontend-design (local historical evidence; excluded from this source snapshot). Its design approach informs the palette, layout alternatives, shared components, and visual review.
 
 ## Research evidence
 

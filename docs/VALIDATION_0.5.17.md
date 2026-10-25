@@ -70,7 +70,7 @@ The synthetic Office upgrade separately preserved two scholars, three annual gra
 
 ## Office delivery and remaining acceptance
 
-Delivery target: `C:\Users\rodia\Desktop\Project\Releases\Cathedra-FSDP-0.5.17-Update`.
+Delivery target: `<developer-home>\Desktop\Project\Releases\Cathedra-FSDP-0.5.17-Update`.
 
 Publication passed on 13 October at 07:12 Asia/Manila. The copied 147-file runtime and separate documentation inventory verified, and the runtime manifest matches the final tested build. See publication evidence (local historical evidence; excluded from this source snapshot); final report refresh uses a separate documentation-only inventory and leaves runtime bytes unchanged. The prior 0.5.16 package remains intact.
 

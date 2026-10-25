@@ -55,7 +55,7 @@ def test_registration_analytics_keeps_affiliation_and_grant_year_scope(client, m
     monkeypatch.setattr(
         endpoint,
         "registration_series",
-        lambda db, ids: registration_series(
+        lambda db, ids, **kwargs: registration_series(
             db, ids, now=datetime(2026, 10, 24, tzinfo=timezone.utc)
         ),
     )

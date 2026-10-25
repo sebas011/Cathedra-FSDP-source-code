@@ -2,7 +2,7 @@
 
 **Product:** Cathedra FSDP  
 **Documented:** 25 October 2026, Asia/Manila<br>
-**Baseline:** release 0.5.25; database schema 16<br>
+**Baseline:** release 0.5.26; database schema 17<br>
 **Status:** implementation-derived documentation; see [baseline and evidence](README.md).
 
 ## Architecture and deployment
@@ -178,7 +178,7 @@ The launcher binds loopback. Trusted hosts are localhost/127.0.0.1 plus the test
 
 Use existing installation-access tooling and protect private snapshots/journals. Database-file permissions and device encryption are separate protections. No claim of built-in SQLite encryption, hosted HTTPS, cloud IAM, MFA or network-safe deployment is made. Keep live data, password hashes, tokens, backups and personnel exports out of repositories/public release assets.
 
-Restore only compatible FSDP snapshots. Automatic migration runs through version 16 with a protected snapshot on older existing databases. A runtime update does not itself substitute the tested copy for the actual Office database; startup performs needed migration on the retained database. Manual backup deletion is explicit and protection-aware. Startup creates one verified daily copy; the newest 14 unpinned automatic daily copies and 30 unpinned pre-delete copies are retained. Manual and pinned copies are excluded from automatic pruning. Scholar deletion is blocked if its immediate recovery copy fails. Office Log storage is part of the compatible backup/table allowlist.
+Restore only compatible FSDP snapshots. Automatic migration runs through version 17 with a protected snapshot on older existing databases. A runtime update does not itself substitute the tested copy for the actual Office database; startup performs needed migration on the retained database. Manual backup deletion is explicit and protection-aware. Startup creates one verified daily copy; the newest 14 unpinned automatic daily copies and 30 unpinned pre-delete copies are retained. Manual and pinned copies are excluded from automatic pruning. Scholar deletion is blocked if its immediate recovery copy fails. Office Log storage is part of the compatible backup/table allowlist.
 
 ## Build, quality and release requirements
 
@@ -227,3 +227,8 @@ Google reporting uses a dedicated [fifteen-column contract](GOOGLE_REPORT_CONTRA
 ## Paper & Ink integration (0.5.24)
 
 The production UI uses the new Scholar Office shell and visual system. Scholar entry is organized into identity, education, programs/grants and review steps over the existing atomic aggregate save. Reports remain on the dashboard, with an additive real registration-history series and accessible chart data. Role, session, revision, idempotency, business and recovery contracts remain in force. Schema16 and existing CSV/Google report formats are retained. See the [implementation plan](../plans/2026-10-24-paper-office.md), [current design brief](DESIGN_BRIEF.md) and [versioned validation](../VALIDATION_0.5.24.md) for implementation and observed gates.
+
+
+## Selected blueprint improvements (0.5.26)
+
+Before/after capture reads only explicit business scalars, uses the saving transaction and applies bounded serialization plus a second read-time allowlist. Credential/session values, internal identifiers and arbitrary object serialization are excluded; malformed historical detail payloads yield no comparison rows. General activity responses remain metadata-only, while administrator scholar-history responses may include `change_details`. Contract assessment adds optional `assessment_rule`, `assessment_reason` and `assessment_as_of` output without changing categories, deadline priority, grace boundary or CSV/Google columns. Request-scoped clock capture uses one UTC instant resolved to Asia/Manila for business dates, including report/payback/registration consistency. Authentication and expiry retain UTC semantics; backup/recovery timestamp handling is unchanged. See [0.5.26 validation](../VALIDATION_0.5.26.md).

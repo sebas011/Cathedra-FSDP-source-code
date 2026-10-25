@@ -25,7 +25,7 @@ Evidence: evidence-0.5.4/build-054.log, evidence-0.5.4/source-and-contrast-check
 
 ## Installation
 
-Installed version 0.5.4 in the main project and in C:\Users\rodia\Desktop\Project\Releases\Cathedra-FSDP-0.5.0-Office. The Office folder retains its requested name; its contents identify version 0.5.4.
+Installed version 0.5.4 in the main project and in <developer-home>\Desktop\Project\Releases\Cathedra-FSDP-0.5.0-Office. The Office folder retains its requested name; its contents identify version 0.5.4.
 
 Main package inventory and the installed desktop smoke check passed, including backup/restore and clean shutdown with Python and Node unavailable on PATH. The source database SHA-256 is unchanged. A verified protected database backup and source/runtime rollback archives were retained. The Office database transfer passed integrity and foreign-key checks and preserved all non-session records; sessions were cleared only in the transfer copy. Its packaged smoke check also passed.
 

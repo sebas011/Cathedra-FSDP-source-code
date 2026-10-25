@@ -2,7 +2,7 @@
 
 **Product:** Cathedra FSDP  
 **Documented:** 25 October 2026, Asia/Manila<br>
-**Baseline:** release 0.5.25; database schema 16<br>
+**Baseline:** release 0.5.26; database schema 17<br>
 **Status:** implementation-derived documentation; see [baseline and evidence](README.md).
 
 ## Navigation map
@@ -169,3 +169,8 @@ The production UI uses the new Scholar Office shell and visual system. Scholar e
 From a scholar profile, choose Education or Programs & grants to read those records at the full content width. Education opens with its qualification details visible; each entry still supports keyboard disclosure. Program applications continue to group their annual grants, and the existing status, deadline, repayment and remarks fields remain available. Supporting profile information remains reachable, and printing continues to include the record sections. Editing and saving still use the same complete scholar draft and final Save Scholar action.
 
 The Overview status chart also has a larger plot and clearer legend. These layout changes follow the [readability plan](../plans/2026-10-25-profile-readability.md); see [0.5.25 validation](../VALIDATION_0.5.25.md) for current verification progress.
+
+
+## Selected blueprint improvements (0.5.26)
+
+An administrator opens scholar history and expands a new event to compare recorded business values; older events show their existing field metadata. Saving and history capture share the same transaction, so a failed save creates no successful-change event. A scholar grant or dashboard contract follow-up can expand Assessment details for the recorded/calculated basis and assessed-on day. One captured instant supplies the Asia/Manila business date across a request/report; an omitted Office Log date uses that same business-date convention. Existing completion, three-year grace, repayment and case workflows are unchanged. See [0.5.26 validation](../VALIDATION_0.5.26.md).

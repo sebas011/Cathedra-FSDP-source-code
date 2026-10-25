@@ -13,6 +13,7 @@ from sqlalchemy import func, or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from app import clock
 from app.activity_audit import add_activity
 from app.auth import require_editor
 from app.csv_export import SafeCsvWriter, csv_response
@@ -196,7 +197,7 @@ def create_log(
         raise HTTPException(
             status_code=404, detail="Scholar not found. Reload before adding the office entry."
         )
-    values["occurred_on"] = payload.occurred_on or date.today()
+    values["occurred_on"] = payload.occurred_on or clock.business_today()
     entry = OfficeLog(
         **values,
         scholar_name=scholar.name if scholar else None,

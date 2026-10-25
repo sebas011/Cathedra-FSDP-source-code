@@ -1,0 +1,36 @@
+.assessment-details {
+  margin-top: 12px;
+  max-width: 45ch;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+td.assessment-cell {
+  min-width: 16rem;
+}
+.assessment-details summary {
+  cursor: pointer;
+  color: var(--brand);
+  font-size: 13px;
+  font-weight: 600;
+  padding-block: 8px;
+  min-height: 44px;
+}
+.assessment-details summary:focus-visible {
+  outline: 3px solid var(--brand);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+.assessment-details p {
+  font-size: 13px;
+  line-height: 1.65;
+  margin: 10px 0;
+}
+.assessment-details .assessment-context {
+  font-size: 12px;
+  color: var(--muted);
+}
+.assessment-context span {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 3px;
+}

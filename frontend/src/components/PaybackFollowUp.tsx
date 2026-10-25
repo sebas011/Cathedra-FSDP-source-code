@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { downloadPayback, getPayback, type PaybackData } from "../api/payback";
 import TableRegion from "./TableRegion";
+import AssessmentDetails from "./AssessmentDetails";
 
 const groups = [
   "Recorded Payback",
@@ -192,7 +193,7 @@ export default function PaybackFollowUp() {
                       </td>
                       <td>{item.grace_ends_on || "Not calculated"}</td>
                       <td>{item.payback_payment_status || "Not recorded"}</td>
-                      <td>
+                      <td className="assessment-cell">
                         <span
                           className={
                             [
@@ -209,6 +210,11 @@ export default function PaybackFollowUp() {
                         {item.days_remaining != null && (
                           <small>{item.days_remaining} days remaining</small>
                         )}
+                        <AssessmentDetails
+                          reason={item.assessment_reason}
+                          assessedOn={item.assessment_as_of || data.as_of}
+                          deadlineBasis={item.completion_deadline_source}
+                        />
                       </td>
                       <td className="no-print">
                         <Link className="btn secondary" to={`/fsdp/${item.scholar_id}/edit`}>

@@ -11,6 +11,9 @@ export interface ContractFollowUp {
   contract_completed_on: string | null;
   completion_deadline_on?: string | null;
   completion_deadline_source?: string | null;
+  assessment_rule?: string | null;
+  assessment_reason?: string | null;
+  assessment_as_of?: string | null;
   payback_payment_status?: string | null;
   grace_ends_on: string | null;
   attention: string;

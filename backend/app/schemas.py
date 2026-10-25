@@ -163,6 +163,9 @@ class RequirementRead(BaseModel):
 
 
 class ParticipationRead(BaseModel):
+    assessment_rule: str | None = None
+    assessment_reason: str | None = None
+    assessment_as_of: date | None = None
     payback_attention: str | None = None
     grace_ends_on: date | None = None
     completion_deadline_on: date | None = None

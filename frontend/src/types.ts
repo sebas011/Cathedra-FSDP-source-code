@@ -55,6 +55,9 @@ export interface ParticipationRead extends Omit<
   grace_ends_on?: string | null;
   completion_deadline_on?: string | null;
   completion_deadline_source?: string | null;
+  assessment_rule?: string | null;
+  assessment_reason?: string | null;
+  assessment_as_of?: string | null;
   delivering_hei: string | null;
   start_term: string | null;
   start_academic_year: string | null;
@@ -236,6 +239,13 @@ export interface SessionResult {
   token: string;
   user: LocalUser;
 }
+export interface ActivityChange {
+  field: string;
+  before: string | number | boolean | null;
+  after: string | number | boolean | null;
+  before_truncated?: boolean;
+  after_truncated?: boolean;
+}
 export interface ActivityEvent {
   id: number;
   username: string | null;
@@ -246,6 +256,7 @@ export interface ActivityEvent {
   record_id: number | null;
   operation: string | null;
   changed_fields: string[];
+  change_details?: ActivityChange[];
 }
 export interface PagedResult<T> {
   items: T[];

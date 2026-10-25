@@ -37,7 +37,7 @@ These measurements cover the named tokens, not every rendered pixel or a formal 
 
 No database migration or office-record correction is part of this redesign. The preview uses a separate disposable data folder. Installation and independent installed-package checks are recorded after execution below; do not treat a staged build as an installed release.
 
-Installed into `C:\Users\rodia\Desktop\Project\Cathedra-FSDP` after protected source/runtime archives and a verified SQLite snapshot. Final snapshot: `data/backups/cathedra-protected-before-0.5.0-20261003-122718.db`. The live database SHA-256 is identical before and after replacement. Only the FSDP installation was changed.
+Installed into `<developer-home>\Desktop\Project\Cathedra-FSDP` after protected source/runtime archives and a verified SQLite snapshot. Final snapshot: `data/backups/cathedra-protected-before-0.5.0-20261003-122718.db`. The live database SHA-256 is identical before and after replacement. Only the FSDP installation was changed.
 
 Independent installed executable verification passes. The built-in Windows PowerShell 5.1 office smoke test passes startup, authentication, record persistence, backup/restore and shutdown with Python/Node absent from PATH. This is a local rehearsal, not a claim that a separate clean office PC was tested. Final permission inspection reports 2,973 checked paths, the existing owner/SYSTEM/Administrators restriction and zero violations.
 

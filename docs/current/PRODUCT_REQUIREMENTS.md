@@ -2,7 +2,7 @@
 
 **Product:** Cathedra FSDP  
 **Documented:** 25 October 2026, Asia/Manila<br>
-**Baseline:** release 0.5.25; database schema 16<br>
+**Baseline:** release 0.5.26; database schema 17<br>
 **Status:** implementation-derived documentation; see [baseline and evidence](README.md).
 
 ## Purpose and users
@@ -143,3 +143,8 @@ Google reporting uses a dedicated [fifteen-column contract](GOOGLE_REPORT_CONTRA
 ## Paper & Ink integration (0.5.24)
 
 The production UI uses the new Scholar Office shell and visual system. Scholar entry is organized into identity, education, programs/grants and review steps over the existing atomic aggregate save. Reports remain on the dashboard, with an additive real registration-history series and accessible chart data. Role, session, revision, idempotency, business and recovery contracts remain in force. Schema16 and existing CSV/Google report formats are retained. See the [implementation plan](../plans/2026-10-24-paper-office.md), [current design brief](DESIGN_BRIEF.md) and [versioned validation](../VALIDATION_0.5.24.md) for implementation and observed gates.
+
+
+## Selected blueprint improvements (0.5.26)
+
+Administrators can inspect bounded previous and new business values for new changes; older events remain readable without invented history. Staff retain existing access boundaries. Contract follow-up explains its factual basis and assessed-on date without altering recorded outcomes, independent cases or payment progress. Business-date displays and defaults use Asia/Manila consistently. The adopted subset preserves optional dates, Name and Program Applied essential fields, Summer, Staff/Unknown, certification/enhancement, independent applications and annual grant records. No degree-only model or new approval workflow is introduced. See [the selected blueprint plan](../plans/2026-10-25-selective-blueprint-improvements.md) and [validation](../VALIDATION_0.5.26.md).

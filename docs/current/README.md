@@ -2,7 +2,7 @@
 
 **Product:** Cathedra FSDP  
 **Documented:** 25 October 2026, Asia/Manila<br>
-**Baseline:** release 0.5.25; database schema 16<br>
+**Baseline:** release 0.5.26; database schema 17<br>
 **Status:** implementation-derived documentation; see [baseline and evidence](README.md).
 
 ## Start here
@@ -22,11 +22,11 @@ These documents describe the implemented Cathedra FSDP application and the remai
 
 | Item | Observed state | Interpretation |
 |---|---|---|
-| Current source | 0.5.25; schema 16 | Dashboard/profile readability refinement. Current gates are tracked in [0.5.25 validation](../VALIDATION_0.5.25.md); the completed 0.5.24 integration is historical evidence. |
-| Development installation | Verified local 0.5.25 | Working database and encrypted Google connection bytes were preserved; see [local validation](../VALIDATION_0.5.25.md). |
-| Office update package | Verified local 0.5.25; 147 runtime files | Empty seed, packaged workflows and both inventory verifiers passed. No working records or Google credentials are distributed. |
-| GitHub delivery | Last verified: [0.5.24 release](https://github.com/sebas011/Cathedra-FSDP/releases/tag/v0.5.24) | The [0.5.24 publication receipt](../analysis/GITHUB_PUBLICATION_VALIDATION_0.5.24.json) records that release. It does not claim 0.5.25 is published. |
-| Current source schema | Migration 16; 15 tables and 120 model columns | Three nullable grant fields; no historical facts are rewritten. |
+| Current source | 0.5.26; schema 17 | Selected history, assessment-explanation and Manila-date improvements. Current gates are tracked in [0.5.26 validation](../VALIDATION_0.5.26.md). |
+| Development installation | Verified local 0.5.26 | Working database and encrypted Google connection bytes were preserved; see [local validation](../VALIDATION_0.5.26.md). |
+| Office update package | Verified local 0.5.26; 151 runtime files | Build, package inventories, both PowerShell workflows and schema-16 upgrade rehearsal passed. No working records or Google credentials are distributed. |
+| GitHub delivery | Historical verified baseline: [0.5.25 release](https://github.com/sebas011/Cathedra-FSDP/releases/tag/v0.5.25) | Source revision e2c0c480a7f272949795d8ef7f9dd8522030ebc1 and its exact-revision Windows workflow were verified separately. Verify 0.5.26 independently through its [source workflow](https://github.com/sebas011/Cathedra-FSDP-source-code/actions) and [named Office release](https://github.com/sebas011/Cathedra-FSDP/releases/tag/v0.5.26). |
+| Current source schema | Migration 17; 15 tables and 121 model columns | One nullable history-detail column; no historical values or existing business facts are invented or rewritten. |
 | Actual Office-PC acceptance | Unverified | Local tests do not certify the separate Office PC. |
 
 Schema inventories are obtained from disposable in-memory models and migrations. No live Office database is opened to produce these documents. API permissions are checked from route dependencies; screen and business behavior are checked from current source and synthetic verification. Personal records and credentials are not included. Historical version18 passed a pristine upgrade but missed this reported condition. Version19 passed420 backend/185 frontend tests and separate pristine/residue native updates with retained records, recovery archives, rollback and database hashes.
@@ -35,9 +35,9 @@ Schema inventories are obtained from disposable in-memory models and migrations.
 
 See [0.5.21 validation](../VALIDATION_0.5.21.md) for observed regression/package/upgrade and development installation results. Actual Office-device retry/acceptance remains separate. Earlier [0.5.18 validation](../VALIDATION_0.5.18.md), [0.5.17 validation](../VALIDATION_0.5.17.md) and [0.5.16 validation](../VALIDATION_0.5.16.md) remain historical evidence.
 
-The development installation was verified at 0.5.23; see [0.5.23 validation](../VALIDATION_0.5.23.md) for this update. GitHub publications and actual Office-PC installations remain separate observed states; the local working database migrates protectively at its next normal startup.
+The development installation was last verified at 0.5.26; see [0.5.26 validation](../VALIDATION_0.5.26.md) for that update. GitHub publications and actual Office-PC installations remain separate observed states; the local working database migrates protectively at its next normal startup.
 
-Historical source workflow results, including the separately recorded 0.5.24 success, do not certify 0.5.25. Publication requires its own exact-revision remote result. Separate Office-PC acceptance, clean-PC testing, device encryption confirmation, signing and assistive-technology acceptance remain external verification tasks.
+Historical source workflow results, including the separately verified 0.5.25 success, do not certify 0.5.26. Publication requires its own exact-revision remote result. Separate Office-PC acceptance, clean-PC testing, device encryption confirmation, signing and assistive-technology acceptance remain external verification tasks.
 
 ## Approved terms and optional dates
 
@@ -71,12 +71,17 @@ Google reporting uses a dedicated [fifteen-column contract](GOOGLE_REPORT_CONTRA
 
 ## Paper & Ink release (0.5.24)
 
-Version 0.5.24 integrated the new interface into the existing application. Its publication remains historical evidence. Consult [0.5.25 validation](../VALIDATION_0.5.25.md) for the current local runtime and use the separately recorded 0.5.24 receipt for that published release. No working Office database, account or Google connection is a software update asset.
+Version 0.5.24 integrated the new interface into the existing application. Its publication remains historical evidence. Consult [0.5.26 validation](../VALIDATION_0.5.26.md) for the selected changes and their current verification status; [0.5.25 validation](../VALIDATION_0.5.25.md) records the preceding verified local runtime. No working Office database, account or Google connection is a software update asset.
 
 The development runtime is now verified at 0.5.24 with preserved database/Google state. The 588 backend and 261 frontend checks, native build and synthetic Office upgrade are recorded in [0.5.24 validation](../VALIDATION_0.5.24.md); remote publication and intended Office-PC acceptance remain separate evidence.
 
 ## Dashboard and profile readability patch (0.5.25)
 
-The current source enlarges the status chart and gives education and grant history more reading space, with visible education details and clearer record hierarchy. The [readability plan](../plans/2026-10-25-profile-readability.md) defines this presentation-only patch. Schema 16, records, account permissions, calculations and export/Google contracts are unchanged.
+Version 0.5.25 enlarged the status chart and gives education and grant history more reading space, with visible education details and clearer record hierarchy. The [readability plan](../plans/2026-10-25-profile-readability.md) defines this presentation-only patch. Schema 16, records, account permissions, calculations and export/Google contracts are unchanged.
 
 The frontend, browser, native-package and guarded development-installation checks passed; see [0.5.25 validation](../VALIDATION_0.5.25.md). Remote publication is checked separately through the [0.5.25 release channel](https://github.com/sebas011/Cathedra-FSDP/releases/tag/v0.5.25) and source workflow. The separate Office PC has not been updated by local validation.
+
+
+## Selected blueprint improvements (0.5.26)
+
+Selected blueprint improvements add administrator before/after business history, factual contract-assessment explanations and one shared Philippine business date. Schema 17 adds one nullable history-detail column. Existing scholar, application, annual grant, credential and reporting contracts remain in force. See [the selected plan](../plans/2026-10-25-selective-blueprint-improvements.md) and [0.5.26 validation](../VALIDATION_0.5.26.md) for measured gates. Remote publication and Office-PC acceptance remain separate.

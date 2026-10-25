@@ -3,8 +3,9 @@ from datetime import date, datetime, timedelta, timezone
 from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session, selectinload
 
+from app import clock
 from app.college_classification import affiliation, affiliation_expression, personnel_type
-from app.contract_rules import completion_deadline
+from app.contract_rules import assess_contract, completion_deadline
 from app.current_grant import current_status, current_status_expression
 from app.fsdp_values import effective_hei, has_missing_requirements
 from app.grant_applications import application_group_key, completed_application_keys
@@ -20,8 +21,8 @@ def registration_series(db: Session, selected_ids, *, now: datetime | None = Non
     are also understood by strftime; +8 hours maps both to the office's Manila day.
     Invalid and future timestamps remain in the scope total but outside the plot.
     """
-    manila = timezone(timedelta(hours=8))
-    instant = now or datetime.now(timezone.utc)
+    manila = clock.MANILA_TIMEZONE
+    instant = now if now is not None else clock.utc_now()
     if instant.tzinfo is None:
         instant = instant.replace(tzinfo=timezone.utc)
     today = instant.astimezone(manila).date()
@@ -87,11 +88,9 @@ def matching_participations(scholar: Scholar, filters: dict) -> list[FsdpPartici
     ]
 
 
-def read_scholar(scholar: Scholar) -> ScholarRead:
-    from app.contract_rules import classify_contract
-
+def read_scholar(scholar: Scholar, *, today: date | None = None) -> ScholarRead:
     completed_applications = completed_application_keys(scholar.participations)
-    today = date.today()
+    today = today if today is not None else clock.business_today()
     return ScholarRead(
         id=scholar.id,
         revision=scholar.revision,
@@ -144,8 +143,11 @@ def read_scholar(scholar: Scholar) -> ScholarRead:
                 payback_payment_status=item.payback_payment_status,
                 graduation_date=item.graduation_date,
                 case_status=item.case_status,
-                payback_attention=attention,
-                grace_ends_on=deadline,
+                payback_attention=assessment.attention,
+                grace_ends_on=assessment.grace_ends_on,
+                assessment_rule=assessment.rule_code,
+                assessment_reason=assessment.reason,
+                assessment_as_of=assessment.as_of,
                 start_term=item.start_term,
                 start_academic_year=item.start_academic_year,
                 end_term=item.end_term,
@@ -167,8 +169,8 @@ def read_scholar(scholar: Scholar) -> ScholarRead:
                     item.contract_completed_on,
                 )
             ]
-            for attention, deadline in [
-                classify_contract(
+            for assessment in [
+                assess_contract(
                     item.status,
                     effective_deadline,
                     application_group_key(item) in completed_applications,
@@ -251,7 +253,10 @@ def report_scholars(
     )
 
 
-def fsdp_report_data(db: Session, **filters: object) -> dict[str, object]:
+def fsdp_report_data(
+    db: Session, *, today: date | None = None, **filters: object
+) -> dict[str, object]:
+    today = today if today is not None else clock.business_today()
     page = filters.pop("page", None)
     page_size = int(filters.pop("page_size", 50))
     action_page = int(filters.pop("action_page", 1))
@@ -306,7 +311,6 @@ def fsdp_report_data(db: Session, **filters: object) -> dict[str, object]:
             ]
         )
     )
-    today = date.today()
     upcoming_date = today + timedelta(days=90)
     department_totals: dict[str, dict[str, int | str]] = {}
     action_items: list[dict[str, object]] = []
@@ -346,17 +350,15 @@ def fsdp_report_data(db: Session, **filters: object) -> dict[str, object]:
             )
         selected = matching_participations(scholar, filters)
         if scholar.id in visible_ids:
-            rendered = read_scholar(scholar)
+            rendered = read_scholar(scholar, today=today)
             selected_ids = {item.id for item in selected}
             rendered.participations = [
                 item for item in rendered.participations if item.id in selected_ids
             ]
             report_items.append(rendered)
-        from app.contract_rules import classify_contract
-
         completed_applications = completed_application_keys(scholar.participations)
         for participation in selected:
-            attention, deadline = classify_contract(
+            assessment = assess_contract(
                 participation.status,
                 completion_deadline(
                     participation.start_date,
@@ -367,6 +369,7 @@ def fsdp_report_data(db: Session, **filters: object) -> dict[str, object]:
                 application_group_key(participation) in completed_applications,
                 today,
             )
+            attention, deadline = assessment.attention, assessment.grace_ends_on
             if attention in {"Recorded Payback", "Payback review", "Payback pending contract"}:
                 action_items.append(
                     {
@@ -388,6 +391,9 @@ def fsdp_report_data(db: Session, **filters: object) -> dict[str, object]:
                             else ""
                         ),
                         "attention": attention,
+                        "assessment_rule": assessment.rule_code,
+                        "assessment_reason": assessment.reason,
+                        "assessment_as_of": assessment.as_of.isoformat(),
                         "priority": 0,
                     }
                 )
@@ -441,6 +447,7 @@ def fsdp_report_data(db: Session, **filters: object) -> dict[str, object]:
             )
     action_items.sort(key=lambda item: (int(item["priority"]), str(item["scholar_name"])))
     return {
+        "as_of": today.isoformat(),
         "items": report_items,
         "total": len(scholars),
         "missing_requirements": sum(has_missing_requirements(scholar) for scholar in scholars),

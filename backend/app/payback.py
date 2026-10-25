@@ -5,8 +5,10 @@ from datetime import date
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from app import clock
 from app.college_classification import affiliation, affiliation_expression
-from app.contract_rules import GROUPS, classify_contract, completion_deadline
+from app.contract_rules import GROUPS, assess_contract, completion_deadline
+from app.contract_rules import classify_contract as classify_contract
 from app.contract_rules import grace_end as grace_end
 from app.grant_applications import has_completed_application_expression
 from app.models import FsdpParticipation, Program, Scholar
@@ -21,7 +23,7 @@ def payback_data(
     today: date | None = None,
     include_items: bool = True,
 ) -> dict:
-    today = today or date.today()
+    today = today if today is not None else clock.business_today()
     has_graduated = has_completed_application_expression()
     statement = (
         select(
@@ -75,7 +77,8 @@ def payback_data(
         effective_deadline, deadline_source = completion_deadline(
             start_date, allowed_duration_years, completion_due_on, completed
         )
-        group, deadline = classify_contract(status, effective_deadline, graduated, today)
+        assessment = assess_contract(status, effective_deadline, graduated, today)
+        group, deadline = assessment.attention, assessment.grace_ends_on
         scholar_sets[group].add(scholar_id)
         grant_counts[group] += 1
         if not include_items:
@@ -100,6 +103,9 @@ def payback_data(
                 "payback_payment_status": payment_status,
                 "grace_ends_on": deadline,
                 "attention": group,
+                "assessment_rule": assessment.rule_code,
+                "assessment_reason": assessment.reason,
+                "assessment_as_of": assessment.as_of.isoformat(),
                 "days_remaining": max(0, (deadline - today).days)
                 if group == "In grace period" and deadline
                 else None,

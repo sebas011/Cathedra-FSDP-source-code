@@ -2,8 +2,8 @@
 
 **Product:** Cathedra FSDP  
 **Documented:** 25 October 2026, Asia/Manila<br>
-**Baseline:** release 0.5.25; database schema 16<br>
-**Status:** 0.5.25 readability refinement; current gates are tracked in [validation](../VALIDATION_0.5.25.md). The completed 0.5.24 integration remains historical evidence.
+**Baseline:** release 0.5.26; database schema 17<br>
+**Status:** 0.5.26 selective blueprint improvements; current gates are tracked in [validation](../VALIDATION_0.5.26.md). Completed 0.5.25 readability work remains historical evidence.
 
 ## Visual identity
 
@@ -42,3 +42,8 @@ Check actual desktop/mobile layouts, no page-level horizontal overflow, readable
 The current-status donut uses more of its dashboard card, with a larger chart and a readable legend arranged for the available width. Education and Programs & grants receive the full profile content width; supporting scholar information remains reachable without squeezing these records. Education details are visible on entry, with degree, institution and graduation year given a clearer hierarchy. Grant application summaries and annual records retain their grouping, disclosures and print behavior with more reading space. These are presentation changes, not changes to stored records, status calculations or reporting contracts.
 
 See the [readability plan](../plans/2026-10-25-profile-readability.md) and [0.5.25 validation](../VALIDATION_0.5.25.md). Packaging, installation and publication must be reported from their own measured results; the 0.5.24 results do not certify this patch.
+
+
+## Selected blueprint improvements (0.5.26)
+
+Administrator profile history offers an optional Previous/New comparison with wrapped text, visible truncation and explicit Not recorded, No, 0 and empty-text values. Historical events remain metadata-only. Grant history and dashboard follow-up include a keyboard-operable Assessment details disclosure with the case-specific reason, deadline basis and assessed-on date; internal rule codes are not displayed. General instructions remain in the Guide. Existing profile reading space and education/application disclosure behavior are retained. See [0.5.26 validation](../VALIDATION_0.5.26.md) for actual interface checks.

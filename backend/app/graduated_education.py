@@ -3,6 +3,7 @@
 import re
 from datetime import date
 
+from app import clock
 from app.models import ScholarEducation
 from app.profile_values import education_level
 
@@ -147,7 +148,7 @@ def graduation_evidence(
     remarks: str | None, program_name: str | None = None, *, today: date | None = None
 ) -> tuple[bool, str | None]:
     """Accept direct current-program claims; uncertain text remains saveable."""
-    today = today or date.today()
+    today = today if today is not None else clock.business_today()
     clauses = re.split(r"[;\n]+|(?<=[.!?])\s+", _abbreviations(remarks or ""))
     if any(_MARKER.search(clause) and _UNCERTAIN.search(clause) for clause in clauses):
         return False, None
@@ -167,11 +168,14 @@ def graduation_evidence(
     return confirmed, next(iter(years)) if len(years) == 1 else None
 
 
-def sync_graduated_education(scholar, *, uppercase_new: bool = False) -> bool:
+def sync_graduated_education(
+    scholar, *, uppercase_new: bool = False, today: date | None = None
+) -> bool:
     """Return whether achievements changed; preserve corrections and removals."""
+    today = today if today is not None else clock.business_today()
     graduated: dict[int, list] = {}
     for grant in scholar.participations:
-        evidence, year = graduation_evidence(grant.remarks, grant.program.name)
+        evidence, year = graduation_evidence(grant.remarks, grant.program.name, today=today)
         if grant.graduation_date is not None:
             year = str(grant.graduation_date.year)
         if grant.status.strip().casefold() in {"graduated", "completed"} or evidence:

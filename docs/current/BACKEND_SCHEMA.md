@@ -2,12 +2,12 @@
 
 **Product:** Cathedra FSDP  
 **Documented:** 25 October 2026, Asia/Manila<br>
-**Baseline:** release 0.5.25; database schema 16<br>
+**Baseline:** release 0.5.26; database schema 17<br>
 **Status:** implementation-derived documentation; see [baseline and evidence](README.md).
 
 ## Database baseline
 
-Persistence is SQLite through SQLAlchemy 2. The dictionary describes models and migrations through version 16, not a production dump. The current models define 15 application/infrastructure tables and 120 columns, three more than schema 15. No live database is inspected for documentation. SQLite may additionally maintain `sqlite_sequence` in compatible historical files; that internal table is permitted by the product guard.
+Persistence is SQLite through SQLAlchemy 2. The dictionary describes models and migrations through version 17, not a production dump. The current models define 15 application/infrastructure tables and 121 columns, one more than schema 16. No live database is inspected for documentation. SQLite may additionally maintain `sqlite_sequence` in compatible historical files; that internal table is permitted by the product guard.
 
 The default backend path is the project's `data/cathedra.db` unless `CATHEDRA_DATA_DIR` is set. The packaged launcher selects the data directory adjacent to its executable or the explicit `--data-dir`. Software release version and applied schema version are separate facts.
 
@@ -241,7 +241,7 @@ Append-only operational register for general notes, document receipts and transf
 | `from_department` | `TEXT` | Yes | 0 | — |
 | `to_department` | `TEXT` | Yes | 0 | — |
 
-Foreign key: `scholar_id` → `scholars.id`, ON DELETE SET NULL, ON UPDATE NO ACTION. Indexes: `ix_office_logs_scholar_id`; `ix_office_logs_occurred_id` (`occurred_on`, `id`); unique `uq_office_logs_user_request` (`user_id`, `request_key`). An omitted event date uses the application's current date; `created_at` records server creation time. These application defaults are not SQL defaults. Event type uses canonical Note / Document received / Document transferred labels; newly submitted note/document/department text is uppercase, while actor and scholar snapshots retain their recorded identity.
+Foreign key: `scholar_id` → `scholars.id`, ON DELETE SET NULL, ON UPDATE NO ACTION. Indexes: `ix_office_logs_scholar_id`; `ix_office_logs_occurred_id` (`occurred_on`, `id`); unique `uq_office_logs_user_request` (`user_id`, `request_key`). An omitted event date uses the Asia/Manila business date; `created_at` records server creation time. These application defaults are not SQL defaults. Event type uses canonical Note / Document received / Document transferred labels; newly submitted note/document/department text is uppercase, while actor and scholar snapshots retain their recorded identity.
 
 ## `local_sessions`
 
@@ -265,7 +265,7 @@ Indexes: `ix_local_sessions_user_id`; `ix_local_sessions_token_hash` (unique); `
 
 ## `activity_events`
 
-Change/event ledger. User and subject scholar IDs are intentionally not database FKs so history can outlive deleted accounts/records. changed_fields contains JSON field names, not a promised complete before/after value snapshot.
+Change/event ledger. User and subject scholar IDs are intentionally not database FKs so history can outlive deleted accounts/records. `changed_fields` retains JSON field names. Schema 17 adds nullable `change_details`, a bounded JSON array of allowlisted business-field before/after scalars saved in the same transaction. Old events retain no fabricated values. Text previews are limited to 1,000 characters per value and marked when truncated; credentials, tokens and internal record IDs are excluded. Only administrator scholar-history responses include these details; the general activity list remains metadata-only. This is an application ledger, not protection against direct database tampering.
 
 | Column | SQLite declared type | Nullable | PK position | SQL default |
 |---|---|---|---|---|
@@ -278,6 +278,7 @@ Change/event ledger. User and subject scholar IDs are intentionally not database
 | `record_id` | `INTEGER` | Yes | 0 | — |
 | `operation` | `VARCHAR(40)` | Yes | 0 | — |
 | `changed_fields` | `TEXT` | Yes | 0 | — |
+| `change_details` | `TEXT` | Yes | 0 | — |
 | `subject_scholar_id` | `INTEGER` | Yes | 0 | — |
 | `created_at` | `DATETIME` | No | 0 | — |
 
@@ -395,3 +396,8 @@ The administrator can configure and connect Google reporting from Backup & Expor
 ## Google report update (0.5.23)
 
 Google reporting uses a dedicated [fifteen-column contract](GOOGLE_REPORT_CONTRACT.json) rather than the full CSV table. Each scholar is numbered once and their grants remain on consecutive rows. The report retains recorded education, tenure in years, exact dates or recorded academic periods, each grant's outcome and clearly labeled profile/grant remarks. Existing CSV exports and schema16 are unchanged. Setup, approved test accounts, spreadsheet editing access and per-PC sign-in are described in the [detailed guide](../GOOGLE_SHEETS_SETUP.md). See [0.5.23 validation](../VALIDATION_0.5.23.md) for observed delivery status.
+
+
+## Selected blueprint improvements (0.5.26)
+
+Migration 17 (`business-change-history-details`) adds only nullable `activity_events.change_details`. Its JSON contains `field`, `before`, `after` and optional truncation markers for an explicit business-field allowlist. No old values are backfilled. Assessment rule, reason and as-of fields are derived API output, not additional persisted scholar/grant columns. The shared clock resolves business dates to Asia/Manila. Authentication/session timestamps retain UTC semantics; existing backup/recovery timestamp handling is unchanged. See [the implementation plan](../plans/2026-10-25-selective-blueprint-improvements.md).

@@ -4,11 +4,8 @@ import { useEffect, useState } from "react";
 import { getActivity } from "../api";
 import { SkeletonTableRows } from "../components/PageSkeleton";
 import type { ActivityEvent } from "../types";
+import { formatRecordDateTime } from "../utils/dates";
 
-const when = (value: string) =>
-  new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(
-    new Date(value),
-  );
 export default function ActivityPage() {
   const [items, setItems] = useState<ActivityEvent[]>([]);
   const [error, setError] = useState("");
@@ -84,7 +81,7 @@ export default function ActivityPage() {
               ) : (
                 items.map((item) => (
                   <tr key={item.id}>
-                    <td>{when(item.created_at)}</td>
+                    <td>{formatRecordDateTime(item.created_at)}</td>
                     <td>{item.username || "System"}</td>
                     <td>{item.area}</td>
                     <td>

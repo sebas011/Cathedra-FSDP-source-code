@@ -1,6 +1,6 @@
 import hashlib
 import json
-from datetime import datetime
+from datetime import date, datetime
 from io import StringIO
 from types import SimpleNamespace
 from typing import Annotated
@@ -11,6 +11,7 @@ from sqlalchemy import func, or_, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from app import clock
 from app.activity_audit import add_activity
 from app.auth import require_admin, require_signed_in
 from app.backups import snapshot_before_delete
@@ -60,6 +61,17 @@ from app.schemas import (
 from app.scholar_identity import next_scholar_id
 
 router = APIRouter(prefix="/fsdp", tags=["FSDP"])
+
+
+def assessment_instant(db: Session) -> datetime:
+    """Keep every calculated date in one request on the same observation instant."""
+    if "assessment_instant" not in db.info:
+        db.info["assessment_instant"] = clock.utc_now()
+    return db.info["assessment_instant"]
+
+
+def assessment_day(db: Session) -> date:
+    return clock.business_today(assessment_instant(db))
 
 
 @router.get("/name-matches")
@@ -472,7 +484,7 @@ def duplicate_grant(
     scholar.participations.append(copy)
     commit_record(db)
     db.refresh(scholar)
-    return read_scholar(scholar)
+    return read_scholar(scholar, today=assessment_day(db))
 
 
 @router.get("/programs", response_model=list[ProgramRead])
@@ -569,7 +581,7 @@ def list_scholars(
 ) -> list[ScholarRead]:
     statement = scholar_statement(search, status_filter)
     return [
-        read_scholar(scholar)
+        read_scholar(scholar, today=assessment_day(db))
         for scholar in db.scalars(statement.order_by(func.name_sort_key(Scholar.name), Scholar.id))
         .unique()
         .all()
@@ -598,7 +610,7 @@ def paged_scholars(
         .all()
     )
     return {
-        "items": [read_scholar(scholar) for scholar in records],
+        "items": [read_scholar(scholar, today=assessment_day(db)) for scholar in records],
         "total": total,
         "page": page,
         "page_size": page_size,
@@ -702,11 +714,13 @@ def analytics(
         .limit(10)
     ).all()
     return {
-        "payback_summary": payback_data(db, department, start_academic_year, include_items=False)[
-            "scholar_counts"
+        "payback_summary": payback_data(
+            db, department, start_academic_year, today=assessment_day(db), include_items=False
+        )["scholar_counts"],
+        "registration_series": registration_series(db, selected_ids, now=assessment_instant(db)),
+        "recent_scholars": [
+            read_scholar(item, today=assessment_day(db)).model_dump(mode="json") for item in recent
         ],
-        "registration_series": registration_series(db, selected_ids),
-        "recent_scholars": [read_scholar(item).model_dump(mode="json") for item in recent],
         "scholars": db.scalar(select(func.count()).select_from(scholar_ids)) or 0,
         "grants": db.scalar(select(func.count()).select_from(FsdpParticipation).where(*grant_scope))
         or 0,
@@ -757,7 +771,7 @@ def payback_follow_up(
     page_size: int = Query(default=50, ge=1, le=100),
     db: Session = Depends(get_db),
 ) -> dict:
-    data = payback_data(db, department, start_academic_year)
+    data = payback_data(db, department, start_academic_year, today=assessment_day(db))
     rows = [item for item in data["items"] if matches_attention(item["attention"], attention)]
     data.update(total=len(rows), items=rows)
     if page is not None:
@@ -777,7 +791,7 @@ def export_payback(
     attention: str = "",
     db: Session = Depends(get_db),
 ) -> Response:
-    data = payback_data(db, department, start_academic_year)
+    data = payback_data(db, department, start_academic_year, today=assessment_day(db))
     selected = [item for item in data["items"] if matches_attention(item["attention"], attention)]
     grants = {
         grant.id: grant
@@ -866,6 +880,7 @@ def fsdp_report(
 ) -> dict[str, object]:
     return fsdp_report_data(
         db,
+        today=assessment_day(db),
         page=page,
         page_size=page_size,
         action_page=action_page,
@@ -921,6 +936,7 @@ def export_fsdp_report(
 ) -> Response:
     report = fsdp_report_data(
         db,
+        today=assessment_day(db),
         department=department,
         rank=rank,
         status_filter=status_filter,
@@ -1062,7 +1078,7 @@ def get_scholar(scholar_id: int, db: Session = Depends(get_db)) -> ScholarRead:
     scholar = db.scalar(select(Scholar).options(*options()).where(Scholar.id == scholar_id))
     if scholar is None:
         raise HTTPException(status_code=404, detail="Scholar not found")
-    return read_scholar(scholar)
+    return read_scholar(scholar, today=assessment_day(db))
 
 
 @router.post("", response_model=ScholarRead, status_code=status.HTTP_201_CREATED)
@@ -1106,7 +1122,7 @@ def create_scholar(
     db.add(scholar)
     apply_payload(db, scholar, payload)
     db.flush()
-    sync_graduated_education(scholar, uppercase_new=True)
+    sync_graduated_education(scholar, uppercase_new=True, today=assessment_day(db))
     if request_key is not None:
         db.add(
             CreationRequest(
@@ -1133,7 +1149,7 @@ def update_scholar(
     advance_revision(db, Scholar, scholar_id, if_match)
     apply_payload(db, scholar, payload)
     db.flush()
-    sync_graduated_education(scholar, uppercase_new=True)
+    sync_graduated_education(scholar, uppercase_new=True, today=assessment_day(db))
     commit_record(db)
     return get_scholar(scholar_id, db)
 

@@ -1,5 +1,6 @@
 """Pure contract grace-period and outcome rules shared by reports."""
 
+from dataclasses import dataclass
 from datetime import date
 
 GROUPS = (
@@ -55,20 +56,99 @@ def grace_end(completed: date) -> date:
     )
 
 
+@dataclass(frozen=True, slots=True)
+class ContractAssessment:
+    attention: str
+    grace_ends_on: date | None
+    rule_code: str
+    reason: str
+    as_of: date
+
+
+def assess_contract(
+    status: str, completed: date | None, graduated: bool, today: date
+) -> ContractAssessment:
+    """Explain the existing rules without replacing recorded office outcomes."""
+    deadline = grace_end(completed) if completed and completed.year <= 9996 else None
+    recorded = status.strip().casefold()
+
+    def result(attention: str, code: str, reason: str, grace: date | None = deadline):
+        return ContractAssessment(attention, grace, code, reason, today)
+
+    if recorded == "payback":
+        return result(
+            "Recorded Payback",
+            "CONTRACT_RECORDED_PAYBACK",
+            "Payback was recorded by the office. Calculated dates, case status and payment "
+            "progress do not replace that recorded outcome.",
+        )
+    if recorded == "payback pending contract":
+        return result(
+            "Payback pending contract",
+            "CONTRACT_RECORDED_PENDING",
+            "The office recorded a pending repayment contract. Calculated dates, case status "
+            "and payment progress do not replace that recorded outcome.",
+        )
+    if recorded == "did not avail":
+        return result(
+            "Did Not Avail",
+            "CONTRACT_NOT_AVAILED",
+            "This grant is recorded as Did Not Avail, so calculated payback review does not apply.",
+            None,
+        )
+    if recorded in {"graduated", "completed"}:
+        return result(
+            "Completed",
+            "CONTRACT_COMPLETED_RECORDED",
+            "This grant has a recorded Completed outcome, so calculated payback review is cleared.",
+        )
+    if graduated:
+        return result(
+            "Completed",
+            "CONTRACT_COMPLETED_APPLICATION",
+            "Another grant in the same recorded application group has a Completed outcome, so "
+            "calculated payback review is cleared for this group.",
+        )
+    if completed is None:
+        return result(
+            "Completion date missing",
+            "CONTRACT_DEADLINE_MISSING",
+            "No usable completion deadline is recorded. An exact deadline, or a program start "
+            "date and allowed duration, is needed to calculate the grace period.",
+        )
+    if deadline is None:
+        return result(
+            "Contract not completed",
+            "CONTRACT_DEADLINE_UNUSABLE",
+            "The recorded completion reference is outside the supported three-year grace "
+            "calculation range. No payback review date has been inferred.",
+        )
+    if completed > today:
+        return result(
+            "Contract not completed",
+            "CONTRACT_BEFORE_DEADLINE",
+            f"The completion reference date is {completed.isoformat()}, which has not arrived. "
+            f"The three-year grace period ends {deadline.isoformat()}.",
+        )
+    if today > deadline:
+        return result(
+            "Payback review",
+            "CONTRACT_REVIEW_DUE",
+            f"The completion reference date was {completed.isoformat()} and the three-year "
+            f"grace period ended {deadline.isoformat()}. This application group has no recorded "
+            "Completed outcome and needs office review.",
+        )
+    return result(
+        "In grace period",
+        "CONTRACT_IN_GRACE",
+        f"The completion reference date was {completed.isoformat()}. The three-year grace "
+        f"period includes {deadline.isoformat()}; calculated payback review begins after that day.",
+    )
+
+
 def classify_contract(
     status: str, completed: date | None, graduated: bool, today: date
 ) -> tuple[str, date | None]:
-    deadline = grace_end(completed) if completed and completed.year <= 9996 else None
-    if status.strip().casefold() == "payback":
-        return "Recorded Payback", deadline
-    if status.strip().casefold() == "payback pending contract":
-        return "Payback pending contract", deadline
-    if status.strip().casefold() == "did not avail":
-        return "Did Not Avail", None
-    if graduated or status.strip().casefold() in {"graduated", "completed"}:
-        return "Completed", deadline
-    if completed is None:
-        return "Completion date missing", None
-    if completed > today or deadline is None:
-        return "Contract not completed", deadline
-    return ("Payback review" if today > deadline else "In grace period"), deadline
+    """Compatibility interface for existing reports, callers and integrations."""
+    assessment = assess_contract(status, completed, graduated, today)
+    return assessment.attention, assessment.grace_ends_on

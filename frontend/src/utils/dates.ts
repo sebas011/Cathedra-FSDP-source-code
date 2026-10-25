@@ -1,6 +1,12 @@
-export function localToday() {
-  const today = new Date();
-  return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+export function localToday(now: Date = new Date()) {
+  const parts = new Intl.DateTimeFormat("en", {
+    timeZone: "Asia/Manila",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(now);
+  const part = (type: string) => parts.find((item) => item.type === type)?.value;
+  return `${part("year")}-${part("month")}-${part("day")}`;
 }
 
 /** SQLite service timestamps without an offset are UTC, not browser-local time. */
@@ -22,6 +28,17 @@ export function formatRegistrationDate(value: string | null | undefined, locale?
         year: "numeric",
         timeZone: "Asia/Manila",
       })
+    : "Not recorded";
+}
+
+export function formatRecordDateTime(value: string | null | undefined, locale?: string) {
+  const instant = registrationTimestamp(value);
+  return instant
+    ? new Intl.DateTimeFormat(locale, {
+        dateStyle: "medium",
+        timeStyle: "short",
+        timeZone: "Asia/Manila",
+      }).format(new Date(instant))
     : "Not recorded";
 }
 

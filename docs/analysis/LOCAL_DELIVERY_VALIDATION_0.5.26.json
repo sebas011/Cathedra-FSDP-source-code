@@ -1,0 +1,17 @@
+{
+  "status": "verified",
+  "version": "0.5.26",
+  "schema": 17,
+  "runtime_files": 151,
+  "files": 159,
+  "zip_roundtrip_verified": true,
+  "archive_sha256": "355eaaeb6b78d0b9e961f81faa2638360f28091c1f790429b369d3ed9a5977f8",
+  "release_folder_hash_verified": true,
+  "working_database_included": false,
+  "google_credentials_or_connection_included": false,
+  "github_publication_performed": false,
+  "powershell_package_verifier_passed": true,
+  "bundled_python_verifier_passed": true,
+  "bundled_verifier_database_accessed": false,
+  "actual_office_pc_tested": false
+}

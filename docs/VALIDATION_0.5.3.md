@@ -22,4 +22,4 @@ No new database migration is introduced. Any earlier pending migrations through 
 
 Artifact paths and final results are recorded in docs/INSTALLATION_MANIFEST_0.5.3.json. Evidence is saved in docs/evidence-0.5.3. A separate clean-PC run and comprehensive contrast/screen-reader audit are not certified by the local tests.
 
-Skills used: brainstorming, senior-frontend, and code-reviewer from C:\Users\rodia\Desktop\AI\.claude\skills. Design: docs/plans/2026-10-03-frontend-fixes-design.md.
+Skills used: brainstorming, senior-frontend, and code-reviewer from <developer-home>\Desktop\AI\.claude\skills. Design: docs/plans/2026-10-03-frontend-fixes-design.md.

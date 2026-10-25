@@ -51,7 +51,7 @@ The working database was neither replaced nor migrated by development installati
 
 ## Office delivery and remaining acceptance
 
-Delivery target: `C:\Users\rodia\Desktop\Project\Releases\Cathedra-FSDP-0.5.18-Update`.
+Delivery target: `<developer-home>\Desktop\Project\Releases\Cathedra-FSDP-0.5.18-Update`.
 
 Publication passed on 13 October at 20:07 Asia/Manila. All 147 runtime files verified and the runtime manifest matches the final tested build. The prior 0.5.17 package remains intact. See publication evidence (local historical evidence; excluded from this source snapshot). The finalized reports are delivered through a separate documentation-only refresh and hashed inventory; runtime bytes remain unchanged.
 

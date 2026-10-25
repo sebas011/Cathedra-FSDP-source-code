@@ -331,8 +331,14 @@ def test_leap_day_deadline_grace_is_inclusive_and_extreme_dates_do_not_overflow(
 
 @pytest.mark.parametrize("previous_version", [13, 14, 15])
 def test_migration16_adds_nullable_facts_without_altering_existing_records(
-    tmp_path, previous_version
+    tmp_path, previous_version, monkeypatch
 ):
+    from app import migrations
+
+    # This is the historical migration-16 contract, not the latest schema ceiling.
+    monkeypatch.setattr(
+        migrations, "MIGRATIONS", [item for item in migrations.MIGRATIONS if item[0] <= 16]
+    )
     engine = create_engine(f"sqlite:///{tmp_path / 'old-office.db'}")
     try:
         Base.metadata.create_all(engine)

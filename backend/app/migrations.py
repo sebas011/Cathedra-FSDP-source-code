@@ -390,6 +390,13 @@ def _completion_deadlines_and_payback_payment(connection: Connection) -> None:
             )
 
 
+def _activity_business_change_details(connection: Connection) -> None:
+    # Historical events retain their field-name history. Do not invent old values.
+    columns = {row[1] for row in connection.exec_driver_sql("PRAGMA table_info(activity_events)")}
+    if "change_details" not in columns:
+        connection.exec_driver_sql("ALTER TABLE activity_events ADD COLUMN change_details TEXT")
+
+
 MIGRATIONS = [
     (1, "fsdp-only-baseline", _baseline),
     (2, "participation-institution-attribution", _participation_institutions),
@@ -415,6 +422,7 @@ MIGRATIONS = [
     ),
     (15, "session-inactivity-lock", _session_inactivity_lock),
     (16, "completion-deadlines-and-payback-payment", _completion_deadlines_and_payback_payment),
+    (17, "business-change-history-details", _activity_business_change_details),
 ]
 
 

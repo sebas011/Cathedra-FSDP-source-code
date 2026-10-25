@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from app.activity_details import sanitize_change_details
 from app.auth import require_admin
 from app.db import get_db
 from app.models import ActivityEvent, LocalUser, Scholar
@@ -11,14 +12,14 @@ from app.models import ActivityEvent, LocalUser, Scholar
 router = APIRouter(prefix="/activity", tags=["Activity History"])
 
 
-def read_event(event: ActivityEvent) -> dict[str, object]:
+def read_event(event: ActivityEvent, *, include_details: bool = False) -> dict[str, object]:
     try:
         fields = json.loads(event.changed_fields or "[]")
     except ValueError, TypeError:
         fields = []
     if not isinstance(fields, list):
         fields = []
-    return {
+    result = {
         "id": event.id,
         "username": event.username,
         "action": event.action,
@@ -29,6 +30,9 @@ def read_event(event: ActivityEvent) -> dict[str, object]:
         "operation": event.operation,
         "changed_fields": [field for field in fields if isinstance(field, str)],
     }
+    if include_details:
+        result["change_details"] = sanitize_change_details(event.record_type, event.change_details)
+    return result
 
 
 @router.get("/scholars/{scholar_id}")
@@ -49,7 +53,7 @@ def scholar_activity(
         .limit(page_size)
     ).all()
     return {
-        "items": [read_event(event) for event in events],
+        "items": [read_event(event, include_details=True) for event in events],
         "total": total,
         "page": page,
         "page_size": page_size,

@@ -49,7 +49,7 @@ The database was neither replaced nor migrated by development installation. The 
 
 ## Delivery and Office retry
 
-Verified delivery folder: `C:\Users\rodia\Desktop\Project\Releases\Cathedra-FSDP-0.5.19-Update`, published14 October at20:13 Asia/Manila. Its147-file runtime manifest matches the tested build. Final reports use a separate documentation-only refresh and hash inventory. See folder publication evidence (local historical evidence; excluded from this source snapshot).
+Verified delivery folder: `<developer-home>\Desktop\Project\Releases\Cathedra-FSDP-0.5.19-Update`, published14 October at20:13 Asia/Manila. Its147-file runtime manifest matches the tested build. Final reports use a separate documentation-only refresh and hash inventory. See folder publication evidence (local historical evidence; excluded from this source snapshot).
 
 Private [GitHub v0.5.19 release](https://github.com/sebas011/Cathedra-FSDP/releases/tag/v0.5.19) published at20:15 Asia/Manila. All three final assets downloaded back and hash matched. ZIP contains152 files:147 runtime files, manifest, essential Office documents and ASUS-path retry guide. Empty seed has zero scholars, grants, education records, accounts or Office Log entries. Version18 release/assets and the prior documentation commit are retained; only four delivery documents were updated with a normal fast-forward push. See GitHub evidence (local historical evidence; excluded from this source snapshot).
 

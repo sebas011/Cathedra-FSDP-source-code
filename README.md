@@ -1,16 +1,28 @@
-# Cathedra FSDP 0.5.25
+# Cathedra FSDP 0.5.26
 
-Source code for the local Windows FSDP scholar administration application. Database schema: 16.
+Source code for the local Windows FSDP scholar administration application. Database schema: 17.
 
 This repository contains backend, frontend, desktop launcher/updater, tests, build tools and technical documentation. Working scholar records, accounts, backups, OAuth credentials, Google connection tokens, executables and private installation history are excluded.
 
-## Dashboard and profile readability
+## Selected blueprint improvements
 
-Version 0.5.25 enlarges the current-status chart and legend, fixes profile stylesheet ordering, and gives education and program/grant history the full reading width. Education details and the latest application open initially; all grant disclosures can expand or collapse together. Schema 16, records, calculations and reporting contracts remain unchanged. See the [readability plan](docs/plans/2026-10-25-profile-readability.md).
+- Administrators can inspect bounded previous/new business values in scholar change history. Capture and the record change share a transaction. An explicit allowlist excludes credential and internal identifier values, and long text previews are marked when truncated. Old events remain readable without fabricated prior values; general activity responses remain metadata-only.
+- Grant profiles and dashboard contract follow-up can expand assessment details for the factual reason, deadline basis where available and assessed-on date. Recorded outcomes, application-specific completion, repayment progress, case status, deadline precedence and the three-calendar-year grace boundary are retained.
+- A shared Philippine business date keeps contract/report calculations, registration analytics and default Office Log dates consistent. Authentication and expiry keep UTC semantics; existing backup/recovery timestamp handling is retained.
 
-## Paper & Ink Scholar Office
+Migration 17 adds only nullable `activity_events.change_details`. Existing IDs, records, optional dates, Name and Program Applied essential fields, Summer, Staff/Unknown, certification/enhancement programs, repeated applications and annual grant records remain supported. No degree-only model, mandatory appointment history or approval workflow is introduced. See the [selected implementation plan](docs/plans/2026-10-25-selective-blueprint-improvements.md).
 
-The working React application now uses ink navigation, a warm canvas and cobalt controls; redesigned profiles, a four-step atomic editor and real registration analytics retain the existing business rules and recovery behavior. The database remains schema16. See the [implementation plan](docs/plans/2026-10-24-paper-office.md).
+## Observed local verification
+
+All 628 backend tests and 270 frontend tests passed. Backend combined statement/branch coverage was 92.35%; frontend coverage met its configured thresholds. Static checks, formatting, production/test types and production builds passed.
+
+The clean Windows package has 151 verified runtime files and an empty schema-17 seed. Both inventory verifiers, PowerShell 5.1/7 workflows and a packaged schema-16-to-17 upgrade rehearsal passed. Existing business rows, IDs, historical events and encrypted dummy Google connection bytes were retained in the synthetic rehearsal. Guarded local runtime replacement preserved the working database and Google connection bytes. See [0.5.26 validation](docs/VALIDATION_0.5.26.md).
+
+These are observed local results. The newly published source revision's GitHub Actions result is separate and must be checked before Office publication. Actual Office-PC acceptance, physical printing, full assistive-technology checks and live Google transmission were not performed by these local gates.
+
+## Scholar Office interface
+
+Ink navigation, a warm workspace, cobalt controls, readable profiles and a four-step atomic editor retain the existing business rules and recovery workflow. The dashboard combines real registration history, affiliation columns, outcomes and embedded reports. The 0.5.25 status-chart/profile-readability improvements remain included. See the [interface implementation plan](docs/plans/2026-10-24-paper-office.md) and [readability plan](docs/plans/2026-10-25-profile-readability.md).
 
 ## Google Sheets reporting
 
@@ -37,8 +49,8 @@ The build checks regressions and packages a clean Windows app in `desktop/releas
 - [Product requirements](docs/current/PRODUCT_REQUIREMENTS.md)
 - [Office guide](docs/OFFICE_GUIDE.md)
 - [Export schemas](docs/EXPORT_SCHEMAS.md)
-- [0.5.25 validation](docs/VALIDATION_0.5.25.md)
+- [0.5.26 validation](docs/VALIDATION_0.5.26.md)
 
 ## Office application downloads
 
-Download the ready-to-use ZIP from [Cathedra FSDP Releases](https://github.com/sebas011/Cathedra-FSDP/releases/latest). Source downloads here are for development. Use the supported updater and preserve the existing Office database. Local validation and GitHub Actions are separate evidence; intended Office-PC acceptance remains a separate check.
+Download the ready-to-use ZIP from [Cathedra FSDP Releases](https://github.com/sebas011/Cathedra-FSDP/releases/latest) after the current version's publication gates pass. Source downloads here are for development. Use the supported updater and preserve the existing Office database. Intended Office-PC acceptance remains a separate check.

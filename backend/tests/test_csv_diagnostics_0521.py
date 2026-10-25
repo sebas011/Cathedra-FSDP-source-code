@@ -352,6 +352,7 @@ def test_uvicorn_does_not_log_sync_middleware_or_streaming_exception_data(
 
 def test_read_scholar_classifies_each_grant_once(client, monkeypatch):
     import app.contract_rules as contract_rules
+    import app.fsdp_reporting as reporting
 
     saved = client.post(
         "/api/v1/fsdp",
@@ -364,8 +365,8 @@ def test_read_scholar_classifies_each_grant_once(client, monkeypatch):
         },
     )
     assert saved.status_code == 201, saved.text
-    classify = Mock(wraps=contract_rules.classify_contract)
-    monkeypatch.setattr(contract_rules, "classify_contract", classify)
+    classify = Mock(wraps=contract_rules.assess_contract)
+    monkeypatch.setattr(reporting, "assess_contract", classify)
     response = client.get(f"/api/v1/fsdp/{saved.json()['id']}")
     assert response.status_code == 200
     assert classify.call_count == 2

@@ -2,7 +2,7 @@
   "format": "Cathedra dependency inventory 1",
   "formal_sbom_validated": false,
   "constraints_sha256": "db70faa3dd1b2b6c5d29033746875e99233aa27c3efd6586875d20353eb0a5d3",
-  "lockfile_sha256": "f8a67dd956138aa39c345a2bfc5569cfa6b6ac8abacb28f390038b161109e176",
+  "lockfile_sha256": "61310dd776996727aa6e845e41c9debd71d8f8d93ed96b82165cee7f85d8ddbc",
   "python": [
     {
       "name": "altgraph",

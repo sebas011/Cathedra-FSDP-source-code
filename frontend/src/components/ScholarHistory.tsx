@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { getScholarHistory } from "../api/fsdp";
 import type { ActivityEvent, PagedResult } from "../types";
+import { formatRecordDateTime } from "../utils/dates";
+import ChangeDetails from "./ChangeDetails";
 
 export default function ScholarHistory({ scholarId }: { scholarId: number }) {
   const [open, setOpen] = useState(false);
@@ -37,10 +39,6 @@ export default function ScholarHistory({ scholarId }: { scholarId: number }) {
       </button>
       {open && (
         <div id="scholar-change-history" className="stack-md">
-          <p>
-            Field names, editor and time are recorded. Older deleted grant or requirement links may
-            not be recoverable.
-          </p>
           {error ? (
             <div role="alert">
               {error}
@@ -67,13 +65,14 @@ export default function ScholarHistory({ scholarId }: { scholarId: number }) {
                       </strong>
                       <p>
                         {item.username || "Unknown editor"} ·{" "}
-                        {new Date(item.created_at).toLocaleString()}
+                        {formatRecordDateTime(item.created_at)}
                       </p>
                       <p>
                         {item.changed_fields
                           .map((field) => field.replaceAll("_", " "))
                           .join(", ") || "No field details"}
                       </p>
+                      <ChangeDetails changes={item.change_details} />
                     </li>
                   ))}
                 </ol>

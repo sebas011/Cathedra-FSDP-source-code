@@ -31,7 +31,7 @@ Evidence remains in the isolated build workspace: build-051.log, integrity-execu
 
 ## Installed result
 
-Installed into C:\Users\rodia\Desktop\Project\Cathedra-FSDP. Independent installed-executable integrity checks and the Windows PowerShell 5.1 office smoke both pass on disposable synthetic data. Source hashes match the tested source. The office database SHA-256 remains identical to its pre-installation value.
+Installed into <developer-home>\Desktop\Project\Cathedra-FSDP. Independent installed-executable integrity checks and the Windows PowerShell 5.1 office smoke both pass on disposable synthetic data. Source hashes match the tested source. The office database SHA-256 remains identical to its pre-installation value.
 
 Rollback archives are under update-archives/0.5.1. Verified pre-update database snapshot: data/backups/cathedra-protected-before-0.5.1-20261003-164437.db.
 

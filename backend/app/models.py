@@ -14,6 +14,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from app.clock import business_today
 from app.db import Base
 from app.program_identity import default_program_key
 
@@ -200,7 +201,7 @@ class OfficeLog(Base):
     username: Mapped[str] = mapped_column(String(80), nullable=False)
     request_key: Mapped[str | None] = mapped_column(String(64))
     payload_digest: Mapped[str | None] = mapped_column(String(64))
-    occurred_on: Mapped[date] = mapped_column(Date, default=date.today, nullable=False)
+    occurred_on: Mapped[date] = mapped_column(Date, default=business_today, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), nullable=False)
     entry_type: Mapped[str] = mapped_column(String(40), nullable=False)
     note: Mapped[str] = mapped_column(Text, nullable=False)
@@ -232,6 +233,7 @@ class ActivityEvent(Base):
     record_id: Mapped[int | None] = mapped_column(Integer)
     operation: Mapped[str | None] = mapped_column(String(40))
     changed_fields: Mapped[str | None] = mapped_column(Text)
+    change_details: Mapped[str | None] = mapped_column(Text)
     subject_scholar_id: Mapped[int | None] = mapped_column(Integer, nullable=True, index=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=func.now(), nullable=False, index=True

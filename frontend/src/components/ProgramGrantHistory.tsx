@@ -2,6 +2,7 @@ import type { ParticipationRead } from "../types";
 import { useEffect, useRef } from "react";
 import { displayGrantStatus } from "../utils/statuses";
 import { applicationIdentity, applicationPeriod } from "../utils/grantApplications";
+import AssessmentDetails from "./AssessmentDetails";
 
 const value = (text: string | null | undefined) => text || "Not recorded";
 const period = (term: string | null, year: string | null) =>
@@ -161,6 +162,11 @@ export default function ProgramGrantHistory({ grants }: { grants: ParticipationR
                         <dt>Contract assessment</dt>
                         <dd>
                           {displayGrantStatus(grant.payback_attention || "Completion date missing")}
+                          <AssessmentDetails
+                            reason={grant.assessment_reason}
+                            assessedOn={grant.assessment_as_of}
+                            deadlineBasis={grant.completion_deadline_source}
+                          />
                         </dd>
                       </div>
                       {grant.extension && (
