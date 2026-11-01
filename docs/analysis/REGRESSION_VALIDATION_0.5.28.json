@@ -1,0 +1,23 @@
+{
+  "live_google_requests_performed": false,
+  "browser_conflict_choice_and_sync_passed": true,
+  "browser_console_errors": 0,
+  "version": "0.5.28",
+  "production_web_build_passed": true,
+  "frontend_tests_passed": true,
+  "browser_horizontal_overflow": false,
+  "static_type_format_checks_passed": true,
+  "source_schema": 19,
+  "live_google_deployment_performed": false,
+  "backend_tests_passed": true,
+  "working_office_records_used_for_tests": false,
+  "google_bridge_tests_passed": true,
+  "backend_combined_coverage_percent": 90.2580218326166,
+  "frontend_tests": 308,
+  "frontend_branch_coverage_percent": 76.69,
+  "google_bridge_offline_tests": 8,
+  "google_protection_omitted_defaults_regression_passed": true,
+  "subsequent_live_setup_evidence": "LIVE_GOOGLE_SETUP_0.5.28.json",
+  "backend_tests": 703,
+  "frontend_line_coverage_percent": 86.66
+}

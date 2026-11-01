@@ -67,8 +67,9 @@ client_secret_*.json
 credentials.json
 token.json
 google-connection.bin
+shared-workspace.bin
 
-# Keep future source uploads free of local records and credentials.
+# Private source-publication exclusions.
 .env.*
 !.env.example
 *.sqlite

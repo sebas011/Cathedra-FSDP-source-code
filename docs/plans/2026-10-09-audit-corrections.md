@@ -1,6 +1,6 @@
 # Audit corrections implementation plan — 0.5.15
 
-Baseline: 0.5.14 / schema 11. Input: current and future issues review (local historical evidence; excluded from this source snapshot). User authorizes planning and immediate implementation, explicitly retaining Summer.
+Baseline: 0.5.14 / schema 11. Input: current and future issues review (local historical evidence; excluded from source snapshot). User authorizes planning and immediate implementation, explicitly retaining Summer.
 
 ## Constraints and decisions
 

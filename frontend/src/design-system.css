@@ -201,6 +201,35 @@ li + li {
   overflow-y: auto;
   min-height: 0;
   padding: 0 12px 24px;
+  scrollbar-gutter: stable;
+  overscroll-behavior-y: contain;
+}
+@media (forced-colors: none) {
+  .sidebar .nav-list {
+    color-scheme: dark;
+    scrollbar-color: var(--rail-muted) var(--rail);
+  }
+  @supports selector(::-webkit-scrollbar) {
+    .sidebar .nav-list {
+      scrollbar-color: auto;
+    }
+    .sidebar .nav-list::-webkit-scrollbar {
+      width: 14px;
+    }
+    .sidebar .nav-list::-webkit-scrollbar-track {
+      background: var(--rail);
+    }
+    .sidebar .nav-list::-webkit-scrollbar-thumb {
+      min-height: 48px;
+      border: 3px solid var(--rail);
+      border-radius: 999px;
+      background: var(--rail-muted);
+    }
+    .sidebar .nav-list::-webkit-scrollbar-thumb:hover,
+    .sidebar .nav-list::-webkit-scrollbar-thumb:active {
+      background: var(--rail-ink);
+    }
+  }
 }
 .nav-group + .nav-group {
   margin-top: 20px;
@@ -254,6 +283,7 @@ li + li {
 .sidebar-foot {
   display: grid;
   gap: 4px;
+  flex-shrink: 0;
   padding: 20px 24px;
   font-size: 12px;
   color: var(--rail-muted);
@@ -278,6 +308,10 @@ li + li {
 }
 .sidebar-collapsed .brand {
   justify-content: center;
+}
+.sidebar-collapsed .nav-list {
+  padding-inline: 6px;
+  scrollbar-gutter: stable both-edges;
 }
 .sidebar-collapsed .nav-item {
   justify-content: center;

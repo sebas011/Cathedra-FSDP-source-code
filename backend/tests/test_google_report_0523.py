@@ -23,6 +23,7 @@ HEADERS = [
     "Department",
     "Rank/position",
     "Previous degree",
+    "Profile remarks",
     "Program",
     "Delivering HEI",
     "Grant type",
@@ -73,8 +74,8 @@ def test_exact_compact_headers_and_no_grant_scholar_preserves_zero_and_profile_n
             "Staff",
             "SUPPORT OFFICER",
             "HISTORICAL DEGREE",
-            *([None] * 7),
             "PROFILE NOTE\nSECOND LINE",
+            *([None] * 8),
         ]
     ]
     assert "PRIVATE IMPORT SOURCE" not in json.dumps(rows)
@@ -138,7 +139,7 @@ def test_each_grant_keeps_its_row_and_education_is_complete_without_legacy_dupli
     headings, rows = report()
     assert headings == HEADERS and len(rows) == 2
     first, continuation = rows
-    assert first[:7] == [
+    assert first[:8] == [
         1,
         "SYNTHETIC MULTI GRANT",
         None,
@@ -147,8 +148,9 @@ def test_each_grant_keeps_its_row_and_education_is_complete_without_legacy_dupli
         None,
         "Bachelor’s: BS ENGINEERING · SYNTHETIC COLLEGE · 2010\n"
         "Master’s: MS ENGINEERING · SYNTHETIC UNIVERSITY · 2015\nOther",
+        "PROFILE NOTE",
     ]
-    assert first[7:] == [
+    assert first[8:] == [
         "FIRST APPLICATION",
         "SYNTHETIC HEI ONE",
         "Other: SYNTHETIC SPONSOR",
@@ -156,10 +158,10 @@ def test_each_grant_keeps_its_row_and_education_is_complete_without_legacy_dupli
         "2nd 2022-2023",
         "ONE TERM",
         "Completed",
-        "Profile: PROFILE NOTE\nGrant: FIRST GRANT NOTE",
+        "FIRST GRANT NOTE",
     ]
-    assert continuation[:7] == [None] * 7
-    assert continuation[7:] == [
+    assert continuation[:8] == [None] * 8
+    assert continuation[8:] == [
         "SECOND APPLICATION",
         "SYNTHETIC HEI TWO",
         None,
@@ -169,7 +171,7 @@ def test_each_grant_keeps_its_row_and_education_is_complete_without_legacy_dupli
         "Incomplete",
         "SECOND GRANT NOTE",
     ]
-    assert all(len(row) == 15 for row in rows)
+    assert all(len(row) == 16 for row in rows)
     assert "OUTDATED SINGLE FIELD" not in json.dumps(rows)
     assert "Fully paid" not in json.dumps(rows)
     assert "2022-01-01" not in json.dumps(rows)
@@ -211,7 +213,7 @@ def test_dates_use_recorded_actual_dates_or_unexpanded_period_labels(
         )
     )
     rows = report()[1]
-    assert rows[0][10:12] == [expected, expected]
+    assert rows[0][11:13] == [expected, expected]
 
 
 @pytest.mark.parametrize(
@@ -301,9 +303,10 @@ def test_sync_sends_real_compact_projection_as_literal_text_and_keeps_csv_contra
     assert response.status_code == 200 and response.json() == {"rows": 1}
     assert received[0][0] == HEADERS
     assert received[0][1][1] == "=SYNTHETIC NAME()"
-    assert received[0][1][7] == "@SYNTHETIC PROGRAM"
-    assert received[0][1][-1] == "Profile: +SYNTHETIC PROFILE\nGrant: =SYNTHETIC GRANT()"
-    assert all(len(row) == 15 for row in received[0])
+    assert received[0][1][7] == "+SYNTHETIC PROFILE"
+    assert received[0][1][8] == "@SYNTHETIC PROGRAM"
+    assert received[0][1][-1] == "=SYNTHETIC GRANT()"
+    assert all(len(row) == 16 for row in received[0])
     exported = client.get("/api/v1/maintenance/exports/fsdp.csv")
     csv_rows = list(csv.reader(io.StringIO(exported.text.lstrip("\ufeff"))))
     assert csv_rows[0][:2] == ["Scholar ID", "Name"]

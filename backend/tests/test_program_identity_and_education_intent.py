@@ -3,6 +3,7 @@ from datetime import date
 from threading import Barrier
 
 import pytest
+from conftest import remove_shared_schema
 from fastapi import HTTPException
 from sqlalchemy import create_engine, func, select
 from sqlalchemy.orm import Session
@@ -276,6 +277,7 @@ def test_populated_old_schema_upgrades_through_current_orm_and_retains_snapshot(
     try:
         upgrade_database(engine, path)
         with engine.begin() as connection:
+            remove_shared_schema(connection)
             connection.exec_driver_sql(
                 "DELETE FROM schema_migrations WHERE version>?", (previous_version,)
             )

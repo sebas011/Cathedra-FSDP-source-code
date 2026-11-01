@@ -18,8 +18,10 @@ FSDP_TABLES = frozenset(
         "scholar_id_counter",
         "sqlite_sequence",
         "creation_requests",
+        "sheet_import_receipts",
         "education_suppressions",
         "office_logs",
+        "shared_workspace_state",
     }
 )
 if os.environ.get("CATHEDRA_PRODUCT", PRODUCT) != PRODUCT:

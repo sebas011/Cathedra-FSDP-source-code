@@ -1,7 +1,9 @@
 from datetime import date, datetime
+from uuid import uuid4
 
 from sqlalchemy import (
     Boolean,
+    CheckConstraint,
     Date,
     DateTime,
     Float,
@@ -10,9 +12,10 @@ from sqlalchemy import (
     Integer,
     String,
     Text,
+    event,
     func,
 )
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, Session, mapped_column, relationship
 
 from app.clock import business_today
 from app.db import Base
@@ -21,8 +24,10 @@ from app.program_identity import default_program_key
 
 class Scholar(Base):
     __tablename__ = "scholars"
+    __table_args__ = (Index("uq_scholars_cloud_key", "cloud_key", unique=True),)
 
     id: Mapped[int] = mapped_column(primary_key=True)
+    cloud_key: Mapped[str | None] = mapped_column(String(36), default=lambda: str(uuid4()))
     revision: Mapped[int] = mapped_column(Integer, default=0, server_default="0", nullable=False)
     name: Mapped[str] = mapped_column(String(200), nullable=False, index=True)
     age: Mapped[int | None] = mapped_column(Integer)
@@ -55,14 +60,19 @@ class Scholar(Base):
     )
 
     education: Mapped[list["ScholarEducation"]] = relationship(
-        back_populates="scholar", cascade="all, delete-orphan", order_by="ScholarEducation.id"
+        back_populates="scholar",
+        cascade="all, delete-orphan",
+        order_by=lambda: func.coalesce(ScholarEducation.shared_order, ScholarEducation.id),
     )
 
 
 class ScholarEducation(Base):
     __tablename__ = "scholar_education"
+    __table_args__ = (Index("uq_scholar_education_cloud_key", "cloud_key", unique=True),)
 
     id: Mapped[int] = mapped_column(primary_key=True)
+    cloud_key: Mapped[str | None] = mapped_column(String(36), default=lambda: str(uuid4()))
+    shared_order: Mapped[int | None] = mapped_column(Integer)
     scholar_id: Mapped[int] = mapped_column(ForeignKey("scholars.id"), nullable=False, index=True)
     source_program_id: Mapped[int | None] = mapped_column(
         ForeignKey("programs.id", ondelete="SET NULL")
@@ -99,11 +109,27 @@ class CreationRequest(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), nullable=False)
 
 
+class SheetImportReceipt(Base):
+    __tablename__ = "sheet_import_receipts"
+
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("local_users.id", ondelete="CASCADE"), primary_key=True
+    )
+    request_key: Mapped[str] = mapped_column(String(64), primary_key=True)
+    payload_digest: Mapped[str] = mapped_column(String(64), nullable=False)
+    result_json: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), nullable=False)
+
+
 class ScholarRequirement(Base):
     __tablename__ = "scholar_requirements"
-    __table_args__ = (Index("ix_scholar_requirements_due_complete", "due_date", "is_complete"),)
+    __table_args__ = (
+        Index("ix_scholar_requirements_due_complete", "due_date", "is_complete"),
+        Index("uq_scholar_requirements_cloud_key", "cloud_key", unique=True),
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True)
+    cloud_key: Mapped[str | None] = mapped_column(String(36), default=lambda: str(uuid4()))
     scholar_id: Mapped[int] = mapped_column(ForeignKey("scholars.id"), nullable=False, index=True)
     requirement_name: Mapped[str] = mapped_column(String(200), nullable=False)
     due_date: Mapped[date | None] = mapped_column(Date)
@@ -116,9 +142,13 @@ class ScholarRequirement(Base):
 
 class Program(Base):
     __tablename__ = "programs"
-    __table_args__ = (Index("uq_programs_canonical_key", "canonical_key", unique=True),)
+    __table_args__ = (
+        Index("uq_programs_canonical_key", "canonical_key", unique=True),
+        Index("uq_programs_cloud_key", "cloud_key", unique=True),
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True)
+    cloud_key: Mapped[str | None] = mapped_column(String(36), default=lambda: str(uuid4()))
     revision: Mapped[int] = mapped_column(Integer, default=0, server_default="0", nullable=False)
     name: Mapped[str] = mapped_column(String(300), nullable=False, unique=True, index=True)
     canonical_key: Mapped[str | None] = mapped_column(Text, default=default_program_key)
@@ -134,9 +164,14 @@ class Program(Base):
 
 class FsdpParticipation(Base):
     __tablename__ = "fsdp_participations"
-    __table_args__ = (Index("ix_fsdp_participations_status_scholar", "status", "scholar_id"),)
+    __table_args__ = (
+        Index("ix_fsdp_participations_status_scholar", "status", "scholar_id"),
+        Index("uq_fsdp_participations_cloud_key", "cloud_key", unique=True),
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True)
+    cloud_key: Mapped[str | None] = mapped_column(String(36), default=lambda: str(uuid4()))
+    shared_order: Mapped[int | None] = mapped_column(Integer)
     scholar_id: Mapped[int] = mapped_column(ForeignKey("scholars.id"), nullable=False, index=True)
     program_id: Mapped[int] = mapped_column(ForeignKey("programs.id"), nullable=False, index=True)
     delivering_hei: Mapped[str | None] = mapped_column(String(200))
@@ -190,9 +225,11 @@ class OfficeLog(Base):
     __table_args__ = (
         Index("ix_office_logs_occurred_id", "occurred_on", "id"),
         Index("uq_office_logs_user_request", "user_id", "request_key", unique=True),
+        Index("uq_office_logs_cloud_key", "cloud_key", unique=True),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)
+    cloud_key: Mapped[str | None] = mapped_column(String(36), default=lambda: str(uuid4()))
     scholar_id: Mapped[int | None] = mapped_column(
         ForeignKey("scholars.id", ondelete="SET NULL"), index=True
     )
@@ -240,6 +277,23 @@ class ActivityEvent(Base):
     )
 
 
+class SharedWorkspaceState(Base):
+    """Local synchronization checkpoint; credentials are stored outside SQLite."""
+
+    __tablename__ = "shared_workspace_state"
+    __table_args__ = (CheckConstraint("id = 1", name="ck_shared_workspace_singleton"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    workspace_id: Mapped[str | None] = mapped_column(String(36))
+    cache_id: Mapped[str] = mapped_column(String(36), default=lambda: str(uuid4()), nullable=False)
+    baseline_json: Mapped[str | None] = mapped_column(Text)
+    pending_json: Mapped[str | None] = mapped_column(Text)
+    last_completed_id: Mapped[str | None] = mapped_column(String(36))
+    last_result_json: Mapped[str | None] = mapped_column(Text)
+    dirty: Mapped[bool] = mapped_column(Boolean, default=False, server_default="0", nullable=False)
+    last_synced_at: Mapped[datetime | None] = mapped_column(DateTime)
+
+
 class BackupReview(Base):
     __tablename__ = "backup_reviews"
 
@@ -250,3 +304,27 @@ class BackupReview(Base):
     copied_off_device: Mapped[bool] = mapped_column(Boolean, nullable=False)
     restore_tested: Mapped[bool] = mapped_column(Boolean, nullable=False)
     reviewed_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), nullable=False)
+
+
+@event.listens_for(Session, "before_flush")
+def mark_shared_business_changes(db: Session, _, __) -> None:
+    if db.info.get("shared_import"):
+        return
+    business = (
+        Scholar,
+        Program,
+        FsdpParticipation,
+        ScholarEducation,
+        ScholarRequirement,
+        EducationSuppression,
+        OfficeLog,
+    )
+    if not any(
+        isinstance(item, business)
+        and (item in db.new or item in db.deleted or db.is_modified(item, include_collections=True))
+        for item in (*db.new, *db.dirty, *db.deleted)
+    ):
+        return
+    state = db.get(SharedWorkspaceState, 1)
+    if state is not None and state.workspace_id:
+        state.dirty = True

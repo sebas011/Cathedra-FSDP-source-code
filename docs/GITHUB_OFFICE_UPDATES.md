@@ -1,12 +1,22 @@
 # Download Office updates from GitHub
 
-## Corrected Office updater — 0.5.19
+## Current delivery status — 31 October 2026
+
+**0.5.27 is local work and is not published to GitHub.** Its software/browser, native package and synthetic upgrade results are in [0.5.27 validation](VALIDATION_0.5.27.md); guarded development installation passed with the existing database and Google connection preserved. This is a local result, not a new GitHub publication. Do not expect a 0.5.27 download or assume a local source change updated the Office PC.
+
+The last verified downloadable application is [Cathedra FSDP 0.5.26](https://github.com/sebas011/Cathedra-FSDP/releases/tag/v0.5.26). Download [Cathedra-FSDP-0.5.26-Update.zip](https://github.com/sebas011/Cathedra-FSDP/releases/download/v0.5.26/Cathedra-FSDP-0.5.26-Update.zip), extract the complete archive and follow its UPDATE-INSTRUCTIONS.txt. The published ZIP contains 162 files, including 151 runtime files. SHA-256: `4d4395f1cb2eced27dce1c082ef64c2c31941a4a87548252a8d53b6034315f67`. Its public download, bundled verifier and exact-source Windows workflow were checked; see [publication evidence](analysis/GITHUB_PUBLICATION_VALIDATION_0.5.26.json).
+
+On the Office PC, back up the existing records, exit Cathedra normally, and run the new package's supplied updater against the ORIGINAL installation containing your current data\cathedra.db. The new extracted package and existing installation are different folders. Reopen the original installation afterward and verify recent records. Do not replace the Office database with an empty install seed or development database. GitHub Code → Download ZIP/source archives are not the packaged Windows application.
+
+The 0.5.19 and 0.5.18 instructions below are historical evidence for those assets. Their older version names, checksums and file counts do not describe the current download. Source and Office release publication remain distinct from actual Office-PC acceptance.
+
+## Historical corrected Office updater — 0.5.19
 
 Use the private [0.5.19 release](https://github.com/sebas011/Cathedra-FSDP/releases/tag/v0.5.19) or [latest release](https://github.com/sebas011/Cathedra-FSDP/releases/latest). Download **Cathedra-FSDP-0.5.19-Update.zip** under Assets and extract it completely. The ZIP includes **UPDATE-INSTRUCTIONS.txt** and **docs/OFFICE_RETRY_0.5.19.txt** with the supplied ASUS Office paths. Select the actual folder containing the executable and tools if extraction creates a second nested folder.
 
 The corrected updater verifies declared files, preserves unlisted installed runtime/tool leftovers privately, creates a clean verified preceding-runtime archive and installs only the incoming manifest's files. Missing/changed files and link/access failures remain blocked. Keep the original Office database at `C:\Users\ASUS\AppData\Local\Cathedra-FSDP\data\cathedra.db`; no working database or records are in this download. Make/download a backup, use Exit Cathedra, run the supplied updater against the original installation and reopen that original app afterward. Success reports version19, verified status and `database_replaced: false`.
 
-Verified14 October2026:605 automated tests, both147-file package verifiers, native PS5.1 pristine/residue upgrades, residue archive hashes, explicit rollback/retry and unchanged synthetic database bytes. The published ZIP and both supporting assets were freshly downloaded and hash matched. See [version19 validation](VALIDATION_0.5.19.md) and GitHub delivery proof (local historical evidence; excluded from this source snapshot). Actual Office retry/record acceptance is still yours to verify after installation.
+Verified14 October2026:605 automated tests, both147-file package verifiers, native PS5.1 pristine/residue upgrades, residue archive hashes, explicit rollback/retry and unchanged synthetic database bytes. The published ZIP and both supporting assets were freshly downloaded and hash matched. See [version19 validation](VALIDATION_0.5.19.md) and GitHub delivery proof (local historical evidence; excluded from source snapshot). Actual Office retry/record acceptance is still yours to verify after installation.
 
 ZIP SHA-256: `69c5dd80ef6f79ba870c8d774d4bc3f1231fe933d6eb17b8b94896742e067915`.
 
@@ -39,6 +49,6 @@ The ZIP retains all 147 files from the tested 0.5.18 runtime manifest, plus the 
 
 ZIP SHA-256: `ac5191981e7f32ac2a7d322c633941acb8a599f29635534e0b8e7d5640a0f92e`.
 
-See GitHub delivery evidence (local historical evidence; excluded from this source snapshot). The repository's default branch contains a download README, instructions, checksums and ignore rules. The application is in Release Assets; the development application's source/history remains in the local project. The original development Git history was not pushed or rewritten.
+See GitHub delivery evidence (local historical evidence; excluded from source snapshot). The repository's default branch contains a download README, instructions, checksums and ignore rules. The application is in Release Assets; the development application's source/history remains in the local project. The original development Git history was not pushed or rewritten.
 
 For each future prepared version, verify and package the application, retain only an empty runtime seed and essential Office guides, publish a new versioned release with a ZIP/checksum/instructions, download and verify its assets, and update the repository's delivery README. The latest-release page remains the stable download location. This publication does not create an automatic build schedule or claim that the actual Office PC has been updated.

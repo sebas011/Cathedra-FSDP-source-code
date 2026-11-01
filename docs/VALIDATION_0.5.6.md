@@ -31,6 +31,6 @@ The guarded installer verifies the source and migrated database fingerprints, cl
 
 The separate Cathedra-FSDP-0.5.0-Office distribution is not changed by this request. Separate-PC acceptance is still an external deployment check.
 
-!Synthetic profile with multiple education entries and distinct annual grants (local historical evidence; excluded from this source snapshot)
+!Synthetic profile with multiple education entries and distinct annual grants (local historical evidence; excluded from source snapshot)
 
 Final installed checks passed: installed desktop startup, persistence, backup/restore, session invalidation and graceful exit; actual office database migration 6 and retained counts verified. A final access audit confirms the approved restricted permissions. The original database backup remains in data/backups; source/runtime archives remain in Releases.

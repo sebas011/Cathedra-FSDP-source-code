@@ -1,8 +1,8 @@
 # Product requirements
 
 **Product:** Cathedra FSDP  
-**Documented:** 25 October 2026, Asia/Manila<br>
-**Baseline:** release 0.5.26; database schema 17<br>
+**Documented:** 31 October 2026, Asia/Manila<br>
+**Baseline:** release 0.5.28; database schema 19<br>
 **Status:** implementation-derived documentation; see [baseline and evidence](README.md).
 
 ## Purpose and users
@@ -138,7 +138,7 @@ Annual copies in the same application retain an explicitly recorded program star
 
 ## Google report update (0.5.23)
 
-Google reporting uses a dedicated [fifteen-column contract](GOOGLE_REPORT_CONTRACT.json) rather than the full CSV table. Each scholar is numbered once and their grants remain on consecutive rows. The report retains recorded education, tenure in years, exact dates or recorded academic periods, each grant's outcome and clearly labeled profile/grant remarks. Existing CSV exports and schema16 are unchanged. Setup, approved test accounts, spreadsheet editing access and per-PC sign-in are described in the [detailed guide](../GOOGLE_SHEETS_SETUP.md). See [0.5.23 validation](../VALIDATION_0.5.23.md) for observed delivery status.
+The original 0.5.23 Google report used fifteen columns (superseded by the [sixteen-column contract](GOOGLE_REPORT_CONTRACT.json) in 0.5.27) rather than the full CSV table. Each scholar is numbered once and their grants remain on consecutive rows. The report retains recorded education, tenure in years, exact dates or recorded academic periods, each grant's outcome and clearly labeled profile/grant remarks. Existing CSV exports and schema16 are unchanged. Setup, approved test accounts, spreadsheet editing access and per-PC sign-in are described in the [detailed guide](../GOOGLE_SHEETS_SETUP.md). See [0.5.23 validation](../VALIDATION_0.5.23.md) for observed delivery status.
 
 ## Paper & Ink integration (0.5.24)
 
@@ -148,3 +148,21 @@ The production UI uses the new Scholar Office shell and visual system. Scholar e
 ## Selected blueprint improvements (0.5.26)
 
 Administrators can inspect bounded previous and new business values for new changes; older events remain readable without invented history. Staff retain existing access boundaries. Contract follow-up explains its factual basis and assessed-on date without altering recorded outcomes, independent cases or payment progress. Business-date displays and defaults use Asia/Manila consistently. The adopted subset preserves optional dates, Name and Program Applied essential fields, Summer, Staff/Unknown, certification/enhancement, independent applications and annual grant records. No degree-only model or new approval workflow is introduced. See [the selected blueprint plan](../plans/2026-10-25-selective-blueprint-improvements.md) and [validation](../VALIDATION_0.5.26.md).
+
+## Office workflow and sheet review requirements (0.5.27)
+
+| ID | Requirement | Current acceptance criterion |
+|---|---|---|
+| PRD-27 | Save an existing scholar from the active entry step | Identity, Education and Programs & grants expose Save changes without visiting Review; the complete staged aggregate, revision safeguards and nested-entry guards remain. New profiles retain Review. |
+| PRD-28 | Make sidebar scrolling apparent | Navigation scrolls independently while brand/footer remain available; visible thumb and native high-contrast fallback support pointer and keyboard use. |
+| PRD-29 | Separate notes in Google reporting | Profile remarks occupy H once per scholar; P contains only that annual grant's remarks. Existing CSV contracts stay unchanged. |
+| PRD-30 | Review remote changes before local import | Administrators preview new scholars and updates, explicitly select destination records and confirm selected changes. Nothing is preselected or deleted for being absent from the sheet. |
+| PRD-31 | Preserve unreported facts and retry safely | Unselected grants, existing education and unreported profile/application/payment/case/deadline facts survive. Stale captures conflict; one batch commits atomically; an identical retry cannot duplicate its changes. |
+
+Pull is manual review, not automatic bidirectional synchronization or a replacement for a complete database backup. A new imported grant is an explicitly independent application; the sheet cannot infer an annual application's grouping. Blank numeric profile/remarks cells can intentionally clear reported facts, while blank status/date/period cells preserve them. Historic combined remarks cannot be split reliably and are left intact. See the [office setup/pull guide](../GOOGLE_SHEETS_SETUP.md) and [validation](../VALIDATION_0.5.27.md).
+
+## Shared workspace (0.5.28)
+
+Optional shared mode uses two separate spreadsheet files: owner-private protected canonical records and a readable sixteen-column report. Administrators configure a registered PC, preview initial Office upload or joining, review sync conflicts, retry saved operations, and publish the confirmed shared report. Staff keep using the normal local scholar/Office Log workflows; the header shows pending changes. Saving locally does not automatically upload, and report editing never changes shared storage.
+
+Local accounts and credentials stay local. Initial upload is an explicit action on the authoritative Office PC. Joining archives and replaces local business records after confirmation. Whole-profile conflicts require a deliberate choice; an unconfirmed save blocks local business writes until exact retry confirms its outcome. The guide explains setup and recovery, with implementation details in the [shared protocol](SHARED_WORKSPACE_PROTOCOL.md), [owner setup](../../google/shared-workspace/README.md), and [validation](../VALIDATION_0.5.28.md). Live deployment and Office-PC acceptance are separate from offline implementation tests.

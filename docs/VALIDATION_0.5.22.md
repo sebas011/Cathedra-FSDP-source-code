@@ -34,4 +34,4 @@ The local Office update uses the same verified 149-file runtime and intentionall
 
 The actual Office PC is separate and has not been tested. No real Google account has been authorized and no live spreadsheet has been modified. Google delivery requires the owner's Desktop OAuth credentials, consent and reporting spreadsheet setup. Report delivery is not a database backup. The working development and Office databases were not test fixtures.
 
-The local Office update copy is verified at `Releases/Cathedra-FSDP-0.5.22-Update`, with 149 runtime files and no working records or Google credentials. See the local delivery receipt (local historical evidence; excluded from this source snapshot).
+The local Office update copy is verified at `Releases/Cathedra-FSDP-0.5.22-Update`, with 149 runtime files and no working records or Google credentials. See the local delivery receipt (local historical evidence; excluded from source snapshot).

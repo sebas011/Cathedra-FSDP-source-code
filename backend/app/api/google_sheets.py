@@ -6,13 +6,16 @@ from sqlalchemy.orm import Session
 
 from app.auth import require_admin
 from app.db import DB_PATH, get_db
+from app.google_pull import ApplyPull, PreviewStore, apply_pull
 from app.google_report import google_report_table
 from app.google_sheets import GoogleSheetsConnection, SheetsError, WindowsVault
+from app.models import LocalUser
 
 router = APIRouter(
     prefix="/google-sheets", tags=["google-sheets"], dependencies=[Depends(require_admin)]
 )
 connection = GoogleSheetsConnection(WindowsVault(DB_PATH.parent / "google-connection.bin"))
+preview_store = PreviewStore()
 
 
 class ConfigureSheet(BaseModel):
@@ -62,3 +65,16 @@ def disconnect():
 def sync(payload: ReplaceReport, db: Session = Depends(get_db)):
     headings, rows = google_report_table(db)
     return safe_operation(connection.sync, [headings, *rows])
+
+
+@router.post("/pull/preview")
+def pull_preview(db: Session = Depends(get_db), user: LocalUser = Depends(require_admin)):
+    report = safe_operation(connection.read_report)
+    return safe_operation(preview_store.create, user.id, report, db)
+
+
+@router.post("/pull/apply")
+def pull_apply(
+    payload: ApplyPull, db: Session = Depends(get_db), user: LocalUser = Depends(require_admin)
+):
+    return apply_pull(payload, db, user.id, preview_store)

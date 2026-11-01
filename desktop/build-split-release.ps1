@@ -26,6 +26,8 @@ if ($InstallDependencies) {
 if ($LASTEXITCODE -ne 0) { throw 'Build dependencies differ from the release constraints.' }
 & $Python (Join-Path $root 'tools/verify_current_docs.py')
 if ($LASTEXITCODE -ne 0) { throw 'Current documentation contracts failed.' }
+& $Node --test (Join-Path $root 'google/shared-workspace/tests/bridge.test.cjs')
+if ($LASTEXITCODE -ne 0) { throw 'Shared workspace bridge contract tests failed.' }
 & $Python -m ruff check (Join-Path $root 'backend/app') (Join-Path $root 'backend/tests') (Join-Path $PSScriptRoot 'run_cathedra.py') (Join-Path $PSScriptRoot 'office_update.py') --config (Join-Path $root 'pyproject.toml')
 if ($LASTEXITCODE -ne 0) { throw 'Backend static checks failed.' }
 $previousDataDirectory = $env:CATHEDRA_DATA_DIR

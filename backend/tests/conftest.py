@@ -13,6 +13,30 @@ from app.migrations import run_migrations
 from app.product import bind_empty_database
 
 
+def remove_shared_schema(connection):
+    """Make historical fixtures accurately exclude columns first introduced in 19."""
+    connection.exec_driver_sql("DROP TABLE IF EXISTS shared_workspace_state")
+    connection.exec_driver_sql("ALTER TABLE fsdp_participations DROP COLUMN shared_order")
+    connection.exec_driver_sql("ALTER TABLE scholar_education DROP COLUMN shared_order")
+    tables = set(
+        connection.exec_driver_sql("SELECT name FROM sqlite_master WHERE type='table'").scalars()
+    )
+    for table in (
+        "scholars",
+        "programs",
+        "fsdp_participations",
+        "scholar_education",
+        "scholar_requirements",
+        "office_logs",
+    ):
+        if table not in tables:
+            continue
+        columns = {row[1] for row in connection.exec_driver_sql(f"PRAGMA table_info({table})")}
+        if "cloud_key" in columns:
+            connection.exec_driver_sql(f"DROP INDEX IF EXISTS uq_{table}_cloud_key")
+            connection.exec_driver_sql(f"ALTER TABLE {table} DROP COLUMN cloud_key")
+
+
 @pytest.fixture
 def client() -> Generator[TestClient, None, None]:
     engine = create_engine(

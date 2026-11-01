@@ -6,6 +6,7 @@ from datetime import date, datetime, timezone
 from types import SimpleNamespace
 
 import pytest
+from conftest import remove_shared_schema
 from sqlalchemy import create_engine, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -16,7 +17,7 @@ from app.activity_details import MAX_DETAIL_TEXT
 from app.api import maintenance
 from app.api.activity import read_event
 from app.db import Base
-from app.migrations import run_migrations
+from app.migrations import MIGRATIONS, run_migrations
 from app.models import (
     ActivityEvent,
     FsdpParticipation,
@@ -303,7 +304,9 @@ def historical_database(path):
         bind_empty_database(connection)
         run_migrations(connection)
         connection.exec_driver_sql("DELETE FROM schema_migrations WHERE version>16")
+        remove_shared_schema(connection)
         connection.exec_driver_sql("ALTER TABLE activity_events DROP COLUMN change_details")
+        connection.exec_driver_sql("DROP TABLE sheet_import_receipts")
         connection.exec_driver_sql(
             "INSERT INTO scholars(id,name,revision,rank,missing_requirements,data_source,created_at,updated_at) VALUES(51,'Mixed Case Historical Scholar',7,'Original rank',0,'Cathedra',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)"
         )
@@ -355,7 +358,10 @@ def test_schema16_upgrade_has_protected_copy_preserves_rows_and_never_backfills_
                 query = f'SELECT * FROM "{table}" ORDER BY rowid'
                 after = [dict(row) for row in db.execute(query)]
                 if table == "schema_migrations":
-                    assert after[: len(original)] == original and after[-1]["version"] == 17
+                    assert (
+                        after[: len(original)] == original
+                        and after[-1]["version"] == MIGRATIONS[-1][0]
+                    )
                 else:
                     assert [
                         {name: row[name] for name in original[index]}
@@ -409,7 +415,10 @@ def test_schema16_backup_restores_through_supported_handler_with_history_and_rev
         assert (directory / restored["safety_backup"]).is_file()
         with closing(sqlite3.connect(current)) as db:
             db.row_factory = sqlite3.Row
-            assert db.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 17
+            assert (
+                db.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0]
+                == MIGRATIONS[-1][0]
+            )
             assert db.execute("SELECT COUNT(*) FROM local_sessions").fetchone()[0] == 0
             assert db.execute("SELECT high_water FROM scholar_id_counter").fetchone()[0] == 99
             for table in (

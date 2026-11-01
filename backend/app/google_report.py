@@ -20,6 +20,7 @@ GOOGLE_REPORT_HEADERS = [
     "Department",
     "Rank/position",
     "Previous degree",
+    "Profile remarks",
     "Program",
     "Delivering HEI",
     "Grant type",
@@ -56,12 +57,6 @@ def _grant_type(grant: FsdpParticipation) -> str | None:
     return kind
 
 
-def _remarks(profile: str | None, grant: str | None) -> str | None:
-    if profile and grant:
-        return f"Profile: {profile}\nGrant: {grant}"
-    return profile or grant
-
-
 def google_report_table(db: Session) -> tuple[list[str], list[list[object | None]]]:
     """Keep every grant row, with profile information once per numbered scholar."""
     scholars = (
@@ -76,6 +71,10 @@ def google_report_table(db: Session) -> tuple[list[str], list[list[object | None
         .unique()
         .all()
     )
+    return google_report_rows(scholars)
+
+
+def google_report_rows(scholars) -> tuple[list[str], list[list[object | None]]]:
     rows: list[list[object | None]] = []
     for number, scholar in enumerate(scholars, start=1):
         profile = [
@@ -88,10 +87,11 @@ def google_report_table(db: Session) -> tuple[list[str], list[list[object | None
             affiliation(scholar.department),
             scholar.rank,
             _education(scholar),
+            scholar.profile_remarks,
         ]
         grants = sorted(scholar.participations, key=grant_order)
         if not grants:
-            rows.append(profile + [None] * 7 + [scholar.profile_remarks])
+            rows.append(profile + [None] * 8)
             continue
         for index, grant in enumerate(grants):
             rows.append(
@@ -104,7 +104,7 @@ def google_report_table(db: Session) -> tuple[list[str], list[list[object | None
                     _period(grant.end_date, grant.end_term, grant.end_academic_year),
                     grant.extension,
                     outcome(grant.status),
-                    _remarks(scholar.profile_remarks if index == 0 else None, grant.remarks),
+                    grant.remarks,
                 ]
             )
     return GOOGLE_REPORT_HEADERS.copy(), rows

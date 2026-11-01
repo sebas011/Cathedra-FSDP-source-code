@@ -17,6 +17,7 @@ import_module("app.models")
 
 PERSONNEL_TABLES = (
     "creation_requests",
+    "sheet_import_receipts",
     "education_suppressions",
     "scholars",
     "scholar_education",
@@ -27,6 +28,7 @@ PERSONNEL_TABLES = (
     "activity_events",
     "backup_reviews",
     "office_logs",
+    "shared_workspace_state",
 )
 
 
@@ -44,7 +46,10 @@ def create_install_seed(destination: Path) -> None:
         with closing(sqlite3.connect(temporary)) as database:
             if database.execute("PRAGMA integrity_check").fetchone()[0] != "ok":
                 raise RuntimeError("Installation seed failed integrity verification.")
-            if any(database.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0] for table in PERSONNEL_TABLES):
+            if any(
+                database.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
+                for table in PERSONNEL_TABLES
+            ):
                 raise RuntimeError("Installation seed contains office or account records.")
         os.replace(temporary, destination)
     finally:

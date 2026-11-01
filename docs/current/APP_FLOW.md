@@ -1,8 +1,8 @@
 # Application flow
 
 **Product:** Cathedra FSDP  
-**Documented:** 25 October 2026, Asia/Manila<br>
-**Baseline:** release 0.5.26; database schema 17<br>
+**Documented:** 31 October 2026, Asia/Manila<br>
+**Baseline:** release 0.5.28; database schema 19<br>
 **Status:** implementation-derived documentation; see [baseline and evidence](README.md).
 
 ## Navigation map
@@ -58,7 +58,7 @@ Only the process owning the selected database lock may open that data directory.
 1. Find the scholar in the directory, or choose Add scholar. Results are alphabetical by the complete stored name, ignoring case and surrounding spaces, with scholar ID breaking ties. Name search matches the start of name words; program, department, rank and HEI may also match the general search.
 2. Enter Name and select the correct College / Staff. Record hard-copy and soft-copy availability independently as Available, Not available or Not recorded. These optional facts do not mark requirements complete or upload a file. Add whole-profile remarks separately from grant notes.
 3. Add/edit each education item and finish that entry. Add/edit grants through their own editor. Each grant requires Program Applied; its period, type, outcome, case state, optional graduation date and remarks remain individual to that grant. Status and case controls follow the remarks near the save action.
-4. **Save Grant** updates the open scholar draft, not the database. **Save Scholar** persists the profile and related lists. An open education/grant draft must be saved or cancelled before the scholar can be submitted.
+4. **Save Grant** updates the open scholar draft, not the database. **Save Scholar** on Review persists a new profile and related lists. Existing profiles also offer **Save changes** on Identity, Education and Programs & grants; each saves the complete staged scholar draft. An open education/grant draft must be saved or cancelled before the scholar can be submitted.
 5. Review similar-name warnings. Confirm separate people when appropriate; no automatic merge occurs.
 6. On success, return to the scholar workflow. Existing records carry revisions; a conflict requires loading/reviewing the newer record rather than silently retrying over it.
 
@@ -158,7 +158,7 @@ Annual copies in the same application retain an explicitly recorded program star
 
 ## Google report update (0.5.23)
 
-Google reporting uses a dedicated [fifteen-column contract](GOOGLE_REPORT_CONTRACT.json) rather than the full CSV table. Each scholar is numbered once and their grants remain on consecutive rows. The report retains recorded education, tenure in years, exact dates or recorded academic periods, each grant's outcome and clearly labeled profile/grant remarks. Existing CSV exports and schema16 are unchanged. Setup, approved test accounts, spreadsheet editing access and per-PC sign-in are described in the [detailed guide](../GOOGLE_SHEETS_SETUP.md). See [0.5.23 validation](../VALIDATION_0.5.23.md) for observed delivery status.
+The original 0.5.23 Google report used fifteen columns (superseded by the [sixteen-column contract](GOOGLE_REPORT_CONTRACT.json) in 0.5.27) rather than the full CSV table. Each scholar is numbered once and their grants remain on consecutive rows. The report retains recorded education, tenure in years, exact dates or recorded academic periods, each grant's outcome and clearly labeled profile/grant remarks. Existing CSV exports and schema16 are unchanged. Setup, approved test accounts, spreadsheet editing access and per-PC sign-in are described in the [detailed guide](../GOOGLE_SHEETS_SETUP.md). See [0.5.23 validation](../VALIDATION_0.5.23.md) for observed delivery status.
 
 ## Paper & Ink integration (0.5.24)
 
@@ -166,7 +166,7 @@ The production UI uses the new Scholar Office shell and visual system. Scholar e
 
 ## Profile reading refinement (0.5.25)
 
-From a scholar profile, choose Education or Programs & grants to read those records at the full content width. Education opens with its qualification details visible; each entry still supports keyboard disclosure. Program applications continue to group their annual grants, and the existing status, deadline, repayment and remarks fields remain available. Supporting profile information remains reachable, and printing continues to include the record sections. Editing and saving still use the same complete scholar draft and final Save Scholar action.
+From a scholar profile, choose Education or Programs & grants to read those records at the full content width. Education opens with its qualification details visible; each entry still supports keyboard disclosure. Program applications continue to group their annual grants, and the existing status, deadline, repayment and remarks fields remain available. Supporting profile information remains reachable, and printing continues to include the record sections. Editing still uses the complete scholar draft; 0.5.27 also allows existing profiles to use Save changes before Review.
 
 The Overview status chart also has a larger plot and clearer legend. These layout changes follow the [readability plan](../plans/2026-10-25-profile-readability.md); see [0.5.25 validation](../VALIDATION_0.5.25.md) for current verification progress.
 
@@ -174,3 +174,19 @@ The Overview status chart also has a larger plot and clearer legend. These layou
 ## Selected blueprint improvements (0.5.26)
 
 An administrator opens scholar history and expands a new event to compare recorded business values; older events show their existing field metadata. Saving and history capture share the same transaction, so a failed save creates no successful-change event. A scholar grant or dashboard contract follow-up can expand Assessment details for the recorded/calculated basis and assessed-on day. One captured instant supplies the Asia/Manila business date across a request/report; an omitted Office Log date uses that same business-date convention. Existing completion, three-year grace, repayment and case workflows are unchanged. See [0.5.26 validation](../VALIDATION_0.5.26.md).
+
+## Reviewed Google Sheet pull (0.5.27)
+
+1. An administrator opens Backup & Export → Google Sheets report with the configured account connected and saved connection details. Choose **Pull from Google Sheet**. This reads the existing CATHEDRA REPORT tab without changing either source. No records are selected automatically.
+2. Review each profile's Current/Google Sheet comparison. Pick the correct existing scholar or explicitly create a new one. Report No. is an ordinal, never a database identity. Exact unique normalized names can suggest a match; namesakes require an explicit choice.
+3. Select the grant rows to apply. Match the correct annual record, or choose a new independent application. Repeated/ambiguous program periods require explicit matching; unselected annual grants remain. New imported grants do not infer shared annual application grouping.
+4. Select the reviewed profiles, choose **Review selected changes**, then **Apply selected changes**. At most 100 profiles are applied in one atomic transaction. Any stale revision, changed captured record or inconsistent selection rejects the complete batch. Refresh and review the new preview before trying changed choices.
+5. A preview lasts twenty minutes and is tied to the administrator who fetched it. If a save cannot be confirmed, use the provided identical retry; committed results are replayed safely from the receipt. Refreshing the page loses the in-memory review choices; it does not undo committed changes.
+
+Existing education, document-copy availability, requirements, unselected grants, application identity and unreported case/payment/completion facts remain intact. New profiles retain each nonblank Previous degree line as a text education entry without guessing institution or year. Present blank Age, Tenure, Rank and separate remarks clear those fields; a blank Status or date/period retains the existing fact. An exact date updates only that exact date; a term/year label updates only the represented period facts. Legacy fifteen-column combined remarks are left unchanged rather than guessed. Pull does not delete local records absent from the sheet, and it never writes back to Google. A later **Update Google Sheet** replaces the reporting tab: pull/review wanted Google edits before sending. See [detailed instructions](../GOOGLE_SHEETS_SETUP.md).
+
+## Shared workspace (0.5.28)
+
+Optional shared mode uses two separate spreadsheet files: owner-private protected canonical records and a readable sixteen-column report. Administrators configure a registered PC, preview initial Office upload or joining, review sync conflicts, retry saved operations, and publish the confirmed shared report. Staff keep using the normal local scholar/Office Log workflows; the header shows pending changes. Saving locally does not automatically upload, and report editing never changes shared storage.
+
+Local accounts and credentials stay local. Initial upload is an explicit action on the authoritative Office PC. Joining archives and replaces local business records after confirmation. Whole-profile conflicts require a deliberate choice; an unconfirmed save blocks local business writes until exact retry confirms its outcome. The guide explains setup and recovery, with implementation details in the [shared protocol](SHARED_WORKSPACE_PROTOCOL.md), [owner setup](../../google/shared-workspace/README.md), and [validation](../VALIDATION_0.5.28.md). Live deployment and Office-PC acceptance are separate from offline implementation tests.

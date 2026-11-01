@@ -1,0 +1,75 @@
+{
+  "status": "verified",
+  "version": "0.5.23",
+  "schema": 16,
+  "verified_local_date": "2026-10-22",
+  "timezone": "Asia/Manila",
+  "release_url": "https://github.com/sebas011/Cathedra-FSDP/releases/tag/v0.5.23",
+  "office_repository_commit": "ec085ace0607b963413a63e6d66a3bcdddaf2acf",
+  "source_repository": "sebas011/Cathedra-FSDP-source-code",
+  "source_commit": "41a225bbc6181fe65bf0b52bfd2977350a412559",
+  "source_ci_run_id": 39772068548,
+  "source_ci_url": "https://github.com/sebas011/Cathedra-FSDP-source-code/actions/runs/39772068548",
+  "source_ci_conclusion": "success",
+  "assets": [
+    {
+      "name": "Cathedra-FSDP-0.5.23-Update.zip",
+      "id": 665721943,
+      "size": 22798637,
+      "sha256": "7eb85cbebe1c51abe75b0ffc33176bc7eecde83e5af118b250692bad1a97bc29",
+      "draft_download_verified": true,
+      "download_url": "https://github.com/sebas011/Cathedra-FSDP/releases/download/v0.5.23/Cathedra-FSDP-0.5.23-Update.zip",
+      "published_download_verified": true
+    },
+    {
+      "name": "SHA256SUMS.txt",
+      "id": 665722166,
+      "size": 99,
+      "sha256": "1b7619ecfaa4c8fc4669446313442c3bba5b34d5493991fe7d8980d05ead51f2",
+      "draft_download_verified": true,
+      "download_url": "https://github.com/sebas011/Cathedra-FSDP/releases/download/v0.5.23/SHA256SUMS.txt",
+      "published_download_verified": true
+    },
+    {
+      "name": "UPDATE-INSTRUCTIONS.txt",
+      "id": 665722261,
+      "size": 3058,
+      "sha256": "cce39fbaeac008b9e7f319fc9d3ee599d001feb053f8058f15fb599f8225cb3c",
+      "draft_download_verified": true,
+      "download_url": "https://github.com/sebas011/Cathedra-FSDP/releases/download/v0.5.23/UPDATE-INSTRUCTIONS.txt",
+      "published_download_verified": true
+    },
+    {
+      "name": "GOOGLE_SHEETS_SETUP.md",
+      "id": 665722310,
+      "size": 16889,
+      "sha256": "693ee147b054f954e2a79697814a57050c972374cb20211c74516679a03098e4",
+      "draft_download_verified": true,
+      "download_url": "https://github.com/sebas011/Cathedra-FSDP/releases/download/v0.5.23/GOOGLE_SHEETS_SETUP.md",
+      "published_download_verified": true
+    }
+  ],
+  "runtime_files": 149,
+  "archive_files": 157,
+  "archive_sha256": "7eb85cbebe1c51abe75b0ffc33176bc7eecde83e5af118b250692bad1a97bc29",
+  "runtime_manifest_sha256": "e0c4d4ffe409d3c25bdb73e286dbd70a02312f9d62211d03afca944a14f97f1e",
+  "backend_tests": 586,
+  "frontend_tests": 245,
+  "downloaded_archive_extracted_and_all_files_verified": true,
+  "download_identical_to_native_powershell51_tested_archive": true,
+  "empty_seed_verified": true,
+  "dependency_advisory_checks_passed": true,
+  "native_office_update_preserved_synthetic_records": true,
+  "native_startup_backup_restore_shutdown_passed": true,
+  "local_development_runtime_updated": true,
+  "local_database_and_encrypted_google_connection_preserved": true,
+  "local_release_copy_verified": true,
+  "previous_github_release_preserved": true,
+  "working_records_accounts_backups_credentials_or_tokens_uploaded": false,
+  "live_google_report_sent_as_test": false,
+  "actual_office_pc_or_external_drive_changed": false,
+  "notes": [
+    "The initial source workflow stopped at newly disclosed Vite/Vitest advisories. Compatible patches and the certifi certificate-bundle update passed both local and remote gates before release.",
+    "No new schema migration; CSV export layout is unchanged. The fifteen-column projection applies on the next manual Google report update."
+  ]
+}

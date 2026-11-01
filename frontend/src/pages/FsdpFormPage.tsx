@@ -97,6 +97,7 @@ export default function FsdpFormPage() {
 
   const isAdmin = getCurrentUser()?.role === "admin";
   const [saving, setSaving] = useState(false);
+  const savePending = useRef(false);
   const creationAttempt = useRef<{ key: string; payload: ScholarPayload; userId: number } | null>(
     null,
   );
@@ -351,7 +352,7 @@ export default function FsdpFormPage() {
   };
   const saveScholar = async (event: FormEvent) => {
     event.preventDefault();
-    if (saving || (id && sourceRevision === null)) return;
+    if (savePending.current || saving || (id && sourceRevision === null)) return;
     if (educationDraft) {
       setError("Save or cancel the open education entry before saving the scholar.");
       setStep(2);
@@ -367,10 +368,12 @@ export default function FsdpFormPage() {
       setStep(1);
       return;
     }
-    if (step !== 4) {
+    if (!id && step !== 4) {
       changeStep(4);
       return;
     }
+    savePending.current = true;
+    setError("");
     setSaving(true);
     try {
       const matches =
@@ -409,8 +412,19 @@ export default function FsdpFormPage() {
         if (caughtError instanceof UnconfirmedOperationError) setUncertainSave(true);
         else if (!uncertainSave) creationAttempt.current = null;
       }
-      setError(caughtError instanceof Error ? caughtError.message : "Unable to save scholar.");
+      const message =
+        caughtError instanceof Error ? caughtError.message : "Unable to save scholar.";
+      // Validation messages retain the API's field-path labels. Keep the section
+      // named by a rejected field reachable even when saving from another step.
+      const rejectedStep = [
+        { step: 3, field: /(?:^|; )(?:Grant|Program applied)(?: ·|:)/ },
+        { step: 2, field: /(?:^|; )Education(?: ·|:)/ },
+        { step: 4, field: /(?:^|; )Requirement(?: ·|:)/ },
+      ].find(({ field }) => field.test(message));
+      if (rejectedStep) setStep(rejectedStep.step);
+      setError(message);
     } finally {
+      savePending.current = false;
       setSaving(false);
     }
   };
@@ -512,7 +526,11 @@ export default function FsdpFormPage() {
           ))}
           <div className="entry-save-note">
             <strong>{id ? "Editing an existing record" : "Creating a new record"}</strong>
-            <p>Save Scholar stores all your changes together.</p>
+            <p>
+              {id
+                ? "Save changes from any step. All your changes are stored together."
+                : "Save Scholar stores all your changes together."}
+            </p>
           </div>
         </aside>
         <div className="entry-content">
@@ -1035,7 +1053,7 @@ export default function FsdpFormPage() {
               </section>
             </div>
           </fieldset>
-          <footer className="entry-save-bar">
+          <footer className="entry-save-bar no-print">
             <span role="status">
               {saving
                 ? "Saving your record…"
@@ -1052,11 +1070,11 @@ export default function FsdpFormPage() {
                   Previous step
                 </button>
               )}
-              {step < 4 ? (
+              {step < 4 && (
                 <button
                   key="continue-step"
                   type="button"
-                  className="btn primary"
+                  className={`btn ${id ? "secondary" : "primary"}`}
                   disabled={saving || uncertainSave}
                   onClick={(event) => {
                     event.preventDefault();
@@ -1065,9 +1083,10 @@ export default function FsdpFormPage() {
                 >
                   Continue
                 </button>
-              ) : (
+              )}
+              {(id || step === 4) && (
                 <button key="save-scholar" type="submit" className="btn primary" disabled={saving}>
-                  {saving ? "Saving…" : "Save Scholar"}
+                  {saving ? "Saving…" : id && step < 4 ? "Save changes" : "Save Scholar"}
                 </button>
               )}
             </div>

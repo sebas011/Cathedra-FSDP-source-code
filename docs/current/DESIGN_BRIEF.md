@@ -1,9 +1,9 @@
 # Design brief
 
 **Product:** Cathedra FSDP  
-**Documented:** 25 October 2026, Asia/Manila<br>
-**Baseline:** release 0.5.26; database schema 17<br>
-**Status:** 0.5.26 selective blueprint improvements; current gates are tracked in [validation](../VALIDATION_0.5.26.md). Completed 0.5.25 readability work remains historical evidence.
+**Documented:** 31 October 2026, Asia/Manila<br>
+**Baseline:** release 0.5.28; database schema 19<br>
+**Status:** 0.5.27 office workflow and reviewed import changes; current gates are tracked in [validation](../VALIDATION_0.5.27.md). Earlier readability and history results remain historical evidence.
 
 ## Visual identity
 
@@ -27,7 +27,7 @@ The directory emphasizes identity, affiliation, current outcome, application/gra
 
 Profiles use an identity band, compact facts and clear education/application sections. Multiple applications to the same program remain distinct; each application groups its annual grants. Profile remarks, grant remarks, requirements, document-copy availability and permitted history remain individually accessible. Collapsed entries retain summaries and keyboard operation. Printing expands relevant content without losing the previous disclosure state.
 
-The editor presents identity, education, programs/grants and final review as four steps over one owned draft. Step navigation is not a partial save. Nested education and grant editors stage their entries; only final Save scholar writes the complete aggregate. Preserve optimistic revision conflicts, stable keys, idempotent uncertain retries, unknown optional values, caret/selection/IME handling, session recovery and explicit discard decisions. Name and each included grant's Program Applied remain the essential fields; do not introduce a completeness barrier.
+The editor presents identity, education, programs/grants and final review as four steps over one owned draft. Step navigation is not a partial save. Nested education and grant editors stage their entries; Review saves a new profile; an existing profile also has Save changes on the first three steps, each writing the complete staged aggregate. Preserve optimistic revision conflicts, stable keys, idempotent uncertain retries, unknown optional values, caret/selection/IME handling, session recovery and explicit discard decisions. Name and each included grant's Program Applied remain the essential fields; do not introduce a completeness barrier.
 
 ## Supporting workflows
 
@@ -35,7 +35,7 @@ Office Log retains append-only entries, confirmed save/close behavior and compac
 
 ## Acceptance and limits
 
-Check actual desktop/mobile layouts, no page-level horizontal overflow, readable input boundaries, keyboard focus, chart alternatives, draft retention and all sensitive workflow confirmations. Automated structural checks do not certify complete WCAG, screen-reader or intended Office-PC acceptance. See the [integration plan](../plans/2026-10-24-paper-office.md) and [release validation](../VALIDATION_0.5.24.md). The original interactive design kit (local historical evidence; excluded from this source snapshot) remains fictional and independent from production data. This release keeps React/FastAPI; it does not install the proposed HTML/HTMX adapter.
+Check actual desktop/mobile layouts, no page-level horizontal overflow, readable input boundaries, keyboard focus, chart alternatives, draft retention and all sensitive workflow confirmations. Automated structural checks do not certify complete WCAG, screen-reader or intended Office-PC acceptance. See the [integration plan](../plans/2026-10-24-paper-office.md) and [release validation](../VALIDATION_0.5.24.md). The original interactive design kit (local historical evidence; excluded from source snapshot) remains fictional and independent from production data. This release keeps React/FastAPI; it does not install the proposed HTML/HTMX adapter.
 
 ## Readability refinement (0.5.25)
 
@@ -47,3 +47,17 @@ See the [readability plan](../plans/2026-10-25-profile-readability.md) and [0.5.
 ## Selected blueprint improvements (0.5.26)
 
 Administrator profile history offers an optional Previous/New comparison with wrapped text, visible truncation and explicit Not recorded, No, 0 and empty-text values. Historical events remain metadata-only. Grant history and dashboard follow-up include a keyboard-operable Assessment details disclosure with the case-specific reason, deadline basis and assessed-on date; internal rule codes are not displayed. General instructions remain in the Guide. Existing profile reading space and education/application disclosure behavior are retained. See [0.5.26 validation](../VALIDATION_0.5.26.md) for actual interface checks.
+
+## Office workflow refinements (0.5.27)
+
+The sidebar keeps its brand and footer fixed while its own navigation region scrolls. A visible 14-pixel rail, sufficiently tall thumb, hover/focus states, stable gutter and platform/forced-colors fallback make the available scrolling apparent in expanded or collapsed layouts.
+
+Existing scholar edits have a visible, sticky Save changes action before the final Review step. It retains aggregate-save/revision behavior, prevents duplicate submissions and directs field errors to the correct step. Unfinished nested entries must be saved or cancelled first. New profiles retain Review before their initial save.
+
+Google pull uses an explicit comparison workspace: nothing is preselected; profile and annual-grant destinations remain visible; namesakes and repeated program periods require deliberate matching. Current and source values wrap within a labelled table region, with blank, zero and changed values distinguished. Expiry, pending state, uncertain result and exact retry are explicit. Push/configuration actions cannot replace or retarget a report while its preview is under review. General instructions belong in the Guide; the workspace keeps only decision-specific preservation/clearing feedback. See [0.5.27 validation](../VALIDATION_0.5.27.md) for actual checks.
+
+## Shared workspace (0.5.28)
+
+Optional shared mode uses two separate spreadsheet files: owner-private protected canonical records and a readable sixteen-column report. Administrators configure a registered PC, preview initial Office upload or joining, review sync conflicts, retry saved operations, and publish the confirmed shared report. Staff keep using the normal local scholar/Office Log workflows; the header shows pending changes. Saving locally does not automatically upload, and report editing never changes shared storage.
+
+Local accounts and credentials stay local. Initial upload is an explicit action on the authoritative Office PC. Joining archives and replaces local business records after confirmation. Whole-profile conflicts require a deliberate choice; an unconfirmed save blocks local business writes until exact retry confirms its outcome. The guide explains setup and recovery, with implementation details in the [shared protocol](SHARED_WORKSPACE_PROTOCOL.md), [owner setup](../../google/shared-workspace/README.md), and [validation](../VALIDATION_0.5.28.md). Live deployment and Office-PC acceptance are separate from offline implementation tests.

@@ -397,6 +397,47 @@ def _activity_business_change_details(connection: Connection) -> None:
         connection.exec_driver_sql("ALTER TABLE activity_events ADD COLUMN change_details TEXT")
 
 
+def _google_sheet_import_receipts(connection: Connection) -> None:
+    Base.metadata.tables["sheet_import_receipts"].create(connection, checkfirst=True)
+
+
+def _shared_workspace_identity(connection: Connection) -> None:
+    from uuid import uuid4
+
+    columns = {
+        row[1] for row in connection.exec_driver_sql("PRAGMA table_info(fsdp_participations)")
+    }
+    if "shared_order" not in columns:
+        connection.exec_driver_sql(
+            "ALTER TABLE fsdp_participations ADD COLUMN shared_order INTEGER"
+        )
+    columns = {row[1] for row in connection.exec_driver_sql("PRAGMA table_info(scholar_education)")}
+    if "shared_order" not in columns:
+        connection.exec_driver_sql("ALTER TABLE scholar_education ADD COLUMN shared_order INTEGER")
+
+    for table in (
+        "scholars",
+        "programs",
+        "fsdp_participations",
+        "scholar_education",
+        "scholar_requirements",
+        "office_logs",
+    ):
+        columns = {row[1] for row in connection.exec_driver_sql(f'PRAGMA table_info("{table}")')}
+        if "cloud_key" not in columns:
+            connection.exec_driver_sql(f'ALTER TABLE "{table}" ADD COLUMN cloud_key VARCHAR(36)')
+        for (identity,) in connection.exec_driver_sql(
+            f'SELECT id FROM "{table}" WHERE cloud_key IS NULL'
+        ).all():
+            connection.exec_driver_sql(
+                f'UPDATE "{table}" SET cloud_key=? WHERE id=?', (str(uuid4()), identity)
+            )
+        connection.exec_driver_sql(
+            f'CREATE UNIQUE INDEX IF NOT EXISTS "uq_{table}_cloud_key" ON "{table}"(cloud_key)'
+        )
+    Base.metadata.tables["shared_workspace_state"].create(connection, checkfirst=True)
+
+
 MIGRATIONS = [
     (1, "fsdp-only-baseline", _baseline),
     (2, "participation-institution-attribution", _participation_institutions),
@@ -423,6 +464,8 @@ MIGRATIONS = [
     (15, "session-inactivity-lock", _session_inactivity_lock),
     (16, "completion-deadlines-and-payback-payment", _completion_deadlines_and_payback_payment),
     (17, "business-change-history-details", _activity_business_change_details),
+    (18, "google-sheet-import-receipts", _google_sheet_import_receipts),
+    (19, "shared-workspace-identities-and-local-state", _shared_workspace_identity),
 ]
 
 

@@ -1,8 +1,8 @@
 # Implementation and release plan
 
 **Product:** Cathedra FSDP  
-**Documented:** 25 October 2026, Asia/Manila<br>
-**Baseline:** release 0.5.26; database schema 17<br>
+**Documented:** 31 October 2026, Asia/Manila<br>
+**Baseline:** release 0.5.28; database schema 19<br>
 **Status:** implementation-derived documentation; see [baseline and evidence](README.md).
 
 ## Purpose and boundary
@@ -111,7 +111,7 @@ Keep this set, Office Guide, export schemas, source version, frontend version, b
 
 Rollback uses the supplied runtime updater's safeguards. If records change after an update, do not overwrite them with an earlier snapshot to force a rollback; review the fingerprint/journal and preserve newer data. An older runtime must not be pointed at a newer unsupported schema without a verified compatibility procedure.
 
-Sources: [release history](../RELEASE_HISTORY.md), [baseline verification summary](README.md), performance evidence (local historical evidence; excluded from this source snapshot), [build pipeline](../../desktop/build-split-release.ps1), [migration rules](../../backend/app/migrations.py), [updater](../../desktop/office_update.py).
+Sources: [release history](../RELEASE_HISTORY.md), [baseline verification summary](README.md), performance evidence (local historical evidence; excluded from source snapshot), [build pipeline](../../desktop/build-split-release.ps1), [migration rules](../../backend/app/migrations.py), [updater](../../desktop/office_update.py).
 
 ## User findings implemented in 0.5.14
 
@@ -129,7 +129,7 @@ The administrator can configure and connect Google reporting from Backup & Expor
 
 ## Google report update (0.5.23)
 
-Google reporting uses a dedicated [fifteen-column contract](GOOGLE_REPORT_CONTRACT.json) rather than the full CSV table. Each scholar is numbered once and their grants remain on consecutive rows. The report retains recorded education, tenure in years, exact dates or recorded academic periods, each grant's outcome and clearly labeled profile/grant remarks. Existing CSV exports and schema16 are unchanged. Setup, approved test accounts, spreadsheet editing access and per-PC sign-in are described in the [detailed guide](../GOOGLE_SHEETS_SETUP.md). See [0.5.23 validation](../VALIDATION_0.5.23.md) for observed delivery status.
+The original 0.5.23 Google report used fifteen columns (superseded by the [sixteen-column contract](GOOGLE_REPORT_CONTRACT.json) in 0.5.27) rather than the full CSV table. Each scholar is numbered once and their grants remain on consecutive rows. The report retains recorded education, tenure in years, exact dates or recorded academic periods, each grant's outcome and clearly labeled profile/grant remarks. Existing CSV exports and schema16 are unchanged. Setup, approved test accounts, spreadsheet editing access and per-PC sign-in are described in the [detailed guide](../GOOGLE_SHEETS_SETUP.md). See [0.5.23 validation](../VALIDATION_0.5.23.md) for observed delivery status.
 
 ## Paper & Ink integration (0.5.24)
 
@@ -139,3 +139,15 @@ The production UI uses the new Scholar Office shell and visual system. Scholar e
 ## Selected blueprint improvements (0.5.26)
 
 The [selective blueprint plan](../plans/2026-10-25-selective-blueprint-improvements.md) adopts bounded before/after administrator history, human-readable contract reasons and consistent Asia/Manila business dates. Schema 17 is additive. Tests must cover rollback, credential exclusion, historical events, schema-16 upgrade/restore, midnight boundaries and unchanged assessment precedence. Regression, browser, native build, upgrade rehearsal and local installation gates are tracked independently in [0.5.26 validation](../VALIDATION_0.5.26.md); pending gates must not be treated as passed.
+
+## Office workflow and reviewed sheet pull (0.5.27)
+
+The [implementation plan](../plans/2026-10-30-office-workflow-and-sheet-pull.md) covers sidebar scrolling, direct edit-step saving, separate Google profile remarks and previewed import of new profiles/updates. Implemented source adds an administrator-bound immutable preview and an atomic, revision/fingerprint-checked apply with durable retry receipts. Migration 18 creates only the receipt table. No development/Office records or private Google connection are package assets.
+
+Release gates remain separate: focused preservation/retry/transport/UI tests; complete backend/frontend regression and coverage; type/style/document checks; production browser review with fictional data; constrained native build and empty schema-18 seed; both inventory verifiers; genuine schema-17 upgrade rehearsal; protected development installation; and distinct remote publication/intended Office-PC acceptance. See [0.5.27 validation](../VALIDATION_0.5.27.md) for measured progress rather than treating this plan as evidence that a gate passed.
+
+## Shared workspace (0.5.28)
+
+Optional shared mode uses two separate spreadsheet files: owner-private protected canonical records and a readable sixteen-column report. Administrators configure a registered PC, preview initial Office upload or joining, review sync conflicts, retry saved operations, and publish the confirmed shared report. Staff keep using the normal local scholar/Office Log workflows; the header shows pending changes. Saving locally does not automatically upload, and report editing never changes shared storage.
+
+Local accounts and credentials stay local. Initial upload is an explicit action on the authoritative Office PC. Joining archives and replaces local business records after confirmation. Whole-profile conflicts require a deliberate choice; an unconfirmed save blocks local business writes until exact retry confirms its outcome. The guide explains setup and recovery, with implementation details in the [shared protocol](SHARED_WORKSPACE_PROTOCOL.md), [owner setup](../../google/shared-workspace/README.md), and [validation](../VALIDATION_0.5.28.md). Live deployment and Office-PC acceptance are separate from offline implementation tests.

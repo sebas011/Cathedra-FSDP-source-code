@@ -17,6 +17,7 @@ from app.api.fsdp import router as fsdp_router
 from app.api.google_sheets import router as google_sheets_router
 from app.api.maintenance import router as maintenance_router
 from app.api.office_logs import router as office_logs_router
+from app.api.shared_workspace import router as shared_workspace_router
 from app.auth import require_signed_in
 from app.backups import daily_backup
 from app.db import DB_PATH, engine
@@ -91,6 +92,12 @@ app.add_middleware(PrivateErrorMiddleware)
 
 @app.get("/api/v1/health")
 def health(request: Request) -> dict[str, str | bool]:
+    from app.shared_workspace import connection
+
+    try:
+        shared_configured = connection.public()["configured"]
+    except Exception:
+        shared_configured = True  # Show recovery controls when a private vault needs attention.
     directory_identity = hashlib.sha256(
         str(DB_PATH.parent.resolve()).casefold().encode("utf-8")
     ).hexdigest()[:16]
@@ -101,6 +108,7 @@ def health(request: Request) -> dict[str, str | bool]:
         "data_directory_identity": directory_identity,
         "desktop_mode": getattr(request.app.state, "shutdown_signal", None) is not None,
         "recovery_required": request.app.state.restore_request_gate.recovery_required,
+        "shared_workspace_configured": shared_configured,
     }
 
 
@@ -122,6 +130,7 @@ for router in (
     activity_router,
     office_logs_router,
     google_sheets_router,
+    shared_workspace_router,
 ):
     app.include_router(router, prefix="/api/v1", dependencies=[Depends(require_signed_in)])
 

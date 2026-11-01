@@ -1,0 +1,23 @@
+{
+  "status": "verified",
+  "version": "0.5.27",
+  "schema": 18,
+  "date": "2026-10-31",
+  "timezone": "Asia/Manila",
+  "release_folder_name": "Cathedra-FSDP-0.5.27-Update",
+  "runtime_files": 152,
+  "files": 160,
+  "zip_roundtrip_verified": true,
+  "archive_sha256": "0c3401d8e804e7e787cd4120ac83223dfe4817a5257d3eb49d49b34f9d3f4d7b",
+  "release_folder_hash_verified": true,
+  "empty_schema18_seed_verified": true,
+  "working_database_included": false,
+  "google_credentials_or_connection_included": false,
+  "powershell_package_verifier_passed": true,
+  "bundled_python_verifier_passed": true,
+  "bundled_verifier_database_accessed": false,
+  "archive_mutated_after_hashing": false,
+  "evidence_scope": "This proof was generated after archive creation and is intentionally outside the ZIP. Documents in that ZIP reflect the preparation point; this later proof does not alter their bytes.",
+  "github_publication_performed": false,
+  "actual_office_pc_tested": false
+}

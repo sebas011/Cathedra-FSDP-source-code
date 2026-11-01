@@ -1,3 +1,13 @@
+# Cathedra FSDP 0.5.27 — local source and tested package
+
+Adds clearer sidebar scrolling, direct complete-draft saving from an existing scholar's first three entry steps, separate Google Profile remarks in H and grant Remarks in P, and administrator-reviewed pull for new scholars and updates. Import previews require explicit matching and selection; stale records conflict, hidden facts remain and confirmed retries cannot duplicate changes. Migration 18 creates only the durable import-receipt table. CSV contracts remain unchanged.
+
+Measured software/browser checks, the 152-file runtime package and the fictional schema-17 to schema-18 upgrade passed; guarded development installation passed with the working database and Google connection preserved. **0.5.27 is not published to GitHub.** See [validation](VALIDATION_0.5.27.md), [implementation plan](plans/2026-10-30-office-workflow-and-sheet-pull.md) and [Google setup/pull guide](GOOGLE_SHEETS_SETUP.md). Earlier entries below describe their own releases.
+
+# Cathedra FSDP 0.5.26 — previously verified publication
+
+Adds administrator before/after business history, factual contract-assessment explanations and a consistent Philippine business date. Schema 17 adds one nullable activity-history details column. The exact-source Windows workflow and public Office ZIP were verified; 0.5.26 remains the latest verified GitHub delivery while 0.5.27 is local. See [validation](VALIDATION_0.5.26.md) and [publication evidence](analysis/GITHUB_PUBLICATION_VALIDATION_0.5.26.json).
+
 # Cathedra FSDP 0.5.25 — verified local patch
 
 Enlarges the current-status chart and legend; fixes route-dependent profile stylesheet order; expands Education and Programs & grants to the full reading width; shows education details by default; and adds expand/collapse-all grant controls. Schema 16 and all record/reporting contracts remain unchanged. See [validation](VALIDATION_0.5.25.md). GitHub publication and exact-revision CI are recorded separately from local validation.

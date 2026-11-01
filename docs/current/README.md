@@ -1,8 +1,8 @@
 # Current system documentation
 
 **Product:** Cathedra FSDP  
-**Documented:** 25 October 2026, Asia/Manila<br>
-**Baseline:** release 0.5.26; database schema 17<br>
+**Documented:** 31 October 2026, Asia/Manila<br>
+**Baseline:** release 0.5.28; database schema 19<br>
 **Status:** implementation-derived documentation; see [baseline and evidence](README.md).
 
 ## Start here
@@ -22,11 +22,12 @@ These documents describe the implemented Cathedra FSDP application and the remai
 
 | Item | Observed state | Interpretation |
 |---|---|---|
-| Current source | 0.5.26; schema 17 | Selected history, assessment-explanation and Manila-date improvements. Current gates are tracked in [0.5.26 validation](../VALIDATION_0.5.26.md). |
-| Development installation | Verified local 0.5.26 | Working database and encrypted Google connection bytes were preserved; see [local validation](../VALIDATION_0.5.26.md). |
-| Office update package | Verified local 0.5.26; 151 runtime files | Build, package inventories, both PowerShell workflows and schema-16 upgrade rehearsal passed. No working records or Google credentials are distributed. |
-| GitHub delivery | Historical verified baseline: [0.5.25 release](https://github.com/sebas011/Cathedra-FSDP/releases/tag/v0.5.25) | Source revision e2c0c480a7f272949795d8ef7f9dd8522030ebc1 and its exact-revision Windows workflow were verified separately. Verify 0.5.26 independently through its [source workflow](https://github.com/sebas011/Cathedra-FSDP-source-code/actions) and [named Office release](https://github.com/sebas011/Cathedra-FSDP/releases/tag/v0.5.26). |
-| Current source schema | Migration 17; 15 tables and 121 model columns | One nullable history-detail column; no historical values or existing business facts are invented or rewritten. |
+| Current source | 0.5.28; schema 19 | Optional shared workspace with private storage and separate reporting, reviewed reconciliation and durable interrupted-save recovery. See [0.5.28 validation](../VALIDATION_0.5.28.md) and [owner setup](../../google/shared-workspace/README.md). |
+| Development installation | Verified local 0.5.28 runtime | Working database and encrypted Google connection bytes were preserved; a private-copy schema-16-to-19 rehearsal retained all existing values/history. The retained database migrates protectively at next startup. See [installation evidence](../analysis/LOCAL_INSTALLATION_VALIDATION_0.5.28.json). |
+| Office update package | Verified local 0.5.28 update folder/ZIP; 165 files, including 152 runtime files | Constrained build, empty schema-19 seed, PowerShell and bundled inventory verifiers, packaged workflow and synthetic 0.5.27/schema-18 upgrade passed. Includes the owner bridge and detailed shared-storage setup guide. No working records or Google credentials are distributed. See [delivery evidence](../analysis/LOCAL_DELIVERY_VALIDATION_0.5.28.json), [package evidence](../analysis/LOCAL_PACKAGE_VALIDATION_0.5.28.json) and [upgrade evidence](../analysis/UPGRADE_VALIDATION_0.5.28.json). |
+| GitHub delivery | Verified [0.5.26 release](https://github.com/sebas011/Cathedra-FSDP/releases/tag/v0.5.26) | Source revision ba3fb52470c96455971640323a13b0f388e3677b, its [exact-revision Windows workflow](https://github.com/sebas011/Cathedra-FSDP-source-code/actions/runs/40190887672) and fresh public Office download passed verification. The local update folder matches the published 162-file payload; its 151 runtime files retain the tested manifest. See [publication evidence](../analysis/GITHUB_PUBLICATION_VALIDATION_0.5.26.json). |
+| Current source schema | Migration 19; 17 application/infrastructure tables and 143 columns | Adds stable identities and local sync state/order metadata; historical business fields are retained. |
+| Live shared workspace | Owner-authorized bridge deployed; storage private, three protected tabs, zero records; development device registered | Authenticated status/read checks passed with initialization disabled and local database bytes preserved. Google omitted false/zero protection defaults are handled by the refreshed script. Authoritative Office initialization remains pending. See [sanitized live evidence](../analysis/LIVE_GOOGLE_SETUP_0.5.28.json). |
 | Actual Office-PC acceptance | Unverified | Local tests do not certify the separate Office PC. |
 
 Schema inventories are obtained from disposable in-memory models and migrations. No live Office database is opened to produce these documents. API permissions are checked from route dependencies; screen and business behavior are checked from current source and synthetic verification. Personal records and credentials are not included. Historical version18 passed a pristine upgrade but missed this reported condition. Version19 passed420 backend/185 frontend tests and separate pristine/residue native updates with retained records, recovery archives, rollback and database hashes.
@@ -35,9 +36,9 @@ Schema inventories are obtained from disposable in-memory models and migrations.
 
 See [0.5.21 validation](../VALIDATION_0.5.21.md) for observed regression/package/upgrade and development installation results. Actual Office-device retry/acceptance remains separate. Earlier [0.5.18 validation](../VALIDATION_0.5.18.md), [0.5.17 validation](../VALIDATION_0.5.17.md) and [0.5.16 validation](../VALIDATION_0.5.16.md) remain historical evidence.
 
-The development installation was last verified at 0.5.26; see [0.5.26 validation](../VALIDATION_0.5.26.md) for that update. GitHub publications and actual Office-PC installations remain separate observed states; the local working database migrates protectively at its next normal startup.
+The development runtime was last verified at 0.5.28; see [0.5.28 validation](../VALIDATION_0.5.28.md) and [installation evidence](../analysis/LOCAL_INSTALLATION_VALIDATION_0.5.28.json) for that update. GitHub publications and actual Office-PC installations remain separate observed states; the local working database migrates protectively at its next normal startup.
 
-Historical source workflow results, including the separately verified 0.5.25 success, do not certify 0.5.26. Publication requires its own exact-revision remote result. Separate Office-PC acceptance, clean-PC testing, device encryption confirmation, signing and assistive-technology acceptance remain external verification tasks.
+Historical results remain tied to their own releases. For 0.5.26, the [exact-revision Windows workflow](https://github.com/sebas011/Cathedra-FSDP-source-code/actions/runs/40190887672) and public Office download are now independently verified. Separate Office-PC acceptance, clean-PC testing, device encryption confirmation, signing and assistive-technology acceptance remain external verification tasks.
 
 ## Approved terms and optional dates
 
@@ -67,7 +68,7 @@ The administrator can configure and connect Google reporting from Backup & Expor
 
 ## Google report update (0.5.23)
 
-Google reporting uses a dedicated [fifteen-column contract](GOOGLE_REPORT_CONTRACT.json) rather than the full CSV table. Each scholar is numbered once and their grants remain on consecutive rows. The report retains recorded education, tenure in years, exact dates or recorded academic periods, each grant's outcome and clearly labeled profile/grant remarks. Existing CSV exports and schema16 are unchanged. Setup, approved test accounts, spreadsheet editing access and per-PC sign-in are described in the [detailed guide](../GOOGLE_SHEETS_SETUP.md). See [0.5.23 validation](../VALIDATION_0.5.23.md) for observed delivery status.
+The original 0.5.23 Google report used fifteen columns (superseded by the [sixteen-column contract](GOOGLE_REPORT_CONTRACT.json) in 0.5.27) rather than the full CSV table. Each scholar is numbered once and their grants remain on consecutive rows. The report retains recorded education, tenure in years, exact dates or recorded academic periods, each grant's outcome and clearly labeled profile/grant remarks. Existing CSV exports and schema16 are unchanged. Setup, approved test accounts, spreadsheet editing access and per-PC sign-in are described in the [detailed guide](../GOOGLE_SHEETS_SETUP.md). See [0.5.23 validation](../VALIDATION_0.5.23.md) for observed delivery status.
 
 ## Paper & Ink release (0.5.24)
 
@@ -85,3 +86,9 @@ The frontend, browser, native-package and guarded development-installation check
 ## Selected blueprint improvements (0.5.26)
 
 Selected blueprint improvements add administrator before/after business history, factual contract-assessment explanations and one shared Philippine business date. Schema 17 adds one nullable history-detail column. Existing scholar, application, annual grant, credential and reporting contracts remain in force. See [the selected plan](../plans/2026-10-25-selective-blueprint-improvements.md) and [0.5.26 validation](../VALIDATION_0.5.26.md) for measured gates. Remote publication and Office-PC acceptance remain separate.
+
+## Office workflow and reviewed sheet pull (0.5.27)
+
+Existing scholars can be saved from Identity, Education or Programs & grants without visiting Review. New profiles still finish on Review. The sidebar has an independently scrolling, visible rail. Google reporting now separates whole-profile remarks in column H from grant remarks in column P. Administrators can pull a read-only snapshot, compare current and sheet values, explicitly match profiles/grants or choose new records, then confirm only their selected changes. Schema 18 adds durable account-scoped import receipts for safe retries. See the [implementation plan](../plans/2026-10-30-office-workflow-and-sheet-pull.md), [setup and pull guide](../GOOGLE_SHEETS_SETUP.md) and [0.5.27 validation](../VALIDATION_0.5.27.md). The development runtime, local native package and synthetic upgrade are verified at 0.5.27. GitHub remains the separately verified 0.5.26 delivery; 0.5.27 publication has not been performed.
+
+The completed local Office update folder and ZIP passed byte-for-byte round-trip, copied-folder and both inventory checks; see [0.5.27 local delivery evidence](../analysis/LOCAL_DELIVERY_VALIDATION_0.5.27.json). This post-archive proof is intentionally outside that immutable ZIP. The local update is not a GitHub publication.

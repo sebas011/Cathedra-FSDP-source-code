@@ -22,7 +22,7 @@ The [implementation plan](plans/2026-10-15-office-entry-and-applications.md) rec
 
 There are **635 unique automated tests** in the complete final runs; focused reruns are not added. Three older frontend assertions expected the deliberately removed selector and embedded catalog-copy flow. Their replacements check the requested application workflow and draft protection. A subsequent draft-test correction used the existing dirty-draft event and actual cancel label. The final full frontend run passed. Backend code remained byte-identical after its successful full run.
 
-See regression evidence (local historical evidence; excluded from this source snapshot) and frozen upgrade evidence (local historical evidence; excluded from this source snapshot).
+See regression evidence (local historical evidence; excluded from source snapshot) and frozen upgrade evidence (local historical evidence; excluded from source snapshot).
 
 ## Preservation and limits
 

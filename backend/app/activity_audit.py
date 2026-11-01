@@ -81,6 +81,8 @@ def _changed_fields(record: object, operation: str) -> list[str]:
         if name
         not in {
             "id",
+            "cloud_key",
+            "shared_order",
             "created_at",
             "updated_at",
             "token_hash",

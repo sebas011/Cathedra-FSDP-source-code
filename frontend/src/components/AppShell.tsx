@@ -33,6 +33,8 @@ import { setLogoutWarning } from "../api/client";
 import ConfirmationDialog from "./ConfirmationDialog";
 import SectionErrorBoundary from "./SectionErrorBoundary";
 import { useDiscardConfirmation } from "../hooks/useDiscardConfirmation";
+import SharedWorkspaceStatus from "./SharedWorkspaceStatus";
+import { sharedWorkspaceChangedEvent } from "../api/sharedWorkspace";
 
 const navigation = [
   { to: "/", label: "Overview", icon: DashboardIcon },
@@ -73,6 +75,7 @@ function AppShellContent() {
   const [serviceUnavailable, setServiceUnavailable] = useState(false);
   const [recoveryRequired, setRecoveryRequired] = useState(false);
   const [healthRevision, setHealthRevision] = useState(0);
+  const [sharedConfigured, setSharedConfigured] = useState(false);
   const [exitError, setExitError] = useState("");
   const [exiting, setExiting] = useState(false);
   const [exitBusy, setExitBusy] = useState(false);
@@ -102,6 +105,11 @@ function AppShellContent() {
     return () => window.removeEventListener("keydown", findScholar);
   }, [navigate]);
   useEffect(() => {
+    const refreshShared = () => setHealthRevision((value) => value + 1);
+    window.addEventListener(sharedWorkspaceChangedEvent, refreshShared);
+    return () => window.removeEventListener(sharedWorkspaceChangedEvent, refreshShared);
+  }, []);
+  useEffect(() => {
     let active = true;
     void getServiceHealth()
       .then((health) => {
@@ -113,6 +121,10 @@ function AppShellContent() {
               (health as typeof health & { product?: string }).product !== product,
           );
           setDesktopMode(health.desktop_mode === true);
+          setSharedConfigured(
+            (health as typeof health & { shared_workspace_configured?: boolean })
+              .shared_workspace_configured === true,
+          );
         }
       })
       .catch(() => {
@@ -327,6 +339,7 @@ function AppShellContent() {
             <span>Find a scholar</span>
             <kbd>Ctrl K</kbd>
           </button>
+          {sharedConfigured && <SharedWorkspaceStatus admin={user?.role === "admin"} />}
           <div className="account-box">
             {
               <button

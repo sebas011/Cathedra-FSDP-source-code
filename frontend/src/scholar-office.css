@@ -549,11 +549,12 @@
   margin-top: 22px;
 }
 .scholar-office-entry .entry-save-bar {
-  position: static;
-  padding: 20px 0;
-  border: 0;
-  background: transparent;
-  box-shadow: none;
+  position: sticky;
+  bottom: 16px;
+  padding: 16px 20px;
+  border: 1px solid var(--office-rule);
+  background: var(--surface);
+  box-shadow: var(--shadow-raised);
   gap: 18px;
   flex-wrap: wrap;
 }
@@ -778,7 +779,13 @@
     align-items: stretch;
   }
   .scholar-office-entry .entry-save-bar > .action-group {
-    margin-left: auto;
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+  .scholar-office-entry .entry-save-bar > .action-group > .btn {
+    flex: 1 1 120px;
+    min-width: 0;
   }
   .office-review-facts {
     gap: 12px;

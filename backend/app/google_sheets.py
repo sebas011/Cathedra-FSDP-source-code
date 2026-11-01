@@ -4,6 +4,7 @@ import base64
 import ctypes
 import hashlib
 import json
+import math
 import os
 import re
 import secrets
@@ -487,27 +488,99 @@ class GoogleSheetsConnection:
                 server.server_close()
             self.lock.release()
 
+    def _connected_access(self, action: str) -> tuple[dict, str]:
+        """Called only while holding the connection lock."""
+        saved = self.vault.load()
+        if not saved.get("refresh_token") or not saved.get("spreadsheet_id"):
+            raise SheetsError(f"Connect your Google account before {action} the report.")
+        response = google_request(
+            TOKEN_URL,
+            form={
+                **saved["client"],
+                "refresh_token": saved["refresh_token"],
+                "grant_type": "refresh_token",
+            },
+        )
+        access_token = _required_token(response, "access_token")
+        if response.get("refresh_token"):
+            saved["refresh_token"] = _required_token(response, "refresh_token")
+            # Rotation can invalidate the old token before an operation finishes.
+            # Preserve new access while last_sync_at still means a confirmed write.
+            self.vault.save(saved)
+        return saved, access_token
+
+    def read_report(self) -> dict:
+        """Read a bounded report snapshot without creating tabs or writing cells."""
+        if not self.lock.acquire(blocking=False):
+            raise SheetsError("A Google operation is still running. Wait before reading again.")
+        try:
+            saved, access_token = self._connected_access("reading")
+            target = saved["spreadsheet_id"]
+            url = SHEETS_URL + target
+            metadata = google_request(url + "?fields=sheets.properties", token=access_token)
+            sheets = metadata.get("sheets")
+            if not isinstance(sheets, list) or any(
+                not isinstance(item, dict) or not isinstance(item.get("properties"), dict)
+                for item in sheets
+            ):
+                raise SheetsError("Google returned unexpected reporting sheet details. Try again.")
+            sheet = next(
+                (
+                    item["properties"]
+                    for item in sheets
+                    if item["properties"].get("title") == REPORT_TAB
+                ),
+                None,
+            )
+            if sheet is None:
+                raise SheetsError(
+                    "The CATHEDRA REPORT tab was not found. Check the configured spreadsheet."
+                )
+            if (
+                type(sheet.get("sheetId")) is not int
+                or sheet["sheetId"] < 0
+                or sheet.get("sheetType", "GRID") != "GRID"
+            ):
+                raise SheetsError(
+                    "The Cathedra reporting tab must be a regular Google Sheets grid."
+                )
+            report_range = urllib.parse.quote(f"'{REPORT_TAB}'!A1:P2002", safe="")
+            query = urllib.parse.urlencode(
+                {"majorDimension": "ROWS", "valueRenderOption": "UNFORMATTED_VALUE"}
+            )
+            response = google_request(
+                url + "/values/" + report_range + "?" + query, token=access_token
+            )
+            values = response.get("values", [])
+            if (
+                not isinstance(values, list)
+                or len(values) > 2002
+                or any(not isinstance(row, list) or len(row) > 16 for row in values)
+                or any(
+                    not (
+                        value is None
+                        or isinstance(value, str | bool | int)
+                        or (isinstance(value, float) and math.isfinite(value))
+                    )
+                    for row in values
+                    for value in row
+                )
+            ):
+                raise SheetsError("Google returned unexpected report values. Check the report.")
+            self.message = None
+            self.state = "connected"
+            return {"spreadsheet_id": target, "worksheet": REPORT_TAB, "values": values}
+        except SheetsError as caught:
+            self.message = str(caught)
+            raise
+        finally:
+            self.lock.release()
+
     def sync(self, rows: list[list[object]]) -> dict:
         if not self.lock.acquire(blocking=False):
             raise SheetsError("A Google operation is still running. Wait before updating again.")
         try:
-            saved = self.vault.load()
-            if not saved.get("refresh_token") or not saved.get("spreadsheet_id"):
-                raise SheetsError("Connect your Google account before updating the report.")
-            response = google_request(
-                TOKEN_URL,
-                form={
-                    **saved["client"],
-                    "refresh_token": saved["refresh_token"],
-                    "grant_type": "refresh_token",
-                },
-            )
-            access_token = _required_token(response, "access_token")
-            if response.get("refresh_token"):
-                saved["refresh_token"] = _required_token(response, "refresh_token")
-                # Rotation can invalidate the old token before report delivery finishes.
-                # Preserve new access while last_sync_at still means a confirmed write.
-                self.vault.save(saved)
+            saved, access_token = self._connected_access("updating")
             target = saved["spreadsheet_id"]
             url = SHEETS_URL + target
             metadata = google_request(url + "?fields=sheets.properties", token=access_token)

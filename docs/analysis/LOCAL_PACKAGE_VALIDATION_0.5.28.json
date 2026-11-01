@@ -1,0 +1,14 @@
+{
+  "production_web_and_native_build_passed": true,
+  "credentials_included": false,
+  "working_records_included": false,
+  "packaged_workflow_verified": true,
+  "version": "0.5.28",
+  "bundled_inventory_database_accessed": false,
+  "passed": true,
+  "constrained_inputs_verified": true,
+  "source_schema": 19,
+  "powershell_inventory_verified": true,
+  "bundled_inventory_verified": true,
+  "runtime_files": 152
+}

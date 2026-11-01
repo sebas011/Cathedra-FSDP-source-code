@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import PageHeading from "../components/PageHeading";
 import BackupReviewPanel from "../components/BackupReviewPanel";
 import GoogleSheetsPanel from "../components/GoogleSheetsPanel";
+import SharedWorkspacePanel from "../components/SharedWorkspacePanel";
 import ConfirmationDialog from "../components/ConfirmationDialog";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -59,6 +60,8 @@ export default function BackupExportPage() {
   const [statusError, setStatusError] = useState("");
   const [reviewBusy, setReviewBusy] = useState(false);
   const [sheetsBusy, setSheetsBusy] = useState(false);
+  const [sharedBusy, setSharedBusy] = useState(false);
+  const [sharedConfigured, setSharedConfigured] = useState<boolean | null>(null);
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
   const [activeExport, setActiveExport] = useState<string | null>(null);
@@ -67,7 +70,7 @@ export default function BackupExportPage() {
   const operationLock = useRef(false);
   const sequence = useRef(0);
   const [loading, setLoading] = useState(false);
-  const operationPending = busy || reviewBusy || sheetsBusy || activeExport !== null;
+  const operationPending = busy || reviewBusy || sheetsBusy || sharedBusy || activeExport !== null;
   const { blocker, allowLeave } = useUnsavedChanges(null, operationPending);
   const selected = status?.backups.find((item) => item.filename === selectedBackup);
 
@@ -364,7 +367,10 @@ export default function BackupExportPage() {
         <a href="#create-backup">Create backup</a>
         {isAdmin && <a href="#restore-backup">Download &amp; restore</a>}
         <a href="#directory-exports">Directory exports</a>
-        {isAdmin && <a href="#google-reporting">Google Sheets report</a>}
+        {isAdmin && <a href="#shared-workspace">Shared storage</a>}
+        {isAdmin && sharedConfigured === false && (
+          <a href="#google-reporting">Google Sheets report</a>
+        )}
       </nav>
       <section className="maintenance-counts" aria-label="Record counts">
         <div>
@@ -525,9 +531,18 @@ export default function BackupExportPage() {
           />
         )}
         {isAdmin && (
+          <SharedWorkspacePanel
+            disabled={busy || reviewBusy || sheetsBusy || activeExport !== null || loading}
+            onPendingChange={setSharedBusy}
+            onModeChange={setSharedConfigured}
+            onApplied={() => void load()}
+          />
+        )}
+        {isAdmin && sharedConfigured === false && (
           <GoogleSheetsPanel
             disabled={busy || reviewBusy || activeExport !== null || loading}
             onPendingChange={setSheetsBusy}
+            onApplied={() => void load()}
           />
         )}
       </section>

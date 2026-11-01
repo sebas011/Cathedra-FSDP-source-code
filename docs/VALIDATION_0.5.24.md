@@ -12,7 +12,7 @@ Verified locally on 24 October 2026, Asia/Manila. Paper & Ink is integrated into
 
 ## Browser acceptance
 
-The running production build was inspected using a disposable fictional database. Desktop and 390px dashboard/profile/editor views have no page-level horizontal overflow. The expanded registration table keeps overflow inside its labelled keyboard region. Word-prefix search, filter focus, multiline insertion at the first line, explicit name-only saving, separate applications and mobile menu focus/Escape were checked. See [UI evidence](analysis/UI_VALIDATION_0.5.24.json). This is not full WCAG, screen-reader, physical printing or intended Office-PC certification.
+The running production build was inspected using a disposable fictional database. Desktop and 390px dashboard/profile/editor views have no page-level horizontal overflow. The expanded registration table keeps overflow inside its labelled keyboard region. Word-prefix search, filter focus, multiline insertion at the first line, explicit name-only saving, separate applications and mobile menu focus/Escape were checked. See UI evidence (local historical evidence; excluded from source snapshot). This is not full WCAG, screen-reader, physical printing or intended Office-PC certification.
 
 ## Update and development installation
 
@@ -22,7 +22,7 @@ The development runtime was installed as 0.5.24 after restoring the previously a
 
 ## Dependencies and delivery
 
-The complete npm audit reported zero advisories. The constrained Python scan initially identified a newly reported setuptools issue; the official 84.1.0 patch was installed before packaging and the scan then reported no findings across 36 packages. See [dependency evidence](analysis/DEPENDENCY_VALIDATION_0.5.24.json) and the [maintainer advisory](https://github.com/pypa/setuptools/security/advisories/GHSA-xmj3-9gf7-h52w). These are point-in-time results.
+The complete npm audit reported zero advisories. The constrained Python scan initially identified a newly reported setuptools issue; the official 84.1.0 patch was installed before packaging and the scan then reported no findings across 36 packages. See dependency evidence (local historical evidence; excluded from source snapshot) and the [maintainer advisory](https://github.com/pypa/setuptools/security/advisories/GHSA-xmj3-9gf7-h52w). These are point-in-time results.
 
 Source publication, its exact-revision GitHub Actions result, and the fresh Office-release download are verified separately through the [source checks](https://github.com/sebas011/Cathedra-FSDP-source-code/actions) and [versioned release](https://github.com/sebas011/Cathedra-FSDP/releases/tag/v0.5.24). Local validation is not a claim that a remote workflow has already passed. Working records, accounts, snapshots, OAuth credentials and connection tokens are excluded from delivery. Actual Office-PC acceptance remains separate.
 

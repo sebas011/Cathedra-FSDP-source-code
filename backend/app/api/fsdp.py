@@ -476,7 +476,7 @@ def duplicate_grant(
         **{
             column.key: getattr(original, column.key)
             for column in FsdpParticipation.__table__.columns
-            if column.key not in reset_fields
+            if column.key not in reset_fields and column.key not in {"cloud_key", "shared_order"}
         }
     )
     copy.status = "On Going"

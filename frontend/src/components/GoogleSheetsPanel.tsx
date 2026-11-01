@@ -9,22 +9,26 @@ import {
   type GoogleSheetsStatus,
 } from "../api/googleSheets";
 import ConfirmationDialog from "./ConfirmationDialog";
+import GoogleSheetPull from "./GoogleSheetPull";
+import type { GooglePullResult } from "../api/googlePull";
 
 type Props = {
   disabled?: boolean;
   onPendingChange?: (pending: boolean) => void;
+  onApplied?: (result: GooglePullResult) => void;
 };
 
 const reportingAddress = (id: string) =>
   `https://docs.google.com/spreadsheets/d/${encodeURIComponent(id)}/edit`;
 
-export default function GoogleSheetsPanel({ disabled = false, onPendingChange }: Props) {
+export default function GoogleSheetsPanel({ disabled = false, onPendingChange, onApplied }: Props) {
   const [status, setStatus] = useState<GoogleSheetsStatus | null>(null);
   const [spreadsheet, setSpreadsheet] = useState("");
   const [credentialName, setCredentialName] = useState("");
   const [loading, setLoading] = useState(true);
   const [readingCredentials, setReadingCredentials] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [pullPending, setPullPending] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [confirmSync, setConfirmSync] = useState(false);
@@ -35,7 +39,8 @@ export default function GoogleSheetsPanel({ disabled = false, onPendingChange }:
   const operationLock = useRef(false);
   const mounted = useRef(false);
   const waiting = status?.connection_state === "waiting";
-  const pending = busy || readingCredentials || waiting;
+  const connectionPending = busy || readingCredentials || waiting;
+  const pending = connectionPending || pullPending;
   const blocked = disabled || loading || pending;
   const targetChanged = Boolean(
     status?.configured && spreadsheet.trim() !== reportingAddress(status.spreadsheet_id || ""),
@@ -299,20 +304,27 @@ export default function GoogleSheetsPanel({ disabled = false, onPendingChange }:
             </button>
             <button
               type="button"
-              className="btn primary"
-              disabled={blocked || !status?.connected || unsavedDetails}
-              onClick={() => setConfirmSync(true)}
-            >
-              {busy ? "Working…" : "Update Google Sheet"}
-            </button>
-            <button
-              type="button"
               className="btn secondary"
               disabled={blocked}
               onClick={() => void disconnect()}
             >
               {status?.connected ? "Disconnect Google" : "Forget Google connection"}
             </button>
+            <button
+              type="button"
+              className="btn primary"
+              disabled={blocked || !status?.connected || unsavedDetails}
+              onClick={() => setConfirmSync(true)}
+            >
+              {busy ? "Working…" : "Update Google Sheet"}
+            </button>
+            <GoogleSheetPull
+              disabled={
+                disabled || loading || connectionPending || !status?.connected || unsavedDetails
+              }
+              onPendingChange={setPullPending}
+              onApplied={onApplied}
+            />
           </div>
         </>
       )}

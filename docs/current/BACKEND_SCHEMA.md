@@ -1,17 +1,27 @@
 # Backend schema and data dictionary
 
 **Product:** Cathedra FSDP  
-**Documented:** 25 October 2026, Asia/Manila<br>
-**Baseline:** release 0.5.26; database schema 17<br>
+**Documented:** 31 October 2026, Asia/Manila<br>
+**Baseline:** release 0.5.28; database schema 19<br>
 **Status:** implementation-derived documentation; see [baseline and evidence](README.md).
 
 ## Database baseline
 
-Persistence is SQLite through SQLAlchemy 2. The dictionary describes models and migrations through version 17, not a production dump. The current models define 15 application/infrastructure tables and 121 columns, one more than schema 16. No live database is inspected for documentation. SQLite may additionally maintain `sqlite_sequence` in compatible historical files; that internal table is permitted by the product guard.
+Persistence is SQLite through SQLAlchemy 2. The dictionary describes models and migrations through version 19, not a production dump. The model and infrastructure inventory contains 17 application/infrastructure tables and 143 columns. Schema 19 adds six shared identities, two grant/education-order cache columns and nine local synchronization-state columns. No live database is inspected for documentation. SQLite may additionally maintain `sqlite_sequence` in compatible historical files; that internal table is permitted by the product guard.
 
 The default backend path is the project's `data/cathedra.db` unless `CATHEDRA_DATA_DIR` is set. The packaged launcher selects the data directory adjacent to its executable or the explicit `--data-dir`. Software release version and applied schema version are separate facts.
 
 ## Relationships
+
+Schema 19 adds nullable `cloud_key VARCHAR(36)` with a unique index to scholars, programs, fsdp_participations, scholar_education, scholar_requirements and office_logs. Existing rows receive permanent UUIDs; new ORM rows generate their own. Nullable storage permits additive historical upgrades, but shared serialization rejects missing/duplicated identities. These fields supplement the dictionaries below and never replace existing local integer IDs. Grant copies receive new UUIDs.
+
+`fsdp_participations.shared_order INTEGER NULL` is local synchronization ordering metadata. A canonical scholar's ordered grants assign it during download, preserving same-period current-status decisions across PCs without changing their local IDs. Unsynced new grants fall back to their local ID; annual copies clear this cache value.
+
+`scholar_education.shared_order INTEGER NULL` similarly retains the visible education sequence across computers. It is assigned from the canonical ordered education list and is not a shared identifier or additional business requirement.
+
+The new `shared_workspace_state` table has exactly one possible row (`id=1`, enforced by CHECK): id INTEGER PK, workspace_id VARCHAR(36) nullable, cache_id VARCHAR(36) required, baseline_json TEXT nullable, pending_json TEXT nullable, last_completed_id VARCHAR(36) nullable, last_result_json TEXT nullable, dirty BOOLEAN required default 0, last_synced_at DATETIME nullable. Its baseline contains canonical business facts and receipts contain selection/user binding, never credentials. The separate Windows-encrypted `data/shared-workspace.bin` holds the device credential and private cache checkpoint; it is excluded from releases/source/database backups.
+
+Schema 19 preserves existing business values and history; it backfills only identities. The install seed has no sync-state row. See [protocol](SHARED_WORKSPACE_PROTOCOL.md) for canonical storage, tombstones, pending retries, whole-profile conflicts, initialization and join semantics.
 
 ```mermaid
 erDiagram
@@ -24,6 +34,7 @@ erDiagram
     programs ||--o{ education_suppressions : refers_to
     local_users ||--o{ local_sessions : signs_in
     local_users ||--o{ creation_requests : retries
+    local_users ||--o{ sheet_import_receipts : confirms_imports
     scholars o|--o{ office_logs : optional_subject
 ```
 
@@ -361,6 +372,10 @@ An explicit edit or clear of a generated education entry's graduation year sets 
 | 12 | `unicode-program-identity-and-education-edit-intent` |
 | 13 | `completed-outcomes-case-status-and-office-logs` |
 | 14 | `scholar-document-copies-and-program-categories` |
+| 15 | `session-inactivity-lock` |
+| 16 | `completion-deadlines-and-payback-payment` |
+| 17 | `business-change-history-details` |
+| 18 | `google-sheet-import-receipts` |
 Migration 6 establishes education/tenure/term handling and removes active `fsdp_records` and `fsdp_legacy_fields` tables plus legacy grant-standardization columns. Migration 7 adds optional actual contract completion. Migration 8 adds explicit personnel/source-program education support. Migration 9 adds program revisions, creation request keys and education-removal persistence. Migration 10 adds profile remarks and canonicalizes affiliations while preserving former labels in remarks. Migration 11 derives Faculty/Staff/Unknown and backfills graduation evidence into education; changed scholar revisions advance. It does not change grant outcomes or replace manual education corrections/suppressions.
 
 Migration 12 adds canonical program keys and explicit education-year edit intent. It preserves program names, program/grant/scholar IDs and existing education; equivalent historical identities are flagged for explicit selection rather than merged. Historical migrations initialize additive columns before using current ORM models so populated older FSDP versions can upgrade safely.
@@ -395,9 +410,25 @@ The administrator can configure and connect Google reporting from Backup & Expor
 
 ## Google report update (0.5.23)
 
-Google reporting uses a dedicated [fifteen-column contract](GOOGLE_REPORT_CONTRACT.json) rather than the full CSV table. Each scholar is numbered once and their grants remain on consecutive rows. The report retains recorded education, tenure in years, exact dates or recorded academic periods, each grant's outcome and clearly labeled profile/grant remarks. Existing CSV exports and schema16 are unchanged. Setup, approved test accounts, spreadsheet editing access and per-PC sign-in are described in the [detailed guide](../GOOGLE_SHEETS_SETUP.md). See [0.5.23 validation](../VALIDATION_0.5.23.md) for observed delivery status.
+The original 0.5.23 Google report used fifteen columns (superseded by the [sixteen-column contract](GOOGLE_REPORT_CONTRACT.json) in 0.5.27) rather than the full CSV table. Each scholar is numbered once and their grants remain on consecutive rows. The report retains recorded education, tenure in years, exact dates or recorded academic periods, each grant's outcome and clearly labeled profile/grant remarks. Existing CSV exports and schema16 are unchanged. Setup, approved test accounts, spreadsheet editing access and per-PC sign-in are described in the [detailed guide](../GOOGLE_SHEETS_SETUP.md). See [0.5.23 validation](../VALIDATION_0.5.23.md) for observed delivery status.
 
 
 ## Selected blueprint improvements (0.5.26)
 
 Migration 17 (`business-change-history-details`) adds only nullable `activity_events.change_details`. Its JSON contains `field`, `before`, `after` and optional truncation markers for an explicit business-field allowlist. No old values are backfilled. Assessment rule, reason and as-of fields are derived API output, not additional persisted scholar/grant columns. The shared clock resolves business dates to Asia/Manila. Authentication/session timestamps retain UTC semantics; existing backup/recovery timestamp handling is unchanged. See [the implementation plan](../plans/2026-10-25-selective-blueprint-improvements.md).
+
+## `sheet_import_receipts` (0.5.27)
+
+Durable confirmation of an administrator's applied Google Sheet preview. This table is empty in the install seed and contains no OAuth credentials. It is part of the compatible backup/product allowlist.
+
+| Column | SQLite declared type | Nullable | PK position | SQL default |
+|---|---|---|---|---|
+| `user_id` | `INTEGER` | No | 1 | — |
+| `request_key` | `VARCHAR(64)` | No | 2 | — |
+| `payload_digest` | `VARCHAR(64)` | No | 0 | — |
+| `result_json` | `TEXT` | No | 0 | — |
+| `created_at` | `DATETIME` | No | 0 | — |
+
+`user_id` references `local_users.id` with `ON DELETE CASCADE`. `request_key` is the reviewed preview identifier; `payload_digest` binds the canonical selected profile/grant targets. `result_json` holds confirmed counts and scholar IDs. `created_at` has an ORM `func.now()` default rather than a SQL column default. A same-account identical retry returns the committed result without repeating changes, even after preview-cache expiry or restart; changing the selection with the same key returns a conflict. Receipt, business changes and audit events commit in one transaction.
+
+Migration 18 (`google-sheet-import-receipts`) creates this table only. It rewrites no existing scholars, grants, education or migration history. Pending source snapshots remain bounded, administrator-bound, twenty-minute in-memory previews and are not stored in this table. See [pull service](../../backend/app/google_pull.py) and [current validation](../VALIDATION_0.5.27.md).

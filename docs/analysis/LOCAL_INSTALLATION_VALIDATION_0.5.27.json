@@ -1,0 +1,31 @@
+{
+  "status": "verified",
+  "version": "0.5.27",
+  "date": "2026-10-31",
+  "timezone": "Asia/Manila",
+  "previous_runtime_version": "0.5.26",
+  "runtime_files": 152,
+  "manifest_sha256": "6c6aa5e017c5a41a917f7d73499bab41c3d1ad3be82783fb4c93f9f685593c88",
+  "guarded_local_installation_passed": true,
+  "access_policy_audits_passed": true,
+  "database_replaced": false,
+  "working_database_bytes_unchanged_during_replacement": true,
+  "working_database_hash_rechecked_before_documentation_completion": true,
+  "google_connection_preserved_by_guarded_installer": true,
+  "source_files_preserved_during_installation": 634,
+  "captured_source_hashes_rechecked_before_documentation_completion": true,
+  "private_existing_database_rehearsal": {
+    "prior_schema": 16,
+    "rehearsed_schema": 18,
+    "existing_record_values_preserved": true,
+    "existing_migration_history_preserved": true,
+    "repeated_upgrade_noop": true,
+    "protected_snapshot_verified": true,
+    "working_database_used_as_upgrade_target": false
+  },
+  "retained_database_migrates_on_next_normal_startup_if_needed": true,
+  "private_receipt_or_recovery_paths_published": false,
+  "working_records_or_google_credentials_in_package": false,
+  "github_publication_performed": false,
+  "actual_office_pc_tested": false
+}

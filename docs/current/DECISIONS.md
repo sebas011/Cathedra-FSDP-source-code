@@ -20,7 +20,7 @@ Baseline: source 0.5.23/schema 16.
 | Annual copy clears dates | 12 October finding 9 | New annual grant identity starts On Going/Open; all actual dates and extension are cleared, while remarks are retained for review. |
 | General Office Log | 12 October finding 12 | Append-only receipt/transfer register with authenticated author and optional scholar snapshot; no document-upload storage or replacement of activity auditing. |
 
-Sources: [0.5.10 findings](../plans/2026-10-07-user-findings.md), audit review (local historical evidence; excluded from this source snapshot), [correction plan](../plans/2026-10-09-audit-corrections.md). Future changes must record which decision they supersede.
+Sources: [0.5.10 findings](../plans/2026-10-07-user-findings.md), audit review (local historical evidence; excluded from source snapshot), [correction plan](../plans/2026-10-09-audit-corrections.md). Future changes must record which decision they supersede.
 
 15 October 2026: the owner confirmed independent completion/payback for each repeated application to a program. This supersedes the broad same-program clearance rule for explicitly assigned applications. Annual entries within one application still share completion. Existing NULL application groups preserve their previous grouping until deliberately reviewed and reassigned; migration never invents enrollment boundaries. Education remains consolidated by qualification/program with manual decisions preserved.
 

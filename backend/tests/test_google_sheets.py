@@ -258,6 +258,75 @@ def test_sync_refreshes_then_updates_dedicated_existing_tab_and_records_success(
     assert "rotated-refresh" not in json.dumps(connection.status())
 
 
+def test_sync_expands_previous_report_for_separate_profile_remarks_without_formulas(
+    client, monkeypatch
+):
+    saved = client.post(
+        "/api/v1/fsdp",
+        json={
+            "name": "Synthetic profile notes",
+            "profile_remarks": "=SYNTHETIC PROFILE NOTE()\nSECOND LINE",
+            "participations": [
+                {
+                    "program_name": "SYNTHETIC PROGRAM",
+                    "start_academic_year": "2021",
+                    "remarks": "FIRST GRANT NOTE",
+                },
+                {
+                    "program_name": "SYNTHETIC PROGRAM",
+                    "start_academic_year": "2022",
+                    "remarks": "+SECOND GRANT NOTE",
+                },
+            ],
+        },
+    )
+    assert saved.status_code == 201
+    connection = configured()
+    monkeypatch.setattr(api, "connection", connection)
+    calls = []
+
+    def request(url, **kwargs):
+        calls.append((url, kwargs))
+        if url == sheets.TOKEN_URL:
+            return {"access_token": "synthetic-access"}
+        if "?fields=" in url:
+            return {
+                "sheets": [
+                    {"properties": {"sheetId": 10, "title": "UNRELATED"}},
+                    {
+                        "properties": {
+                            "sheetId": 11,
+                            "title": sheets.REPORT_TAB,
+                            "gridProperties": {"rowCount": 100, "columnCount": 15},
+                        }
+                    },
+                ]
+            }
+        return {}
+
+    monkeypatch.setattr(sheets, "google_request", request)
+    response = client.post("/api/v1/google-sheets/sync", json={"replace_report": True})
+    assert response.status_code == 200 and response.json()["rows"] == 2
+    assert len(calls) == 3
+    batch = calls[-1][1]["body"]["requests"]
+    assert batch[0]["updateSheetProperties"] == {
+        "properties": {"sheetId": 11, "gridProperties": {"rowCount": 100, "columnCount": 16}},
+        "fields": "gridProperties.rowCount,gridProperties.columnCount",
+    }
+    update = batch[1]["updateCells"]
+    assert update["range"] == {"sheetId": 11}
+    assert update["fields"] == "userEnteredValue"
+    header, first, continuation = [row["values"] for row in update["rows"]]
+    assert len(header) == len(first) == len(continuation) == 16
+    assert header[7] == {"userEnteredValue": {"stringValue": "Profile remarks"}}
+    assert first[7] == {
+        "userEnteredValue": {"stringValue": "=SYNTHETIC PROFILE NOTE()\nSECOND LINE"}
+    }
+    assert first[15] == {"userEnteredValue": {"stringValue": "FIRST GRANT NOTE"}}
+    assert continuation[7] == {}
+    assert continuation[15] == {"userEnteredValue": {"stringValue": "+SECOND GRANT NOTE"}}
+
+
 def test_new_tab_is_created_before_report_replacement_and_failure_preserves_last_success(
     monkeypatch,
 ):
@@ -581,3 +650,171 @@ def test_admin_sync_uses_current_export_and_does_not_expose_credentials(client, 
     assert response.status_code == 200
     assert received == [[["NAME"], ["SYNTHETIC SCHOLAR"]]]
     assert "synthetic-refresh" not in response.text
+
+
+def report_metadata(**changes):
+    return {
+        "sheets": [
+            {"properties": {"sheetId": 10, "title": "UNRELATED"}},
+            {"properties": {"sheetId": 11, "title": sheets.REPORT_TAB, **changes}},
+        ]
+    }
+
+
+def test_read_report_uses_bounded_values_get_and_preserves_rotated_access_without_sync_time(
+    monkeypatch,
+):
+    connection = configured()
+    prior_sync = connection.status()["last_sync_at"]
+    rows = [["No.", "Name"], [1, "=SYNTHETIC NAME()", 0, False]]
+    calls = []
+
+    def request(url, **kwargs):
+        calls.append((url, kwargs))
+        if url == sheets.TOKEN_URL:
+            return {"access_token": "synthetic-access", "refresh_token": "rotated-refresh"}
+        if "?fields=" in url:
+            return report_metadata()
+        return {"values": rows}
+
+    monkeypatch.setattr(sheets, "google_request", request)
+    result = connection.read_report()
+    assert result == {"spreadsheet_id": TARGET, "worksheet": sheets.REPORT_TAB, "values": rows}
+    assert len(calls) == 3
+    assert all(":batchUpdate" not in url for url, _ in calls)
+    parsed = urllib.parse.urlsplit(calls[-1][0])
+    assert urllib.parse.unquote(parsed.path) == (
+        f"/v4/spreadsheets/{TARGET}/values/'CATHEDRA REPORT'!A1:P2002"
+    )
+    assert urllib.parse.parse_qs(parsed.query) == {
+        "majorDimension": ["ROWS"],
+        "valueRenderOption": ["UNFORMATTED_VALUE"],
+    }
+    assert "body" not in calls[-1][1] and "form" not in calls[-1][1]
+    assert calls[-1][1].get("method") in {None, "GET"}
+    assert connection.vault.value["refresh_token"] == "rotated-refresh"
+    assert connection.status()["last_sync_at"] == prior_sync
+    assert "synthetic-access" not in json.dumps(result)
+    assert "rotated-refresh" not in json.dumps(result)
+    assert not connection.lock.locked()
+
+
+def test_read_empty_report_leaves_saved_connection_and_last_sync_unchanged(monkeypatch):
+    connection = configured()
+    original = copy.deepcopy(connection.vault.value)
+
+    def request(url, **_kwargs):
+        if url == sheets.TOKEN_URL:
+            return {"access_token": "synthetic-access"}
+        return report_metadata() if "?fields=" in url else {}
+
+    monkeypatch.setattr(sheets, "google_request", request)
+    assert connection.read_report()["values"] == []
+    assert connection.vault.value == original
+
+
+def test_read_report_missing_tab_never_creates_or_writes_and_keeps_rotated_token(monkeypatch):
+    connection = configured()
+    prior_sync = connection.status()["last_sync_at"]
+    calls = []
+
+    def request(url, **kwargs):
+        calls.append((url, kwargs))
+        if url == sheets.TOKEN_URL:
+            return {"access_token": "synthetic-access", "refresh_token": "rotated-refresh"}
+        return {"sheets": [{"properties": {"sheetId": 10, "title": "UNRELATED"}}]}
+
+    monkeypatch.setattr(sheets, "google_request", request)
+    with pytest.raises(sheets.SheetsError, match="CATHEDRA REPORT tab was not found"):
+        connection.read_report()
+    assert len(calls) == 2
+    assert all(":batchUpdate" not in url for url, _ in calls)
+    assert connection.vault.value["refresh_token"] == "rotated-refresh"
+    assert connection.status()["last_sync_at"] == prior_sync
+    assert not connection.lock.locked()
+
+
+def test_read_report_does_not_enter_another_google_operation(monkeypatch):
+    connection = configured()
+    calls = []
+    monkeypatch.setattr(sheets, "google_request", lambda *args, **kwargs: calls.append(args))
+    connection.lock.acquire()
+    try:
+        with pytest.raises(sheets.SheetsError, match="still running"):
+            connection.read_report()
+        assert connection.lock.locked()
+        assert calls == []
+    finally:
+        connection.lock.release()
+
+
+@pytest.mark.parametrize("missing", ["refresh_token", "spreadsheet_id"])
+def test_read_report_requires_connection_before_network(monkeypatch, missing):
+    connection = configured()
+    connection.vault.value.pop(missing)
+    calls = []
+    monkeypatch.setattr(sheets, "google_request", lambda *args, **kwargs: calls.append(args))
+    with pytest.raises(sheets.SheetsError, match="Connect your Google account before reading"):
+        connection.read_report()
+    assert calls == [] and not connection.lock.locked()
+
+
+@pytest.mark.parametrize(
+    "metadata",
+    [{}, {"sheets": [None]}, report_metadata(sheetId=True), report_metadata(sheetType="OBJECT")],
+)
+def test_read_report_rejects_invalid_tab_metadata_without_values_request(monkeypatch, metadata):
+    connection = configured()
+    calls = []
+
+    def request(url, **kwargs):
+        calls.append((url, kwargs))
+        return {"access_token": "synthetic-access"} if url == sheets.TOKEN_URL else metadata
+
+    monkeypatch.setattr(sheets, "google_request", request)
+    with pytest.raises(sheets.SheetsError):
+        connection.read_report()
+    assert len(calls) == 2
+    assert all("/values/" not in url for url, _ in calls)
+    assert not connection.lock.locked()
+
+
+@pytest.mark.parametrize(
+    "values",
+    [None, "wrong", [{}], [["x"] * 17], [[]] * 2003, [[{}]], [[float("nan")]], [[float("inf")]]],
+    ids=["null", "text", "non-row", "wide", "tall", "object-cell", "nan", "infinity"],
+)
+def test_read_report_rejects_unexpected_or_unbounded_values_without_syncing(monkeypatch, values):
+    connection = configured()
+    prior_sync = connection.status()["last_sync_at"]
+
+    def request(url, **_kwargs):
+        if url == sheets.TOKEN_URL:
+            return {"access_token": "synthetic-access"}
+        return report_metadata() if "?fields=" in url else {"values": values}
+
+    monkeypatch.setattr(sheets, "google_request", request)
+    with pytest.raises(sheets.SheetsError, match="unexpected report values"):
+        connection.read_report()
+    assert connection.status()["last_sync_at"] == prior_sync
+    assert not connection.lock.locked()
+
+
+def test_read_report_failure_keeps_last_confirmed_sync(monkeypatch):
+    connection = configured()
+    prior_sync = connection.status()["last_sync_at"]
+
+    def request(url, **_kwargs):
+        if url == sheets.TOKEN_URL:
+            return {"access_token": "synthetic-access"}
+        if "?fields=" in url:
+            return report_metadata()
+        raise sheets.SheetsError(
+            "Google could not be reached. Check internet access and try again."
+        )
+
+    monkeypatch.setattr(sheets, "google_request", request)
+    with pytest.raises(sheets.SheetsError, match="could not be reached"):
+        connection.read_report()
+    assert connection.status()["last_sync_at"] == prior_sync
+    assert not connection.lock.locked()

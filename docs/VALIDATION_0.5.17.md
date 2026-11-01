@@ -38,7 +38,7 @@ The approved terms remain **1st, 2nd, 3rd and Summer**. The eight-college classi
 | Development installation | Installed runtime 0.5.17 verified; both the new manifest and retained 0.5.16 runtime archive verified. Fresh-data smoke/restore/shutdown passed. Final permissions audit inspected 5,854 items with no policy violations. |
 | Office delivery | Published and verified as `Cathedra-FSDP-0.5.17-Update`, with 147 runtime files and a separate hashed documentation inventory. No working database or mutable data folder is included. |
 
-There are **554 unique automated tests** in the final complete run. Earlier focused runs are not added to that count. The final build log is `cathedra-build-0517-20261013-frozen.log`; its hash, observed counts and gate results are retained in regression evidence (local historical evidence; excluded from this source snapshot). Tests used disposable data, not the working or Office database. No new coverage measurement, dependency-advisory refresh or remote CI run is claimed.
+There are **554 unique automated tests** in the final complete run. Earlier focused runs are not added to that count. The final build log is `cathedra-build-0517-20261013-frozen.log`; its hash, observed counts and gate results are retained in regression evidence (local historical evidence; excluded from source snapshot). Tests used disposable data, not the working or Office database. No new coverage measurement, dependency-advisory refresh or remote CI run is claimed.
 
 Review also corrected and covered annual-copy extension leakage, uppercase fallback for newly entered unparsed tenure text, stale education suppression when moving from editing to a new scholar, and Unicode program aliases under uppercase entry. The failing cases were reproduced before the corrections; no test was skipped to obtain the final result.
 
@@ -52,7 +52,7 @@ Both a scholar-linked document transfer and a general note saved with uppercase 
 
 The browser automation provider initially changed the native date field's DOM value without committing the React change event. Real keyboard input committed the date; saving/reopening and serialization review confirmed persistence. This was not an application serialization defect. Normal shutdown through the authenticated desktop-exit endpoint succeeded, and the owned test service was absent afterward. Browser Exit-button acceptance, mobile breakpoints, physical printing and assistive technology were not verified in this run.
 
-See browser evidence (local historical evidence; excluded from this source snapshot), profile screenshot (local historical evidence; excluded from this source snapshot) and Office Log screenshot (local historical evidence; excluded from this source snapshot). Screenshots contain only synthetic records.
+See browser evidence (local historical evidence; excluded from source snapshot), profile screenshot (local historical evidence; excluded from source snapshot) and Office Log screenshot (local historical evidence; excluded from source snapshot). Screenshots contain only synthetic records.
 
 ## Database and installation preservation
 
@@ -62,17 +62,17 @@ The working database SHA-256 before and after runtime replacement was identical:
 
 `c8dcd258fd24b602153b0ea2d9e31ca7c1f10d08bd490015bea6ec5a509b4c29`
 
-The database was not replaced or migrated by development installation. Protected migration 13 runs at the next normal application launch. The verified installation receipt (local historical evidence; excluded from this source snapshot) records the protected snapshot and retained runtime archive; it does not claim that the live working database has already reached schema 13.
+The database was not replaced or migrated by development installation. Protected migration 13 runs at the next normal application launch. The verified installation receipt (local historical evidence; excluded from source snapshot) records the protected snapshot and retained runtime archive; it does not claim that the live working database has already reached schema 13.
 
 The first installation attempt correctly rolled back after its permissions audit rejected inactive browser/cache access entries. The working database remained unchanged. The previously approved owner/SYSTEM/administrator policy was reapplied using the existing protection tool, with the original permission receipt retained privately outside the installation. The successful retry passed the final audit. No application code or permission-audit rule was weakened for this retry.
 
-The synthetic Office upgrade separately preserved two scholars, three annual grants, two accounts, two education entries and two Summer grants. IDs, program references, password hashes/logins, historical text, manual year 2019 and education intent survived exact comparisons. Intended changes were limited to Graduated-to-Completed normalization, Open/null-date defaults, affected revision increments, schema ledger/new empty Office Log storage and normal session metadata. Snapshot, migration rehearsal, integrity, foreign keys and normal shutdown passed. A child-process-only adjustment selected native Windows PowerShell 5.1 modules for the updater rehearsal; user configuration and the release were unchanged. See upgrade evidence (local historical evidence; excluded from this source snapshot).
+The synthetic Office upgrade separately preserved two scholars, three annual grants, two accounts, two education entries and two Summer grants. IDs, program references, password hashes/logins, historical text, manual year 2019 and education intent survived exact comparisons. Intended changes were limited to Graduated-to-Completed normalization, Open/null-date defaults, affected revision increments, schema ledger/new empty Office Log storage and normal session metadata. Snapshot, migration rehearsal, integrity, foreign keys and normal shutdown passed. A child-process-only adjustment selected native Windows PowerShell 5.1 modules for the updater rehearsal; user configuration and the release were unchanged. See upgrade evidence (local historical evidence; excluded from source snapshot).
 
 ## Office delivery and remaining acceptance
 
 Delivery target: `<developer-home>\Desktop\Project\Releases\Cathedra-FSDP-0.5.17-Update`.
 
-Publication passed on 13 October at 07:12 Asia/Manila. The copied 147-file runtime and separate documentation inventory verified, and the runtime manifest matches the final tested build. See publication evidence (local historical evidence; excluded from this source snapshot); final report refresh uses a separate documentation-only inventory and leaves runtime bytes unchanged. The prior 0.5.16 package remains intact.
+Publication passed on 13 October at 07:12 Asia/Manila. The copied 147-file runtime and separate documentation inventory verified, and the runtime manifest matches the final tested build. See publication evidence (local historical evidence; excluded from source snapshot); final report refresh uses a separate documentation-only inventory and leaves runtime bytes unchanged. The prior 0.5.16 package remains intact.
 
 The package contains the intentional empty installation seed, but no working development or Office database. Transfer the complete update folder and use its included updater with Cathedra closed, pointing to the existing Office installation. Keep the Office database authoritative. The updater preserves it during runtime replacement, rehearses the protected migration and retains a recoverable prior runtime. Older release and recovery evidence remains intact.
 

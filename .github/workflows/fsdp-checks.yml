@@ -42,6 +42,8 @@ jobs:
         working-directory: frontend
       - run: npm run build
         working-directory: frontend
+      - name: Verify shared Google bridge contracts offline
+        run: node --test google/shared-workspace/tests/bridge.test.cjs
       - name: Package and verify the Windows application
         shell: pwsh
         run: ./desktop/build-split-release.ps1 -Python (Get-Command python).Source -Node (Get-Command node).Source

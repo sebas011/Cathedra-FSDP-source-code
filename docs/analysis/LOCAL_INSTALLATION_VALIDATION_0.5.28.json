@@ -1,0 +1,22 @@
+{
+  "database_replaced": false,
+  "version": "0.5.28",
+  "actual_office_pc_updated": false,
+  "live_google_deployment_performed": false,
+  "source_files_preserved_during_installation": 661,
+  "passed": true,
+  "working_database_bytes_preserved": true,
+  "private_migration_rehearsal": {
+    "passed": true,
+    "version": "0.5.28",
+    "prior_schema": 16,
+    "installed_schema": 19,
+    "existing_record_values_preserved": true,
+    "existing_migration_history_preserved": true,
+    "working_database_used_as_upgrade_target": false,
+    "private_migration_snapshot": "<developer-home>\\Desktop\\Project\\Cathedra-FSDP\\data\\updates\\development-0.5.28-20261031-195505-d8959e9d68ad413a8428425a132af858\\migration-rehearsal\\backups\\cathedra-protected-before-migration-20261031-195512-a506e52396fd47819c0c4b1f2232fda4.db",
+    "repeated_upgrade_noop": true
+  },
+  "installed_runtime_verified": true,
+  "google_connection_bytes_preserved": true
+}

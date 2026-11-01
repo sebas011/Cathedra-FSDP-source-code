@@ -2,7 +2,7 @@
 
 Completed 11 October 2026, Asia/Manila. Release: **0.5.16**, schema: **12**.
 
-The approved [remediation plan](plans/2026-10-10-review-remediation.md) is implemented. All fifteen confirmed findings in the comprehensive review (local historical evidence; excluded from this source snapshot) have code or tooling fixes with regression coverage. The development runtime and the application-only Office update package are verified. Actual Office-device acceptance remains separate.
+The approved [remediation plan](plans/2026-10-10-review-remediation.md) is implemented. All fifteen confirmed findings in the comprehensive review (local historical evidence; excluded from source snapshot) have code or tooling fixes with regression coverage. The development runtime and the application-only Office update package are verified. Actual Office-device acceptance remains separate.
 
 ## Findings delivered
 
@@ -49,15 +49,15 @@ The final packaged application ran against a disposable fixture with 65 syntheti
 
 The program catalog displayed the existing Unicode program, created a separate copy and exposed both recorded IDs in the grant picker. Profile remarks, Bachelor education, 5.5-year tenure and the three-year grace assessment displayed correctly. Cancelling the grant editor presented the discard confirmation and allowed navigation afterward. The Guide explained complete app printing and native Ctrl+P. No browser console errors were captured. The owned test server exited through its normal authenticated exit control.
 
-See the catalog screenshot (local historical evidence; excluded from this source snapshot) and browser evidence (local historical evidence; excluded from this source snapshot). A requested narrow viewport did not take effect in the browser provider, so this run does not claim mobile breakpoint acceptance. Native printer preview/output was not available.
+See the catalog screenshot (local historical evidence; excluded from source snapshot) and browser evidence (local historical evidence; excluded from source snapshot). A requested narrow viewport did not take effect in the browser provider, so this run does not claim mobile breakpoint acceptance. Native printer preview/output was not available.
 
 ## Database and update preservation
 
 The development installation replaced only the executable, `_internal`, runtime manifest and generated frontend assets. It preserved all 388 first-party source files at the installation boundary and did not replace or migrate the working database. Documentation finalization after installation is separate from that boundary check.
 
-The before/after database SHA-256 was identical: `0edc991d898212ea21dd0345ba4dd2295a0b4d0479cad55d2e9df6af57a28586`. The protected snapshot, retained runtime and verified receipt are recorded in INSTALLATION_MANIFEST_0.5.16.json (local historical evidence; excluded from this source snapshot). Protected migration 12 runs on the next normal launch; installation did not infer that the live database was already schema 12.
+The before/after database SHA-256 was identical: `0edc991d898212ea21dd0345ba4dd2295a0b4d0479cad55d2e9df6af57a28586`. The protected snapshot, retained runtime and verified receipt are recorded in INSTALLATION_MANIFEST_0.5.16.json (local historical evidence; excluded from source snapshot). Protected migration 12 runs on the next normal launch; installation did not infer that the live database was already schema 12.
 
-The separate synthetic Office update preserved two scholars, three annual grants, two accounts, two education entries and both Summer records, including existing IDs, fields, program references, roles and authentication. The database hash was unchanged during runtime replacement; migration subsequently advanced the copied database from schema 11 to 12. See UPGRADE_VALIDATION_0.5.16.json (local historical evidence; excluded from this source snapshot).
+The separate synthetic Office update preserved two scholars, three annual grants, two accounts, two education entries and both Summer records, including existing IDs, fields, program references, roles and authentication. The database hash was unchanged during runtime replacement; migration subsequently advanced the copied database from schema 11 to 12. See UPGRADE_VALIDATION_0.5.16.json (local historical evidence; excluded from source snapshot).
 
 Published folder: `<developer-home>\Desktop\Project\Releases\Cathedra-FSDP-0.5.16-Update`. Its 142 runtime files match the tested manifest. It includes update instructions and an empty installation seed, with no working data folder or accounts. Use the included updater against the existing closed Office installation; do not copy development data or the empty seed over Office records. The previous release was retained during delivery validation. The later owner-requested cleanup removed the obsolete 0.5.15 update payload; protected database backups and runtime rollback archives remain. E: and the actual Office PC were not changed.
 
@@ -65,9 +65,9 @@ Summer remains distinct from 1st/2nd/3rd. Optional dates and fields, the eight-c
 
 ## Evidence and remaining acceptance
 
-General run details and log hashes are recorded in REGRESSION_VALIDATION_0.5.16.json (local historical evidence; excluded from this source snapshot). Security-specific tenure test evidence and the fix report were retained through the security artifact service, separately from the sealed original scan.
+General run details and log hashes are recorded in REGRESSION_VALIDATION_0.5.16.json (local historical evidence; excluded from source snapshot). Security-specific tenure test evidence and the fix report were retained through the security artifact service, separately from the sealed original scan.
 
-The subsequent cleanup receipt (local historical evidence; excluded from this source snapshot) records removal of test/lint/Python caches, an empty generated build folder, six inactive launcher temporary profiles and the obsolete update package. Before/after hashes confirmed 387 existing source/documentation files and 2,164 protected data/recovery files unchanged at the cleanup boundary. Both 142-file runtime manifests passed afterward. This cleanup annotation and receipt were then added separately; no application code was changed.
+The subsequent cleanup receipt (local historical evidence; excluded from source snapshot) records removal of test/lint/Python caches, an empty generated build folder, six inactive launcher temporary profiles and the obsolete update package. Before/after hashes confirmed 387 existing source/documentation files and 2,164 protected data/recovery files unchanged at the cleanup boundary. Both 142-file runtime manifests passed afterward. This cleanup annotation and receipt were then added separately; no application code was changed.
 
 Actual Office-PC cold startup and update acceptance, native printing, clean-PC execution, signing, device encryption, remote CI and assistive-technology checks remain open in [Office acceptance](current/OFFICE_ACCEPTANCE.md). The delivery checks above did not measure coverage or refresh dependency advisories; follow-up coverage is recorded below. The two backend warnings concern dependency API deprecations and did not fail the suite. The application is locally tested and packaged; those external checks remain the practical deployment limits.
 

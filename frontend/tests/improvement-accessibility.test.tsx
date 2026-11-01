@@ -1,3 +1,8 @@
+import { disconnectedSharedWorkspace } from "./sharedWorkspaceFixtures";
+vi.mock("../src/api/sharedWorkspace", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../src/api/sharedWorkspace")>();
+  return { ...actual, getSharedWorkspaceStatus: async () => disconnectedSharedWorkspace() };
+});
 import { beforeEach, expect, test, vi } from "vitest";
 import { render, waitFor } from "@testing-library/react";
 import { createMemoryRouter, RouterProvider } from "react-router-dom";

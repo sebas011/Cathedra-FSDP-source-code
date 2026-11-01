@@ -42,6 +42,26 @@ def authorize_restore(scope: Scope) -> None:
         session_provider.close()
 
 
+def authorize_business_write(scope: Scope) -> None:
+    from app.shared_connection import SharedError
+    from app.shared_workspace import assert_local_writes_allowed
+
+    provider = scope["app"].dependency_overrides.get(get_db, get_db)()
+    try:
+        database = next(provider)
+        request = Request(scope)
+        require_signed_in(request, request.headers.get("authorization"), database)
+        try:
+            assert_local_writes_allowed(database, scope["path"])
+        except SharedError:
+            raise HTTPException(
+                status_code=503,
+                detail="The private shared connection needs recovery before records can be changed.",
+            ) from None
+    finally:
+        provider.close()
+
+
 class RestoreRequestGate:
     def __init__(self) -> None:
         self._condition = asyncio.Condition()
@@ -95,6 +115,15 @@ class RestoreGateMiddleware:
             return
         gate: RestoreRequestGate = scope["app"].state.restore_request_gate
         is_restore = scope["method"] == "POST" and scope["path"] == "/api/v1/maintenance/restore"
+        is_shared = scope["method"] != "GET" and scope["path"].startswith(
+            "/api/v1/shared-workspace/"
+        )
+        business_write = scope["method"] in {"POST", "PUT", "PATCH", "DELETE"} and (
+            is_restore
+            or scope["path"].startswith(
+                ("/api/v1/fsdp", "/api/v1/office-logs", "/api/v1/google-sheets/")
+            )
+        )
         body = bytearray()
         try:
             async with asyncio.timeout(BODY_TIMEOUT_SECONDS):
@@ -125,7 +154,7 @@ class RestoreGateMiddleware:
                 return {"type": "http.request", "body": bytes(body), "more_body": False}
             return await receive()
 
-        if is_restore:
+        if is_restore or is_shared:
             try:
                 async with gate.shared():
                     if gate.recovery_required:
@@ -139,7 +168,7 @@ class RestoreGateMiddleware:
                     scope, replay_body, send
                 )
                 return
-        async with gate.exclusive() if is_restore else gate.shared():
+        async with gate.exclusive() if is_restore or is_shared else gate.shared():
             if (
                 gate.recovery_required
                 and scope["path"].startswith("/api/")
@@ -152,4 +181,12 @@ class RestoreGateMiddleware:
                     status_code=503,
                 )(scope, replay_body, send)
                 return
+            if business_write:
+                try:
+                    await finish_before_release(asyncio.to_thread(authorize_business_write, scope))
+                except HTTPException as caught:
+                    await JSONResponse({"detail": caught.detail}, status_code=caught.status_code)(
+                        scope, replay_body, send
+                    )
+                    return
             await finish_before_release(self.app(scope, replay_body, send))

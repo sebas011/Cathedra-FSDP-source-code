@@ -161,6 +161,7 @@ def test_cancelled_restore_does_not_hold_the_gate() -> None:
 
 def test_restore_route_uses_exclusive_gate(monkeypatch) -> None:
     monkeypatch.setattr("app.request_gate.authorize_restore", lambda scope: None)
+    monkeypatch.setattr("app.request_gate.authorize_business_write", lambda scope: None)
 
     async def scenario() -> None:
         gate = RestoreRequestGate()

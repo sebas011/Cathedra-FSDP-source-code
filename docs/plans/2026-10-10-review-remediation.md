@@ -18,7 +18,7 @@ Keep Name and Program Applied as essential business fields, optional dates, Summ
 
 Use an isolated source/build workspace with pinned dependencies. Never replace an Office database with a development seed. Record collision behavior, upgrade preservation and print filter consistency in tests. Publish an application-only package only after checks pass. Any development runtime installation must use the closed-app updater and retain the existing data folder.
 
-The review is at COMPREHENSIVE_CODEBASE_REVIEW_2026-10-10.md (local historical evidence; excluded from this source snapshot). This plan is an implementation record; completion is established by the validation results, not the plan itself.
+The review is at COMPREHENSIVE_CODEBASE_REVIEW_2026-10-10.md (local historical evidence; excluded from source snapshot). This plan is an implementation record; completion is established by the validation results, not the plan itself.
 
 ## Completion record
 

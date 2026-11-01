@@ -1,0 +1,23 @@
+{
+  "passed": true,
+  "version": "0.5.28",
+  "runtime_files": 152,
+  "total_files": 165,
+  "office_records_included": false,
+  "credentials_included": false,
+  "seed_schema": 19,
+  "zip_roundtrip_verified": true,
+  "release_folder": "<developer-home>\\Desktop\\Project\\Releases\\Cathedra-FSDP-0.5.28-Update",
+  "zip": "<verification-workspace>\\local-office-delivery-0528\\Cathedra-FSDP-0.5.28-Update.zip",
+  "zip_sha256": "c3ab946d6a96815be37c0113e1208ee45175b8dc531a381f2c772c75aad54fd4",
+  "live_google_deployment_performed": true,
+  "final_delivery_powershell_verifier_passed": true,
+  "final_delivery_bundled_verifier_passed": true,
+  "final_delivery_bundled_verifier_database_accessed": false,
+  "google_protection_defaults_fix_included": true,
+  "google_bridge_offline_tests": 8,
+  "runtime_unchanged": true,
+  "development_device_registration_verified": true,
+  "development_device_initialization_disabled": true,
+  "latest_delivery_change": "Validation prose reflects approved development-device acceptance; runtime and all other payload files unchanged."
+}

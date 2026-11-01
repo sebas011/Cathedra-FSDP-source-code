@@ -11,7 +11,12 @@ TERM_POSITION = {"1st": 0, "2nd": 1, "3rd": 2, "Summer": 3}
 
 def grant_order(grant):
     match = re.match(r"\s*(\d{4})", grant.start_academic_year or "")
-    return (int(match[1]) if match else 0, TERM_POSITION.get(grant.start_term, -1), grant.id or 0)
+    order = getattr(grant, "shared_order", None)
+    return (
+        int(match[1]) if match else 0,
+        TERM_POSITION.get(grant.start_term, -1),
+        order if order is not None else grant.id or 0,
+    )
 
 
 def current_grant(scholar):
@@ -44,7 +49,7 @@ def current_status_expression():
                 else_=0,
             ).desc(),
             case(TERM_POSITION, value=grant.start_term, else_=-1).desc(),
-            grant.id.desc(),
+            func.coalesce(grant.shared_order, grant.id).desc(),
         )
         .limit(1)
         .correlate(Scholar)

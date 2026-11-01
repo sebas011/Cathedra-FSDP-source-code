@@ -18,6 +18,8 @@ def test_schema_contains_only_fsdp_and_common_records():
         "activity_events",
         "backup_reviews",
         "office_logs",
+        "sheet_import_receipts",
+        "shared_workspace_state",
     }
 
 

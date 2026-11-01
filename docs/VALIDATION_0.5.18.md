@@ -31,13 +31,13 @@ Directory Source, Legacy Start Date and Legacy End Date columns are removed. Gra
 | Development installation | Runtime 0.5.18 and retained 0.5.17 archive verified. Fresh-data smoke, restore and normal shutdown passed. Final permissions audit inspected 6,130 items with no violations. |
 | Office delivery | Published and verified as `Cathedra-FSDP-0.5.18-Update`, with 147 runtime files and a separate hashed documentation inventory. No working database or mutable data folder is included. |
 
-The complete run contains **575 unique automated tests**. Earlier focused runs are not added to this count. Twenty-one new export/tool regression cases are included in the full backend count. Regression evidence (local historical evidence; excluded from this source snapshot) records the actual results, final build-log hash and runtime-manifest hash. Tests used disposable data. No new coverage measurement, dependency-advisory refresh, remote CI run or whole-interface browser acceptance is claimed for this export-only change.
+The complete run contains **575 unique automated tests**. Earlier focused runs are not added to this count. Twenty-one new export/tool regression cases are included in the full backend count. Regression evidence (local historical evidence; excluded from source snapshot) records the actual results, final build-log hash and runtime-manifest hash. Tests used disposable data. No new coverage measurement, dependency-advisory refresh, remote CI run or whole-interface browser acceptance is claimed for this export-only change.
 
 ## Synthetic upgrade and packaged downloads
 
 The disposable prior-version fixture contains three scholars, five annual grants, two accounts and three Summer grants. Two scholars have exactly the same displayed name and different IDs. The supported updater verified its protected snapshot, private schema-13 rehearsal, prior runtime archive and new 147-file manifest. Database bytes stayed unchanged during runtime replacement. After launching and signing in, schema, records, scholar/grant/program identities, password hashes/authentication, historical text, manual education year 2019 and Summer values were retained. Only normal session metadata was allowed to change.
 
-Frozen directory/report/payback exports each retained all five grant rows, grouped with first-row profile values and blank continuation cells. Chronology, namesake boundaries, per-grant dates/statuses/cases/remarks, removed provenance columns, unchanged report totals/actions, education values and Office Log layout passed. Scholar JSON remained unchanged. Integrity, foreign keys and normal shutdown passed; the owned test service was absent afterward. A child-process-only module-path adjustment selected native Windows PowerShell 5.1 modules for the rehearsal, without altering user configuration or the release. See upgrade and CSV evidence (local historical evidence; excluded from this source snapshot).
+Frozen directory/report/payback exports each retained all five grant rows, grouped with first-row profile values and blank continuation cells. Chronology, namesake boundaries, per-grant dates/statuses/cases/remarks, removed provenance columns, unchanged report totals/actions, education values and Office Log layout passed. Scholar JSON remained unchanged. Integrity, foreign keys and normal shutdown passed; the owned test service was absent afterward. A child-process-only module-path adjustment selected native Windows PowerShell 5.1 modules for the rehearsal, without altering user configuration or the release. See upgrade and CSV evidence (local historical evidence; excluded from source snapshot).
 
 ## Working database and source preservation
 
@@ -47,13 +47,13 @@ The working database SHA-256 was identical before and after installation:
 
 `209335cb803578581e7219e1f47c1daf9ea127be208f4c6a14e1c36256df63f0`
 
-The working database was neither replaced nor migrated by development installation. Schema 13 remains the application ceiling; an older database receives its protected migration at normal startup when needed. The installation receipt (local historical evidence; excluded from this source snapshot) records the protected recovery snapshot and retained runtime archive. No live Office database was used for tests or opened during delivery.
+The working database was neither replaced nor migrated by development installation. Schema 13 remains the application ceiling; an older database receives its protected migration at normal startup when needed. The installation receipt (local historical evidence; excluded from source snapshot) records the protected recovery snapshot and retained runtime archive. No live Office database was used for tests or opened during delivery.
 
 ## Office delivery and remaining acceptance
 
 Delivery target: `<developer-home>\Desktop\Project\Releases\Cathedra-FSDP-0.5.18-Update`.
 
-Publication passed on 13 October at 20:07 Asia/Manila. All 147 runtime files verified and the runtime manifest matches the final tested build. The prior 0.5.17 package remains intact. See publication evidence (local historical evidence; excluded from this source snapshot). The finalized reports are delivered through a separate documentation-only refresh and hashed inventory; runtime bytes remain unchanged.
+Publication passed on 13 October at 20:07 Asia/Manila. All 147 runtime files verified and the runtime manifest matches the final tested build. The prior 0.5.17 package remains intact. See publication evidence (local historical evidence; excluded from source snapshot). The finalized reports are delivered through a separate documentation-only refresh and hashed inventory; runtime bytes remain unchanged.
 
 The package contains only verified application files, documentation and the intentional empty installation seed. Keep the existing Office database authoritative. Transfer the complete update folder, follow its two-folder walkthrough with Cathedra closed, and reopen the original Office installation afterward. The update preserves the newest Office records and accounts through the supplied updater. See [Office Guide](OFFICE_GUIDE.md).
 

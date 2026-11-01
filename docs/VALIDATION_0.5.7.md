@@ -16,5 +16,5 @@ Browser preview used a separate synthetic database with varied departments, stat
 
 Installation uses the tested desktop package, a protected database snapshot and source/runtime rollback archives. No database migration for this update; schema remains 6. Installation manifest records database hashes before and after. The Office distribution is unchanged.
 
-!Dashboard sample (local historical evidence; excluded from this source snapshot)
-!Narrow-screen sample (local historical evidence; excluded from this source snapshot)
+!Dashboard sample (local historical evidence; excluded from source snapshot)
+!Narrow-screen sample (local historical evidence; excluded from source snapshot)

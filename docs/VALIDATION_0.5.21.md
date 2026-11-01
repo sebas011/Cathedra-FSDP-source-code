@@ -2,7 +2,7 @@
 
 Completed local implementation, packaged verification and development installation on **16 October 2026, Asia/Manila**. Source/runtime **0.5.21**, supported schema **15**. The working database was preserved byte-for-byte during runtime installation. Its additive migration runs on the next normal launch; the actual Office-PC installation remains separate.
 
-The [audit verification/report](analysis/AUDIT_REMEDIATION_0.5.21.md) and [implementation plan](plans/2026-10-16-audit-remediation.md) distinguish confirmed defects, counterevidence, completed fixes, accepted policy and future work across all 22 supplied findings.
+The audit verification/report (local historical evidence; excluded from source snapshot) and [implementation plan](plans/2026-10-16-audit-remediation.md) distinguish confirmed defects, counterevidence, completed fixes, accepted policy and future work across all 22 supplied findings.
 
 ## Observed checks
 
@@ -34,11 +34,11 @@ No GitHub21 publication, remote green CI run, actual Office-PC/E-drive update, p
 
 ## Local Office delivery
 
-Published and verified `Releases/Cathedra-FSDP-0.5.21-Update`:148 runtime files and23 delivery documents, with a verified empty schema15 seed. No working database, account credentials, mutable data directory or backups are included. The prior0.5.20 package is preserved. Publication evidence (local historical evidence; excluded from this source snapshot) records local delivery separately from actual Office-PC acceptance and GitHub publication.
+Published and verified `Releases/Cathedra-FSDP-0.5.21-Update`:148 runtime files and23 delivery documents, with a verified empty schema15 seed. No working database, account credentials, mutable data directory or backups are included. The prior0.5.20 package is preserved. Publication evidence (local historical evidence; excluded from source snapshot) records local delivery separately from actual Office-PC acceptance and GitHub publication.
 
 ## GitHub publication follow-up —16 October2026
 
-After the earlier local acceptance, GitHub release v0.5.21 and source commit ae35dcb48e7bc700f1ae0b1f71b438e05bc85675 were published through normal history-preserving pushes. Three release assets were downloaded back with matching checksums; the downloaded app passed native Windows PowerShell5.1 smoke/restore/shutdown.311 prepared source files were downloaded back and hash-verified. No working database, accounts, backups or private installation receipts were uploaded. Version19 release/assets remain intact. Publication evidence (local historical evidence; excluded from this source snapshot) records CI run38883014243 as still running at verification; a green result is not claimed.
+After the earlier local acceptance, GitHub release v0.5.21 and source commit ae35dcb48e7bc700f1ae0b1f71b438e05bc85675 were published through normal history-preserving pushes. Three release assets were downloaded back with matching checksums; the downloaded app passed native Windows PowerShell5.1 smoke/restore/shutdown.311 prepared source files were downloaded back and hash-verified. No working database, accounts, backups or private installation receipts were uploaded. Version19 release/assets remain intact. [Publication evidence](analysis/GITHUB_PUBLICATION_VALIDATION_0.5.21.json) records CI run38883014243 as still running at verification; a green result is not claimed.
 
 ### Complete GitHub CI acceptance
 

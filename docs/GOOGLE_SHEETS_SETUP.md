@@ -1,6 +1,6 @@
 # Set up Google Sheets reporting
 
-This guide covers Cathedra FSDP 0.5.23 and later. Complete the Google setup once, then connect each PC and Windows account that will send reports. Cathedra runs locally; no hosting is needed. Internet access is needed for Google sign-in and report updates.
+This guide covers Cathedra FSDP 0.5.27. Earlier releases support report delivery but do not include the reviewed pull workflow below. Complete the Google setup once, then connect each PC and Windows account that will send reports. Cathedra runs locally; no hosting is needed. Internet access is needed for Google sign-in, report updates and pulling a preview.
 
 If this PC already reports **Google account connected**, go to [Send the report](#6-send-the-report). Installing an app update preserves its local Google connection. A replacement PC or Windows account needs its own connection.
 
@@ -21,7 +21,7 @@ The Google Cloud account manages the connection setup. The Google account select
 2. Create a blank spreadsheet or choose a separate existing reporting spreadsheet. Give it a recognizable name, such as **Cathedra FSDP Reporting**.
 3. Open **Share**. Confirm that the account you will select during Google sign-in is listed as **Owner** or **Editor**. If another account owns the file, its owner must grant the reporting account Editor access.
 4. Copy the spreadsheet address from the browser. Cathedra accepts the full address or the spreadsheet ID between `/d/` and `/edit`.
-5. Keep manually maintained work in other tabs. Cathedra manages the tab named **CATHEDRA REPORT** and replaces that tab's report values when you update it.
+5. Keep other manually maintained work in separate tabs. Cathedra manages **CATHEDRA REPORT** and replaces its values when you choose Update Google Sheet. If you edit this report for a later pull into Cathedra, review/apply those edits before sending another replacement.
 
 Use your office's sharing rules for confidential records. Google explains its roles and sharing controls in [Share files from Google Drive](https://support.google.com/drive/answer/2494822).
 
@@ -47,7 +47,7 @@ You do not need to install Python or run Google's sample program to use the pack
 
 Follow [Google's OAuth consent setup](https://developers.google.com/workspace/guides/configure-oauth-consent) if the project uses a different setup screen.
 
-The selected permission lets an app read, create, edit and delete the consenting account's Google spreadsheets. It is broader than one workbook or tab. Cathedra's reporting code writes only the configured spreadsheet's **CATHEDRA REPORT** tab and does not request Drive-wide access. Google's [Sheets scope reference](https://developers.google.com/workspace/sheets/api/scopes) describes the permission.
+The selected permission lets an app read, create, edit and delete the consenting account's Google spreadsheets. It is broader than one workbook or tab. Cathedra reads and writes only the configured spreadsheet's **CATHEDRA REPORT** tab and does not request Drive-wide access. Google's [Sheets scope reference](https://developers.google.com/workspace/sheets/api/scopes) describes the permission.
 
 External/Testing is useful for an approved test, but Google's refresh token for this Sheets connection expires after **seven days**. Plan to reconnect while testing. A long-term office deployment needs the organization's appropriate audience, publishing and verification decisions; changing a local Cathedra setting does not complete Google's verification. See [Google's refresh-token expiration rules](https://developers.google.com/identity/protocols/oauth2#expiration).
 
@@ -76,7 +76,7 @@ Choose a Desktop OAuth client, not a Web application client, service account key
 
 The sign-in window lasts three minutes. If it expires, choose **Connect Google** again. You do not need to recreate the Cloud project or download a new JSON file for an ordinary retry.
 
-Saving details and connecting do not send scholar records. **Update Google Sheet** becomes available after the account is connected and any edited connection details have been saved.
+Saving details and connecting do not send scholar records or import sheet values. **Update Google Sheet** becomes available after the account is connected and any edited connection details have been saved.
 
 ## 6. Send the report
 
@@ -84,15 +84,15 @@ Saving details and connecting do not send scholar records. **Update Google Sheet
 2. Open **Backup & Export → Google Sheets report**.
 3. If **Connection details** contains unsaved changes, choose **Save connection details** first.
 4. Choose **Update Google Sheet**.
-5. Review the replacement confirmation, then choose **Replace reporting tab** to send the report.
+5. Review the replacement confirmation. If the Google report contains edits you want to keep locally, cancel and complete [Pull and review sheet changes](#8-pull-and-review-sheet-changes) first. Otherwise choose **Replace reporting tab** to send the report.
 6. Wait for **Google report updated** and the successful update time. Avoid starting another update while one is pending.
 7. Choose **Open reporting spreadsheet** and open **CATHEDRA REPORT**. The first update creates this tab if it does not exist.
 
 Each update sends the full current scholar report, not just the table page visible in Cathedra. It clears stale report values, including former extra columns, and writes the replacement values in one atomic request. Other tabs remain unchanged. Cathedra writes literal values, so record text is not executed as a Google Sheets formula. Tab formatting and notes are not reset by this value replacement.
 
-Updates are manual. Opening Cathedra or editing a scholar does not send a report automatically. Editing the Google report does not change Cathedra's local database. Keep manually maintained values outside **CATHEDRA REPORT**, and keep a database backup for recovery.
+Updates are manual. Opening Cathedra or editing a scholar does not send a report automatically. Editing the Google report does not automatically change Cathedra's local database. Only an administrator's reviewed pull applies selected sheet values locally. Keep unrelated manual work outside **CATHEDRA REPORT**, and keep a database backup for recovery.
 
-## 7. Read the 15-column report
+## 7. Read the 16-column report
 
 Google Sheets reporting has this column order. The downloadable CSV reports retain their separate, fuller [export formats](EXPORT_SCHEMAS.md).
 
@@ -105,6 +105,7 @@ Google Sheets reporting has this column order. The downloadable CSV reports reta
 | Department | The scholar's college or Staff classification; Unknown when affiliation is not recorded. |
 | Rank/position | Recorded rank or position. |
 | Previous degree | All recorded education-background entries, separated by line breaks. Available level, institution and graduation year accompany the degree. Older previous-degree text is used when no education entries exist. |
+| Profile remarks | Whole-profile remarks, once on the scholar's named row (column H). |
 | Program | The grant's program name. |
 | Delivering HEI | The grant's effective delivering institution. |
 | Grant type | Recorded grant type, with its Other detail when applicable. |
@@ -112,15 +113,44 @@ Google Sheets reporting has this column order. The downloadable CSV reports reta
 | Date ended | Actual recorded end date in `YYYY-MM-DD`; otherwise the recorded ending term/year. |
 | Extension | Recorded extension information. |
 | Status | That grant's recorded outcome, such as On Going, Completed, Incomplete or Payback. |
-| Remarks | Profile remarks and the grant's remarks. Labels distinguish Profile and Grant when both are present. |
+| Remarks | Only this annual grant's remarks (column P). |
 
 The report is alphabetical by the full recorded scholar name. The first row for a scholar contains No. and the profile details beside the first grant. The following rows leave those profile cells blank and show each additional grant for the same scholar. A scholar without grants still has one profile row. Keep continuation rows together with their named scholar when sorting or filtering the sheet.
 
-Profile remarks appear once for the scholar; each grant keeps its own remarks on its row. A missing value remains blank. A single recorded year such as **2021** stays a single year, and **Summer** remains a valid term. The report never invents a calendar date from an academic year or substitutes a completion deadline for an end date.
+Profile remarks appear once in H for the scholar; P contains each grant's own remarks on its row. For a scholar without grants, H still contains profile remarks and P stays blank. A missing value remains blank. A single recorded year such as **2021** stays a single year, and **Summer** remains a valid term. The report never invents a calendar date from an academic year or substitutes a completion deadline for an end date.
 
 To make long education entries and remarks easier to read in Google Sheets, select the report cells and use **Format → Wrapping → Wrap**. Adjust column widths to your office's preferred view.
 
-## 8. Set up the Office PC or another Windows account
+## 8. Pull and review sheet changes
+
+Use this when approved edits in **CATHEDRA REPORT** should be added to your local Cathedra records. It is a manual review, not automatic synchronization.
+
+1. Check that you are using the Office installation containing the current records. Create a local database backup before a large import so you have a complete recovery point.
+2. In Google Sheets, keep the exact report headings and column order above. Keep each named scholar row immediately followed by their additional grant rows. Do not sort only part of the table. The **No.** column is a report sequence, not a local record ID.
+3. Open **Backup & Export → Google Sheets report** as a Cathedra administrator. Confirm the intended saved spreadsheet and connected Google account. Save any edited connection details first.
+4. Choose **Pull from Google Sheet**. Cathedra reads the existing **CATHEDRA REPORT** tab and shows **Review Google Sheet changes**. This step writes neither local records nor Google values. If the tab does not exist, send an initial report first or prepare it with the exact headings; pulling does not create a tab.
+5. Review the **Current** and **Google Sheet** values for a scholar. Nothing is selected automatically. Choose the correct existing scholar or explicitly create a new scholar. An exact unique name can suggest a match, but namesakes require your decision. Changing a name does not prove that it is a different person.
+6. Review each grant row. Select the correct existing annual grant to update it, or explicitly choose a new independent application. Where the same program and period repeat, choose deliberately. A new imported grant receives its own application identity; it is not automatically grouped as another year of an existing application. Uncheck grant rows you do not want to apply.
+7. Select the profiles you have reviewed. Choose **Review selected changes**, read the confirmation, then choose **Apply selected changes**. Up to 100 selected profiles are saved as one batch. A successful result shows the created/updated counts.
+8. Reopen a few affected local profiles and confirm the intended notes, dates, outcomes and application grouping. When ready, a later **Update Google Sheet** sends the complete current local report back to the reporting tab.
+
+### What is retained, changed or cleared
+
+- Existing education entries, requirements, hard/soft-copy facts, unselected grants, application identity, repayment progress, case state, deadlines and other unreported details stay intact. Records absent from the sheet are not deleted.
+- For a new profile, each nonblank **Previous degree** line is retained as a text education entry. Cathedra does not guess its institution, degree level or graduation year. Existing education is retained instead of replaced by a flattened report cell.
+- A present blank **Age**, **Tenure**, **Rank/position**, **Profile remarks** or grant **Remarks** cell clears that reported field when selected. A recorded zero remains zero. Read the comparison before confirming. A blank **Department** means the profile's affiliation becomes Unknown under the existing classification rule.
+- Blank **Status**, **Date started** or **Date ended** cells preserve existing facts. An exact `YYYY-MM-DD` value updates only the exact date; a term/year label updates only the represented period details. Hidden academic periods and optional completion/payment facts are not erased by the report's display choice.
+- The older fifteen-column report is accepted for its other fields. Its combined **Remarks** cannot be reliably separated, so existing profile/grant remarks remain unchanged. Send the new sixteen-column report when you are ready to use separate remark columns.
+
+### Conflicts, expiry and retry
+
+A preview is valid for twenty minutes and belongs to the administrator who fetched it. Choose **Refresh preview** when it expires, then review and select again. If another edit or restore has changed a captured target, the complete selected batch is rejected: refresh and compare the latest values instead of overwriting them.
+
+If the save result is uncertain, use the provided identical retry. Cathedra remembers a confirmed batch and returns its original result instead of applying it twice, including after a server restart. Changing the selected records for the same attempt causes a conflict. A refreshed preview is a new review, so first check whether an uncertain previous batch was already saved. Closing/reloading the review loses unsaved choices, not committed records.
+
+The preview reads at most 2,000 report data rows; split larger work into reviewed batches or use the normal local workflow. Applying selected changes does not update Google or refresh the report's last-send time. While a preview is open, finish or discard it before changing the Google destination or sending a replacement report.
+
+## 9. Set up the Office PC or another Windows account
 
 1. Update the existing Office installation using the supported update instructions in [GitHub Office updates](GITHUB_OFFICE_UPDATES.md). Preserve its existing `data` folder and scholar database.
 2. Open that installation using the Windows account that normally runs Cathedra.
@@ -183,3 +213,11 @@ Check **CATHEDRA REPORT** before retrying, then retry when the network is availa
 - [Share a spreadsheet and choose roles](https://support.google.com/drive/answer/2494822)
 - [Google refresh-token expiration](https://developers.google.com/identity/protocols/oauth2#expiration)
 - [UpdateCells values and clearing behavior](https://developers.google.com/workspace/sheets/api/reference/rest/v4/spreadsheets/request#UpdateCellsRequest)
+
+### Pull fails, has no tab or finds unexpected headings
+
+Confirm that the connected account can open the saved spreadsheet and that **CATHEDRA REPORT** exists as a normal grid tab. Use exactly the sixteen-column headings shown above, or retain the original fifteen-column Cathedra order. Do not add data after the report columns. Keep Name on each scholar's first row and continuation grant rows directly below it. Each grant row with details needs Program. Correct the indicated source row, then pull a fresh preview; a failed preview has saved no local records.
+
+### A pull says the selected records changed
+
+Refresh the preview and compare the latest local values. Another edit or a restore may have changed the captured profile even if its name looks the same. The rejected batch is not partially applied. For an uncertain result, use the provided identical retry before starting a different batch.

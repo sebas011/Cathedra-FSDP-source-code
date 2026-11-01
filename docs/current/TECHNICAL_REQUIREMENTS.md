@@ -1,8 +1,8 @@
 # Technical requirements
 
 **Product:** Cathedra FSDP  
-**Documented:** 25 October 2026, Asia/Manila<br>
-**Baseline:** release 0.5.26; database schema 17<br>
+**Documented:** 31 October 2026, Asia/Manila<br>
+**Baseline:** release 0.5.28; database schema 19<br>
 **Status:** implementation-derived documentation; see [baseline and evidence](README.md).
 
 ## Architecture and deployment
@@ -92,7 +92,7 @@ The health endpoint is public and reports product, release version, data-directo
 | 429 | Sign-in limit or password-verification capacity reached |
 | 503 | Recovery/service gate or database temporarily unavailable |
 
-Client request deadlines are normally 30 seconds and 180 seconds for restore. Abort/lost transport may mean an operation was not confirmed; the UI must not assume it failed before committing or automatically resubmit an arbitrary mutation.
+Client request deadlines are normally 30 seconds, 120 seconds for Google push/pull operations, and 180 seconds for restore. Abort/lost transport may mean an operation was not confirmed; the UI must not assume it failed before committing or automatically resubmit an arbitrary mutation.
 
 ## Endpoint and permission inventory
 
@@ -178,7 +178,7 @@ The launcher binds loopback. Trusted hosts are localhost/127.0.0.1 plus the test
 
 Use existing installation-access tooling and protect private snapshots/journals. Database-file permissions and device encryption are separate protections. No claim of built-in SQLite encryption, hosted HTTPS, cloud IAM, MFA or network-safe deployment is made. Keep live data, password hashes, tokens, backups and personnel exports out of repositories/public release assets.
 
-Restore only compatible FSDP snapshots. Automatic migration runs through version 17 with a protected snapshot on older existing databases. A runtime update does not itself substitute the tested copy for the actual Office database; startup performs needed migration on the retained database. Manual backup deletion is explicit and protection-aware. Startup creates one verified daily copy; the newest 14 unpinned automatic daily copies and 30 unpinned pre-delete copies are retained. Manual and pinned copies are excluded from automatic pruning. Scholar deletion is blocked if its immediate recovery copy fails. Office Log storage is part of the compatible backup/table allowlist.
+Restore only compatible FSDP snapshots. Automatic migration runs through version 19 with a protected snapshot on older existing databases. A runtime update does not itself substitute the tested copy for the actual Office database; startup performs needed migration on the retained database. Manual backup deletion is explicit and protection-aware. Startup creates one verified daily copy; the newest 14 unpinned automatic daily copies and 30 unpinned pre-delete copies are retained. Manual and pinned copies are excluded from automatic pruning. Scholar deletion is blocked if its immediate recovery copy fails. Office Log storage is part of the compatible backup/table allowlist.
 
 ## Build, quality and release requirements
 
@@ -216,13 +216,13 @@ Calendar years stay literal: 2021 remains 2021; 2021-2022 remains an explicit ac
 
 The administrator can configure and connect Google reporting from Backup & Export, then explicitly confirm a one-way replacement of the CATHEDRA REPORT tab. Other tabs are preserved. Connection credentials are Windows-user encrypted outside SQLite. Internet and OAuth setup are needed for cloud delivery; offline records work independently. See [setup](../GOOGLE_SHEETS_SETUP.md) and [validation](../VALIDATION_0.5.22.md).
 
-Google reporting endpoints are administrator-only: `GET /api/v1/google-sheets`, `POST /api/v1/google-sheets/configure`, `POST /api/v1/google-sheets/connect`, `POST /api/v1/google-sheets/sync` (requires `replace_report: true`) and `DELETE /api/v1/google-sheets/connection`. They introduce no runtime dependency or external callback server: the existing local Python runtime performs standard OAuth authorization-code flow with PKCE and a short-lived loopback listener. Tokens are refreshed only for manual delivery. The local connection file is excluded from data snapshots and software publication; corrupt or different-Windows-user connection files can be replaced through explicit reconfiguration/forget actions.
+Google reporting endpoints are administrator-only: `GET /api/v1/google-sheets`, `POST /api/v1/google-sheets/configure`, `POST /api/v1/google-sheets/connect`, `POST /api/v1/google-sheets/sync` (requires `replace_report: true`) and `DELETE /api/v1/google-sheets/connection`. They introduce no runtime dependency or external callback server: the existing local Python runtime performs standard OAuth authorization-code flow with PKCE and a short-lived loopback listener. Tokens are refreshed only for explicit manual Google push/pull operations. The local connection file is excluded from data snapshots and software publication; corrupt or different-Windows-user connection files can be replaced through explicit reconfiguration/forget actions.
 
 Annual copies in the same application retain an explicitly recorded program start/duration/deadline rule, so another funding year does not move that program deadline. Payment progress, graduation, previous completion dates, end dates and outcome are reset for review. When no new program completion rule is recorded, the former actual-start clearing behavior is retained. New application clears program start, duration, deadline and payment progress; existing historical records are never mass-rewritten.
 
 ## Google report update (0.5.23)
 
-Google reporting uses a dedicated [fifteen-column contract](GOOGLE_REPORT_CONTRACT.json) rather than the full CSV table. Each scholar is numbered once and their grants remain on consecutive rows. The report retains recorded education, tenure in years, exact dates or recorded academic periods, each grant's outcome and clearly labeled profile/grant remarks. Existing CSV exports and schema16 are unchanged. Setup, approved test accounts, spreadsheet editing access and per-PC sign-in are described in the [detailed guide](../GOOGLE_SHEETS_SETUP.md). See [0.5.23 validation](../VALIDATION_0.5.23.md) for observed delivery status.
+The original 0.5.23 Google report used fifteen columns (superseded by the [sixteen-column contract](GOOGLE_REPORT_CONTRACT.json) in 0.5.27) rather than the full CSV table. Each scholar is numbered once and their grants remain on consecutive rows. The report retains recorded education, tenure in years, exact dates or recorded academic periods, each grant's outcome and clearly labeled profile/grant remarks. Existing CSV exports and schema16 are unchanged. Setup, approved test accounts, spreadsheet editing access and per-PC sign-in are described in the [detailed guide](../GOOGLE_SHEETS_SETUP.md). See [0.5.23 validation](../VALIDATION_0.5.23.md) for observed delivery status.
 
 ## Paper & Ink integration (0.5.24)
 
@@ -232,3 +232,19 @@ The production UI uses the new Scholar Office shell and visual system. Scholar e
 ## Selected blueprint improvements (0.5.26)
 
 Before/after capture reads only explicit business scalars, uses the saving transaction and applies bounded serialization plus a second read-time allowlist. Credential/session values, internal identifiers and arbitrary object serialization are excluded; malformed historical detail payloads yield no comparison rows. General activity responses remain metadata-only, while administrator scholar-history responses may include `change_details`. Contract assessment adds optional `assessment_rule`, `assessment_reason` and `assessment_as_of` output without changing categories, deadline priority, grace boundary or CSV/Google columns. Request-scoped clock capture uses one UTC instant resolved to Asia/Manila for business dates, including report/payback/registration consistency. Authentication and expiry retain UTC semantics; backup/recovery timestamp handling is unchanged. See [0.5.26 validation](../VALIDATION_0.5.26.md).
+
+## Reviewed import contract (0.5.27)
+
+Administrator-only `POST /api/v1/google-sheets/pull/preview` reads the configured existing GRID CATHEDRA REPORT tab through the connected account, using the same serialized refresh-token handling as report delivery. It does not create a tab or write Google values. `POST /api/v1/google-sheets/pull/apply` accepts only preview identity and explicit profile/grant target selections, not client-supplied replacement field values. Both require a current active administrator session.
+
+Previews are server-side immutable snapshots, bound to the requesting user, valid twenty minutes, limited to ten globally and one per user. Input bounds are 2,000 source rows, 20,000 characters per cell, 5,000 current profiles and 20,000 current grants; an apply selects 1–100 profiles. Current sixteen-column and historical fifteen-column headings are accepted exactly. Formula display values are treated as data; unsupported cell types, invalid numeric facts and malformed ISO dates fail preview. Scholar Name and Program for included grants remain essential identifiers; no chronology/completeness constraints are introduced.
+
+Apply reserves a SQLite writer with BEGIN IMMEDIATE, validates each captured target revision and aggregate fingerprint, rejects cross-scholar/duplicate targets and late name conflicts, and uses the reviewed source snapshot. Full existing aggregates retain unreported values and unselected rows. New grants get independent application identities. Receipt, changes and audit commit together; a failure rolls back the entire selected batch. A durable receipt keyed by local user and preview ID plus canonical selection digest permits identical confirmed retries after restart; changed selections conflict. Pending previews are process-local and disappear on restart.
+
+Schema 18 adds `sheet_import_receipts` only; install seeds must contain no receipts. Existing CSV contracts remain unchanged. Google profile remarks are H and grant remarks P in the [sixteen-column report contract](GOOGLE_REPORT_CONTRACT.json). See [schema](BACKEND_SCHEMA.md), [flow](APP_FLOW.md) and [0.5.27 validation](../VALIDATION_0.5.27.md).
+
+## Shared workspace (0.5.28)
+
+Optional shared mode uses two separate spreadsheet files: owner-private protected canonical records and a readable sixteen-column report. Administrators configure a registered PC, preview initial Office upload or joining, review sync conflicts, retry saved operations, and publish the confirmed shared report. Staff keep using the normal local scholar/Office Log workflows; the header shows pending changes. Saving locally does not automatically upload, and report editing never changes shared storage.
+
+Local accounts and credentials stay local. Initial upload is an explicit action on the authoritative Office PC. Joining archives and replaces local business records after confirmation. Whole-profile conflicts require a deliberate choice; an unconfirmed save blocks local business writes until exact retry confirms its outcome. The guide explains setup and recovery, with implementation details in the [shared protocol](SHARED_WORKSPACE_PROTOCOL.md), [owner setup](../../google/shared-workspace/README.md), and [validation](../VALIDATION_0.5.28.md). Live deployment and Office-PC acceptance are separate from offline implementation tests.

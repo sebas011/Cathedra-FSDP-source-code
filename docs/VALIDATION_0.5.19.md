@@ -6,7 +6,7 @@ The [updater inventory plan](plans/2026-10-14-updater-inventory.md) addresses in
 
 ## Diagnosis and implementation
 
-The supplied traceback points to the existing-installation `verify_package(target)` call, before that attempt created a snapshot, journal or replacement. It does not disclose the actual extra filenames on the Office PC. The exact verified 0.5.18 ZIP reproduced a concrete verifier disagreement: changing only a physical tool filename's casing left all manifest bytes/hashes unchanged and PowerShell verified 147 files, while the old Python updater raised the reported inventory error. Nested tool copies also caused disagreement. Old recursive globbing could silently suppress denied subdirectory scans. See reproduction evidence (local historical evidence; excluded from this source snapshot).
+The supplied traceback points to the existing-installation `verify_package(target)` call, before that attempt created a snapshot, journal or replacement. It does not disclose the actual extra filenames on the Office PC. The exact verified 0.5.18 ZIP reproduced a concrete verifier disagreement: changing only a physical tool filename's casing left all manifest bytes/hashes unchanged and PowerShell verified 147 files, while the old Python updater raised the reported inventory error. Nested tool copies also caused disagreement. Old recursive globbing could silently suppress denied subdirectory scans. See reproduction evidence (local historical evidence; excluded from source snapshot).
 
 Version19 uses consistent Windows identity, the same four required direct tools, complete runtime traversal with link/access failures refused, and diagnostics naming phase, selected root, counts and missing/unexpected paths. Every declared installed file must pass its size/hash checks. Missing or changed declared files cannot enter repair.
 
@@ -31,11 +31,11 @@ Maintenance failures now produce a detailed private receipt and quiet exit1. A n
 | Documentation | Current identities, schema ceiling, local links and export contracts passed. |
 | Office/GitHub delivery | Office update folder and private GitHub v0.5.19 release published and verified. ZIP and both supporting assets downloaded back after publication with matching hashes. Version18 packages/assets retained; no working records uploaded. |
 
-There are **605 unique automated tests** in the complete run. Focused reruns are not added. Regression evidence (local historical evidence; excluded from this source snapshot) records actual counts/durations and final build/runtime hashes. No new coverage measurement, dependency-advisory refresh, remote CI run, whole-interface browser certification or actual Office-PC acceptance is claimed.
+There are **605 unique automated tests** in the complete run. Focused reruns are not added. Regression evidence (local historical evidence; excluded from source snapshot) records actual counts/durations and final build/runtime hashes. No new coverage measurement, dependency-advisory refresh, remote CI run, whole-interface browser certification or actual Office-PC acceptance is claimed.
 
 ## Synthetic records and recovery
 
-Both frozen upgrade cases retain three scholars, five annual grants, two accounts, manual education year2019 and three Summer grants. Record IDs, account/password hashes, historical text, every scholar/account API and all CSV bytes were unchanged after normal startup/shutdown, except ordinary login-session metadata. An existing failed-update receipt stayed byte-identical. Database integrity and protected rehearsal passed. The residue case separately proves native runtime rollback and retry. Injected workflow failure is covered by regression tests; the trusted frozen executable was not altered to inject that failure. See frozen upgrade evidence (local historical evidence; excluded from this source snapshot).
+Both frozen upgrade cases retain three scholars, five annual grants, two accounts, manual education year2019 and three Summer grants. Record IDs, account/password hashes, historical text, every scholar/account API and all CSV bytes were unchanged after normal startup/shutdown, except ordinary login-session metadata. An existing failed-update receipt stayed byte-identical. Database integrity and protected rehearsal passed. The residue case separately proves native runtime rollback and retry. Injected workflow failure is covered by regression tests; the trusted frozen executable was not altered to inject that failure. See frozen upgrade evidence (local historical evidence; excluded from source snapshot).
 
 ## Working development database
 
@@ -45,13 +45,13 @@ Working database SHA-256 before and after replacement:
 
 `209335cb803578581e7219e1f47c1daf9ea127be208f4c6a14e1c36256df63f0`
 
-The database was neither replaced nor migrated by development installation. The installation receipt (local historical evidence; excluded from this source snapshot) records its protected snapshot and retained runtime. No live Office records were inspected or changed.
+The database was neither replaced nor migrated by development installation. The installation receipt (local historical evidence; excluded from source snapshot) records its protected snapshot and retained runtime. No live Office records were inspected or changed.
 
 ## Delivery and Office retry
 
-Verified delivery folder: `<developer-home>\Desktop\Project\Releases\Cathedra-FSDP-0.5.19-Update`, published14 October at20:13 Asia/Manila. Its147-file runtime manifest matches the tested build. Final reports use a separate documentation-only refresh and hash inventory. See folder publication evidence (local historical evidence; excluded from this source snapshot).
+Verified delivery folder: `<developer-home>\Desktop\Project\Releases\Cathedra-FSDP-0.5.19-Update`, published14 October at20:13 Asia/Manila. Its147-file runtime manifest matches the tested build. Final reports use a separate documentation-only refresh and hash inventory. See folder publication evidence (local historical evidence; excluded from source snapshot).
 
-Private [GitHub v0.5.19 release](https://github.com/sebas011/Cathedra-FSDP/releases/tag/v0.5.19) published at20:15 Asia/Manila. All three final assets downloaded back and hash matched. ZIP contains152 files:147 runtime files, manifest, essential Office documents and ASUS-path retry guide. Empty seed has zero scholars, grants, education records, accounts or Office Log entries. Version18 release/assets and the prior documentation commit are retained; only four delivery documents were updated with a normal fast-forward push. See GitHub evidence (local historical evidence; excluded from this source snapshot).
+Private [GitHub v0.5.19 release](https://github.com/sebas011/Cathedra-FSDP/releases/tag/v0.5.19) published at20:15 Asia/Manila. All three final assets downloaded back and hash matched. ZIP contains152 files:147 runtime files, manifest, essential Office documents and ASUS-path retry guide. Empty seed has zero scholars, grants, education records, accounts or Office Log entries. Version18 release/assets and the prior documentation commit are retained; only four delivery documents were updated with a normal fast-forward push. See GitHub evidence (local historical evidence; excluded from source snapshot).
 
 ZIP SHA-256: `69c5dd80ef6f79ba870c8d774d4bc3f1231fe933d6eb17b8b94896742e067915`.
 
