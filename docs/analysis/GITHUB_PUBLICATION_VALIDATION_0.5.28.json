@@ -1,0 +1,87 @@
+{
+  "status": "verified",
+  "version": "0.5.28",
+  "schema": 19,
+  "verified_local_date": "2026-11-01",
+  "timezone": "Asia/Manila",
+  "source_repository": "sebas011/Cathedra-FSDP-source-code",
+  "source_commit": "1a7acd95102b20f4c665e141bdf848cbdbb42eda",
+  "source_files_fresh_download_verified": 410,
+  "source_ci_run_id": 41258977591,
+  "source_ci_job_id": 124708082655,
+  "source_ci_url": "https://github.com/sebas011/Cathedra-FSDP-source-code/actions/runs/41258977591",
+  "source_ci_conclusion": "success",
+  "backend_tests": 703,
+  "frontend_tests": 308,
+  "bridge_tests": 8,
+  "dependency_advisory_checks_passed": true,
+  "release_id": 430287440,
+  "release_url": "https://github.com/sebas011/Cathedra-FSDP/releases/tag/v0.5.28",
+  "office_repository_commit": "79e805c7314c174c58a280245a8d57bb5c3770c1",
+  "assets": [
+    {
+      "name": "Cathedra-FSDP-0.5.28-Update.zip",
+      "id": 696941114,
+      "size": 22944377,
+      "sha256": "846d302885f382f15e96bfe012ec7eace98443ad1c82551849a5598c4830747a",
+      "draft_download_verified": true,
+      "download_url": "https://github.com/sebas011/Cathedra-FSDP/releases/download/v0.5.28/Cathedra-FSDP-0.5.28-Update.zip",
+      "published_download_verified": true
+    },
+    {
+      "name": "SHA256SUMS.txt",
+      "id": 696941291,
+      "size": 99,
+      "sha256": "cfea96c2882716a71606c8c8cf5f2c70bc90299dc3dfdee99208fd43121fd3cc",
+      "draft_download_verified": true,
+      "download_url": "https://github.com/sebas011/Cathedra-FSDP/releases/download/v0.5.28/SHA256SUMS.txt",
+      "published_download_verified": true
+    },
+    {
+      "name": "UPDATE-INSTRUCTIONS.txt",
+      "id": 696941330,
+      "size": 6131,
+      "sha256": "950457996efd74fab1e938611ce5ec89bae2c6a9fa422529a70b7abf769b2155",
+      "draft_download_verified": true,
+      "download_url": "https://github.com/sebas011/Cathedra-FSDP/releases/download/v0.5.28/UPDATE-INSTRUCTIONS.txt",
+      "published_download_verified": true
+    },
+    {
+      "name": "GOOGLE_SHEETS_SETUP.md",
+      "id": 696941418,
+      "size": 23271,
+      "sha256": "fe1d30a80e707a5ceeba0da9f338808cbd0ccd1000c1cb0a0cbdfc4f8f29c315",
+      "draft_download_verified": true,
+      "download_url": "https://github.com/sebas011/Cathedra-FSDP/releases/download/v0.5.28/GOOGLE_SHEETS_SETUP.md",
+      "published_download_verified": true
+    },
+    {
+      "name": "SHARED-WORKSPACE-SETUP.md",
+      "id": 696941548,
+      "size": 10442,
+      "sha256": "b0cb944cdb0801d5a5ed0328ad278dbe515f4c5ac6a505ac603dbe1caad579dd",
+      "draft_download_verified": true,
+      "download_url": "https://github.com/sebas011/Cathedra-FSDP/releases/download/v0.5.28/SHARED-WORKSPACE-SETUP.md",
+      "published_download_verified": true
+    }
+  ],
+  "public_download_url": "https://github.com/sebas011/Cathedra-FSDP/releases/download/v0.5.28/Cathedra-FSDP-0.5.28-Update.zip",
+  "archive_sha256": "846d302885f382f15e96bfe012ec7eace98443ad1c82551849a5598c4830747a",
+  "runtime_files": 152,
+  "archive_files": 170,
+  "public_unauthenticated_download_sha256_verified": true,
+  "all_runtime_hashes_verified": true,
+  "empty_seed_verified": true,
+  "downloaded_bundled_python_verifier_passed": true,
+  "downloaded_bundled_verifier_database_accessed": false,
+  "previous_release_preserved": true,
+  "local_release_matches_published_delivery": true,
+  "working_records_or_google_credentials_distributed": false,
+  "actual_office_pc_tested": false,
+  "documentation_only_followup": true,
+  "limitations": [
+    "Actual Office-PC initialization and acceptance remain separate",
+    "Shared storage is still empty until the authoritative Office PC uploads",
+    "Local credentials and private workspace addresses are excluded"
+  ]
+}

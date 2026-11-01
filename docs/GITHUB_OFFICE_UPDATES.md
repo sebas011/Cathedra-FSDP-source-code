@@ -1,14 +1,16 @@
 # Download Office updates from GitHub
 
-## Current delivery status — 31 October 2026
+## Current delivery — verified 1 November 2026
 
-**0.5.27 is local work and is not published to GitHub.** Its software/browser, native package and synthetic upgrade results are in [0.5.27 validation](VALIDATION_0.5.27.md); guarded development installation passed with the existing database and Google connection preserved. This is a local result, not a new GitHub publication. Do not expect a 0.5.27 download or assume a local source change updated the Office PC.
+**Cathedra FSDP 0.5.28 is published and its download is verified.** Get [Cathedra-FSDP-0.5.28-Update.zip](https://github.com/sebas011/Cathedra-FSDP/releases/download/v0.5.28/Cathedra-FSDP-0.5.28-Update.zip) from the [0.5.28 release](https://github.com/sebas011/Cathedra-FSDP/releases/tag/v0.5.28). Extract the complete ZIP; it contains 170 files, including 152 runtime files. SHA-256: `846d302885f382f15e96bfe012ec7eace98443ad1c82551849a5598c4830747a`.
 
-The last verified downloadable application is [Cathedra FSDP 0.5.26](https://github.com/sebas011/Cathedra-FSDP/releases/tag/v0.5.26). Download [Cathedra-FSDP-0.5.26-Update.zip](https://github.com/sebas011/Cathedra-FSDP/releases/download/v0.5.26/Cathedra-FSDP-0.5.26-Update.zip), extract the complete archive and follow its UPDATE-INSTRUCTIONS.txt. The published ZIP contains 162 files, including 151 runtime files. SHA-256: `4d4395f1cb2eced27dce1c082ef64c2c31941a4a87548252a8d53b6034315f67`. Its public download, bundled verifier and exact-source Windows workflow were checked; see [publication evidence](analysis/GITHUB_PUBLICATION_VALIDATION_0.5.26.json).
+Back up your latest Office records and exit Cathedra normally. Follow UPDATE-INSTRUCTIONS.txt: choose the NEW extracted update folder first and the ORIGINAL Office installation containing your newest data/cathedra.db second. Reopen that original installation afterward and verify recent scholars. Keep its entire data folder. Never replace Office records with a development database or empty installation seed. GitHub's automatically generated source ZIP is not the Windows app.
 
-On the Office PC, back up the existing records, exit Cathedra normally, and run the new package's supplied updater against the ORIGINAL installation containing your current data\cathedra.db. The new extracted package and existing installation are different folders. Reopen the original installation afterward and verify recent records. Do not replace the Office database with an empty install seed or development database. GitHub Code → Download ZIP/source archives are not the packaged Windows application.
+The ZIP includes SHARED-WORKSPACE-SETUP.md and GOOGLE_SHEETS_SETUP.md; both are also separate release assets. For an existing owner workspace, use its private bridge/project and register this actual Office PC rather than creating another workspace. The Office PC containing the newest records must perform the first upload. Other computers use initialization disabled and review joining. Your private workspace addresses and connection files are deliberately excluded from GitHub.
 
-The 0.5.19 and 0.5.18 instructions below are historical evidence for those assets. Their older version names, checksums and file counts do not describe the current download. Source and Office release publication remain distinct from actual Office-PC acceptance.
+The [exact-source Windows workflow](https://github.com/sebas011/Cathedra-FSDP-source-code/actions/runs/41258977591) passed 703 backend tests, 308 interface tests, eight bridge tests, dependency checks and native packaging. The public download's SHA-256, runtime inventory, empty seed and bundled verifier passed. Previous releases were retained. See [publication evidence](analysis/GITHUB_PUBLICATION_VALIDATION_0.5.28.json). Actual Office-PC acceptance remains required after installation.
+
+The older instructions below describe their own historical releases.
 
 ## Historical corrected Office updater — 0.5.19
 
